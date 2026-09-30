@@ -12,7 +12,9 @@ import { loadFixture } from './fixture';
 import { clearModelCache, type Actor, type Ctx, type GitLabLike, type JobQueue, type VisibilityChecker } from '@lens/services';
 
 export const dbUrl = process.env.DATABASE_URL;
-export const db = dbUrl ? new PrismaClient({ datasources: { db: { url: dbUrl } } }) : null;
+// small pools: dozens of test files run in parallel against one PostgreSQL
+const limited = (u: string, n = 3) => u + (u.includes('?') ? '&' : '?') + `connection_limit=${n}`;
+export const db = dbUrl ? new PrismaClient({ datasources: { db: { url: limited(dbUrl) } } }) : null;
 export const dbReachable = db ? await db.$queryRaw`SELECT 1`.then(() => true, () => false) : false;
 
 /** A mutable fake GitLab project backed by the fixture repository. */

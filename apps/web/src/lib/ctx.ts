@@ -12,7 +12,7 @@ g.__lens ??= { db: new PrismaClient() };
 function queue(): JobQueue {
   return {
     async send(name, data) {
-      g.__lens!.boss ??= createBoss(process.env.DATABASE_URL!, 'pgboss', { supervise: false, schedule: false });
+      g.__lens!.boss ??= createBoss(process.env.DATABASE_URL!, 'pgboss', { supervise: false, schedule: false, max: 3 });
       return new PgBossQueue(await g.__lens!.boss).send(name, data);
     },
   };

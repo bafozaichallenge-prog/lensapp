@@ -18,7 +18,7 @@ export class PgBossQueue implements JobQueue {
   }
 }
 
-export async function createBoss(connectionString: string, schema = 'pgboss', opts: { supervise?: boolean; schedule?: boolean } = {}): Promise<PgBoss> {
+export async function createBoss(connectionString: string, schema = 'pgboss', opts: { supervise?: boolean; schedule?: boolean; max?: number } = {}): Promise<PgBoss> {
   const boss = new PgBoss({ connectionString, schema, ...opts });
   await boss.start();
   for (const dead of Object.values(QUEUES).map((q) => q.deadLetter)) await boss.createQueue(dead);

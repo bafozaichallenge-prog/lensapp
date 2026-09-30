@@ -11,12 +11,16 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "db:validate": "prisma validate --schema packages/storage/prisma/schema.prisma",
-    "db:generate": "prisma generate --schema packages/storage/prisma/schema.prisma"
+    "db:generate": "prisma generate --schema packages/storage/prisma/schema.prisma",
+    "test:e2e": "npm -w @lens/web run build && vitest run test/e2e",
+    "build": "npm -w @lens/web run build",
+    "break-glass:hash": "vite-node scripts/hash-password.ts"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.8",
     "@types/node": "^22.0.0",
     "@types/papaparse": "^5.5.2",
+    "axe-core": "^4.13.0",
     "playwright-core": "^1.63.0",
     "prisma": "^6.0.0",
     "typescript": "^5.6.0",

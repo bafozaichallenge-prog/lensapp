@@ -4,7 +4,8 @@ import { SESSION_MAX_AGE_SECONDS, upsertOAuthUser } from '@lens/services';
 import { db, getCtx } from './lib/ctx';
 
 const baseUrl = (process.env.GITLAB_BASE_URL ?? 'https://gitlab.com').replace(/\/$/, '');
-const secure = (process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? '').startsWith('https://') || process.env.NODE_ENV === 'production';
+// Production deployments set AUTH_URL to the https URL, which turns on the __Secure- cookie prefix and the Secure flag.
+const secure = (process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? '').startsWith('https://');
 export const SESSION_COOKIE = `${secure ? '__Secure-' : ''}authjs.session-token`;
 
 /**

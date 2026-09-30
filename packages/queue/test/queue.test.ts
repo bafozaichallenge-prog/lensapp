@@ -10,7 +10,7 @@ const until = async (fn: () => Promise<boolean>, ms = 20_000) => { const t0 = Da
 describe.skipIf(!dbReachable)('worker on pg-boss (real PostgreSQL)', () => {
   let env: Env; let boss: PgBoss; const schema = `pgboss_t${Date.now().toString(36)}`;
   const lines: string[] = [];
-  beforeAll(async () => { env = await makeEnv(); boss = await createBoss(dbUrl!, schema); }, 30_000);
+  beforeAll(async () => { env = await makeEnv(); boss = await createBoss(dbUrl!, schema, { max: 3 }); }, 30_000);
   afterAll(async () => {
     await boss?.stop({ graceful: false }).catch(() => undefined);
     await db!.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);
@@ -59,7 +59,7 @@ describe.skipIf(!dbReachable)('worker on pg-boss (real PostgreSQL)', () => {
   }, 60_000);
 
   it('a job in flight when the worker dies is redelivered to a new worker (restart safety)', async () => {
-    const boss1 = await createBoss(dbUrl!, `${schema}_r`);
+    const boss1 = await createBoss(dbUrl!, `${schema}_r`, { max: 3 });
     await boss1.createQueue('restart-dead');
     await boss1.createQueue('restart', { retryLimit: 3, retryDelay: 1, expireInSeconds: 2, deadLetter: 'restart-dead' });
     let started = false;
@@ -67,7 +67,7 @@ describe.skipIf(!dbReachable)('worker on pg-boss (real PostgreSQL)', () => {
     await boss1.send('restart', { x: 1 });
     expect(await until(async () => started, 10_000)).toBe(true);
     await boss1.stop({ graceful: false, close: false } as any);
-    const boss2 = new PgBoss({ connectionString: dbUrl!, schema: `${schema}_r` }); await boss2.start();
+    const boss2 = new PgBoss({ connectionString: dbUrl!, schema: `${schema}_r`, max: 3 }); await boss2.start();
     let completed = false;
     await boss2.work('restart', async () => { completed = true; });
     expect(await until(async () => completed, 30_000)).toBe(true);

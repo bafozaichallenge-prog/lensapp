@@ -5,7 +5,7 @@ import { loadFixture } from '../../../test/helpers/fixture';
 import { DatabaseStorage, MemoryStorage, saveAndActivateSnapshot, loadGraph, loadFileTexts, activeSnapshot } from '../src';
 
 const url = process.env.DATABASE_URL;
-const db = url ? new PrismaClient({ datasources: { db: { url } } }) : null;
+const db = url ? new PrismaClient({ datasources: { db: { url: url + (url.includes('?') ? '&' : '?') + 'connection_limit=3' } } }) : null;
 const reachable = db ? await db.$queryRaw`SELECT 1`.then(() => true, () => false) : false;
 
 describe.skipIf(!reachable)('PostgreSQL persistence (needs DATABASE_URL and a migrated database)', () => {
