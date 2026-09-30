@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 import path from 'node:path';
 
 const alias: Record<string, string> = {};
-for (const p of ['core', 'gitlab', 'ingest', 'graph', 'impact', 'pack', 'ai', 'storage', 'services']) {
+for (const p of ['core', 'gitlab', 'ingest', 'graph', 'impact', 'pack', 'ai', 'storage', 'services', 'queue']) {
   alias[`@lens/${p}`] = path.resolve(__dirname, `packages/${p}/src/index.ts`);
 }
 

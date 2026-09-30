@@ -1,7 +1,7 @@
 import http from 'node:http';
 import { PgBoss } from 'pg-boss';
 import { createContext, jsonLogger } from '@lens/services';
-import { PgBossQueue, createBoss, registerWorkers } from './queue';
+import { PgBossQueue, createBoss, registerWorkers } from '@lens/queue';
 
 /** Worker process entry point. Sync, analysis and pack-refinement jobs run here, never in the web process. */
 async function main() {
