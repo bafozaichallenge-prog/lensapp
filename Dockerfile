@@ -26,7 +26,8 @@ RUN npm ci
 
 FROM deps AS build
 COPY . .
-RUN npx prisma generate --schema packages/storage/prisma/schema.prisma
+# Prisma validates that env("DATABASE_URL") exists even when only generating the client, so give it a build-only value
+RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma generate --schema packages/storage/prisma/schema.prisma
 # build-time placeholders on this command only (not baked into the image); nothing connects to a database while building
 RUN DATABASE_URL=postgresql://build:build@localhost:5432/build AUTH_SECRET=build-time-placeholder npm run build && node scripts/bundle-worker.mjs
 

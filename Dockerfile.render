@@ -10,7 +10,8 @@ COPY apps/worker/package.json apps/worker/
 COPY packages ./packages
 RUN npm ci
 COPY . .
-RUN npx prisma generate --schema packages/storage/prisma/schema.prisma
+# Prisma validates that env("DATABASE_URL") exists even when only generating the client, so give it a build-only value
+RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma generate --schema packages/storage/prisma/schema.prisma
 # Build-time placeholders live on this one command only (nothing connects while building). They are NOT baked into the
 # image, so a service that is missing DATABASE_URL fails with "Environment variable not found" instead of trying localhost.
 RUN DATABASE_URL=postgresql://build:build@localhost:5432/build AUTH_SECRET=build-time-placeholder npm run build && node scripts/bundle-worker.mjs \
