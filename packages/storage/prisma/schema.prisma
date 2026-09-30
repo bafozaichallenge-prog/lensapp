@@ -310,6 +310,7 @@ model DbTable {
   name       String
   type       String // table | sequence
   addedIn    String
+  position   Int           @default(0) // definition order (drives generated screens)
   snapshot   GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
   fields     DbField[]
 
@@ -318,11 +319,12 @@ model DbTable {
 }
 
 model DbField {
-  id      String  @id @default(cuid())
-  tableId String
-  name    String
-  type    String
-  addedIn String
+  id       String  @id @default(cuid())
+  tableId  String
+  name     String
+  type     String
+  addedIn  String
+  position Int     @default(0)
   table   DbTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
 
   @@unique([tableId, name])
@@ -350,6 +352,7 @@ model RuleCode {
   code       String
   impl       String
   trace      String
+  position   Int           @default(0) // document order
   snapshot   GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
 
   @@unique([snapshotId, code])

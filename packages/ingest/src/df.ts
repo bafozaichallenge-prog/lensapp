@@ -35,5 +35,5 @@ export function mergeSchemas(files: { path: string; text: string }[]): TableNode
       for (const fld of t.fields) if (!cur.fields.some((x) => x.name.toLowerCase() === fld.name.toLowerCase())) cur.fields.push(fld);
     }
   }
-  return [...merged.values()].sort((a, b) => a.name.localeCompare(b.name));
+  return [...merged.values()]; // definition order (baseline first, then deltas): downstream screens follow it
 }

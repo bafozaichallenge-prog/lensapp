@@ -36,9 +36,9 @@ export async function saveAndActivateSnapshot(db: PrismaClient, storage: Artifac
     await db.file.createMany({ data: g.files.map((f) => ({ snapshotId: sid, path: f.path, blobSha: blobOf.get(f.path) ?? null, kind: f.kind, layer: f.layer ?? null, loc: f.loc, header: f.header ?? null, isTest: f.isTest })) });
     await db.symbol.createMany({ data: g.symbols.map((s) => ({ snapshotId: sid, filePath: s.file, fqn: s.fqn, name: s.name, classKind: s.classKind, inherits: s.inherits ?? null, implements: s.implements, methods: s.methods, tests: s.tests })) });
     for (const c of chunks(g.edges, 2000)) await db.edge.createMany({ data: c.map((e) => ({ snapshotId: sid, fromRef: e.from, toRef: e.to, type: e.type, origin: e.origin, confidence: e.confidence, evidenceJson: (e.evidence ?? undefined) as Prisma.InputJsonValue | undefined })), skipDuplicates: true });
-    for (const t of g.tables) await db.dbTable.create({ data: { snapshotId: sid, name: t.name, type: t.type, addedIn: t.addedIn, fields: { create: t.fields.map((f) => ({ name: f.name, type: f.type, addedIn: f.addedIn })) } } });
+    for (const [ti, t] of g.tables.entries()) await db.dbTable.create({ data: { snapshotId: sid, name: t.name, type: t.type, addedIn: t.addedIn, position: ti, fields: { create: t.fields.map((f, fi) => ({ name: f.name, type: f.type, addedIn: f.addedIn, position: fi })) } } });
     await db.requirement.createMany({ data: g.requirements.map((r) => ({ snapshotId: sid, code: r.code, kind: r.kind, title: r.title, body: r.body, docPath: r.docPath, orderIdx: r.order })) });
-    await db.ruleCode.createMany({ data: g.ruleCodes.map((r) => ({ snapshotId: sid, code: r.code, impl: r.impl, trace: r.trace })) });
+    await db.ruleCode.createMany({ data: g.ruleCodes.map((r, position) => ({ snapshotId: sid, code: r.code, impl: r.impl, trace: r.trace, position })) });
     for (const p of g.processes) await db.snapshotProcess.create({ data: { snapshotId: sid, name: p.name, origin: p.origin, description: p.description ?? null, docPath: p.docPath ?? null, steps: { create: p.steps.map((s) => ({ n: s.n, name: s.name, requirement: s.requirement ?? null })) } } });
     for (const c of i.commits) await db.commit.create({ data: { snapshotId: sid, sha: c.sha, short: c.sha.slice(0, 7), author: c.author, date: new Date(c.date), subject: c.subject, parents: c.parents, branch: c.branch ?? null, refs: commitRefs(c.subject), files: { create: c.files.map((f) => ({ path: f.path, additions: f.additions, deletions: f.deletions })) } } });
     await db.fileMetric.createMany({ data: g.metrics.map((m) => ({ snapshotId: sid, path: m.path, loc: m.loc, churn: m.churn, incidents: m.incidents, fanIn: m.fanIn, directTests: m.directTests })) });
@@ -66,9 +66,9 @@ export async function loadGraph(db: PrismaClient, snapshotId: string): Promise<G
     db.file.findMany({ where: { snapshotId }, orderBy: { path: 'asc' } }),
     db.symbol.findMany({ where: { snapshotId }, orderBy: { fqn: 'asc' } }),
     db.edge.findMany({ where: { snapshotId } }),
-    db.dbTable.findMany({ where: { snapshotId }, include: { fields: true }, orderBy: { name: 'asc' } }),
+    db.dbTable.findMany({ where: { snapshotId }, include: { fields: { orderBy: { position: 'asc' } } }, orderBy: { position: 'asc' } }),
     db.requirement.findMany({ where: { snapshotId }, orderBy: { code: 'asc' } }),
-    db.ruleCode.findMany({ where: { snapshotId }, orderBy: { code: 'asc' } }),
+    db.ruleCode.findMany({ where: { snapshotId }, orderBy: { position: 'asc' } }),
     db.snapshotProcess.findMany({ where: { snapshotId }, include: { steps: { orderBy: { n: 'asc' } } }, orderBy: { name: 'asc' } }),
     db.fileMetric.findMany({ where: { snapshotId } }),
   ]);

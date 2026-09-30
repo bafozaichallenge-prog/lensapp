@@ -206,7 +206,7 @@ export async function parseSource(files: SourceFile[], history: CommitInput[] = 
     edges: [...baseEdges, ...stepEdges].sort(ord),
     tables,
     requirements: requirements.sort((a, b) => a.code.localeCompare(b.code)),
-    ruleCodes: ruleCodes.sort((a, b) => a.code.localeCompare(b.code)),
+    ruleCodes, // document order (inputs are path-sorted, so this is deterministic)
     processes: processes.sort((a, b) => a.name.localeCompare(b.name)),
     metrics,
     warnings,

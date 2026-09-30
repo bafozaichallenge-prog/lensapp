@@ -84,19 +84,20 @@ export function mapProcessSteps(p: ProcessNode, ctx: StepMapContext): Edge[] {
       const kept = (strong.length >= 3 ? strong : ranked.slice(0, Math.max(strong.length, 4))).slice(0, ctx.maxStepFiles);
       stepFiles = kept.map((k) => ({ path: k.f.path, origin: 'INFERRED', conf: r2(Math.min(0.95, 0.4 + 0.1 * k.sc)), why: k.why.join(' + ') }));
     }
-    for (const k of stepFiles) edges.push({ from, to: fileRef(k.path), type: 'maps-step-file', origin: k.origin, confidence: k.conf, evidence: { reason: k.why, refs: [fileRef(k.path)] } });
+    stepFiles.forEach((k, rank) => edges.push({ from, to: fileRef(k.path), type: 'maps-step-file', origin: k.origin, confidence: k.conf, evidence: { reason: k.why, refs: [fileRef(k.path)], rank } }));
 
     // ---- rules: explicit, else rule codes whose trace column mentions the step's requirement
     if (step.rules?.length) {
-      for (const c of step.rules) edges.push({ from, to: ruleRef(c), type: 'maps-step-rule', origin: 'EXPLICIT', confidence: 1, evidence: { reason: 'stated in process definition' } });
+      step.rules.forEach((c, rank) => edges.push({ from, to: ruleRef(c), type: 'maps-step-rule', origin: 'EXPLICIT', confidence: 1, evidence: { reason: 'stated in process definition', rank } }));
     } else if (req) {
-      for (const rc of ctx.ruleCodes) if (rc.trace.includes(req)) edges.push({ from, to: ruleRef(rc.code), type: 'maps-step-rule', origin: 'INFERRED', confidence: 0.9, evidence: { reason: `rule trace mentions ${req}` } });
+      let rr = 0;
+      for (const rc of ctx.ruleCodes) if (rc.trace.includes(req)) edges.push({ from, to: ruleRef(rc.code), type: 'maps-step-rule', origin: 'INFERRED', confidence: 0.9, evidence: { reason: `rule trace mentions ${req}`, rank: rr++ } });
     }
 
     // ---- tables accessed by the mapped files
     const tables = new Set<string>();
     for (const k of stepFiles) for (const t of ctx.fileTables.get(k.path) ?? []) tables.add(t);
-    for (const t of [...tables].sort()) edges.push({ from, to: tableRef(t), type: 'maps-step-table', origin: 'INFERRED', confidence: 0.7, evidence: { reason: 'table accessed by a mapped file' } });
+    [...tables].forEach((t, rank) => edges.push({ from, to: tableRef(t), type: 'maps-step-table', origin: 'INFERRED', confidence: 0.7, evidence: { reason: 'table accessed by a mapped file', rank } }));
   }
   return edges;
 }

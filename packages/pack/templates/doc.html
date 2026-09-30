@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#23262B;--soft:#5E656F;--line:#D9DDE2;--panel:#F6F7F8;--accent:__BRAND__;--green:#1E8E1E;--cond:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ink:#E9EBEE;--soft:#A3AAB4;--line:#3A4048;--panel:#23272C;--green:#4CC24C}body{background:#1A1D21!important}}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font-family:var(--cond);font-size:17px;line-height:1.5}
+.page{max-width:880px;margin:0 auto;padding:44px 28px 64px}
+.kick{font-size:14px;color:var(--soft);letter-spacing:.02em}
+h1{font-size:clamp(32px,5vw,48px);line-height:1.02;margin:6px 0 14px;letter-spacing:-.01em}
+.lede{font-size:19px;color:var(--soft);max-width:60ch;margin:0 0 26px}
+.journey{display:flex;flex-wrap:wrap;gap:0;margin:0 0 34px;padding:0;list-style:none;border-top:3px solid var(--accent)}
+.journey li{flex:1 1 120px;padding:10px 12px 0 0;font-size:14.5px}
+.journey li b{display:block;font-size:26px;line-height:1;color:var(--accent);font-weight:700}
+.journey li small{color:var(--soft);display:block}
+section.step{border-top:1px solid var(--line);padding:28px 0 8px;break-inside:avoid-page}
+.sh{display:grid;grid-template-columns:auto 1fr;gap:2px 18px;align-items:end}
+.sh .n{font-size:64px;line-height:.8;font-weight:700;color:var(--accent);grid-row:span 2}
+.sh .ph{font-size:14px;color:var(--soft)}
+.sh h2{margin:0;font-size:28px;line-height:1.1}
+.say{font-size:18px;margin:16px 0 14px;max-width:62ch}
+.badge{display:flex;gap:12px;border:2px solid var(--accent);border-radius:10px;padding:10px 14px;margin:0 0 14px;max-width:66ch}
+.badge b{background:var(--accent);color:#fff;border-radius:4px;padding:1px 9px;font-size:14px;flex:none;height:fit-content;margin-top:2px}
+.rules{list-style:none;padding:0;margin:0 0 16px;max-width:70ch}
+.rules li{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:16px}
+.rules li::before{content:"";width:12px;height:12px;margin-top:6px;border-radius:50%;background:var(--soft)}
+.rules li.gate::before{border-radius:2px;background:var(--accent)}
+.rules li.data::before{background:transparent;border:2.5px solid var(--green)}
+.rules li.q::before{background:transparent;border:2px dashed var(--soft)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--soft);margin:0 0 30px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;background:var(--soft);display:inline-block}
+.legend i.g{border-radius:2px;background:var(--accent)}.legend i.d{background:transparent;border:2.5px solid var(--green)}.legend i.q{background:transparent;border:2px dashed var(--soft)}
+h3{font-size:16px;margin:18px 0 8px;color:var(--soft);font-weight:600;letter-spacing:.01em}
+table{width:100%;border-collapse:collapse;font-size:15px;margin:0 0 10px}
+th,td{text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--soft);font-weight:600}
+td.m,code{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.req{color:var(--accent);font-weight:700}
+.carry{background:var(--panel);border-radius:12px;padding:12px 16px;margin:12px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{border:1.5px solid var(--line);border-radius:999px;padding:3px 12px;font-size:14px;background:#fff;color:#23262B}
+.trace{font-size:14.5px;color:var(--soft);line-height:1.7}
+.trace b{color:var(--ink);font-weight:600}
+.hist{list-style:none;padding:0;margin:0;font-size:15px}
+.hist li{padding:5px 0;border-bottom:1px dotted var(--line)}
+.hist .d{color:var(--soft);font-family:"IBM Plex Mono",monospace;font-size:12.5px;margin-right:8px}
+.qs li{margin-bottom:6px}
+.foot{margin-top:40px;border-top:1px solid var(--line);padding-top:14px;font-size:14px;color:var(--soft)}
+@media print{.page{padding:0}section.step{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+<article class="page" id="doc"></article>
+<script>
+const SPEC = __SPEC__;
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+document.title = SPEC.title + " explained";
+const T = { gate: "Gate", data: "Data", rule: "Rule", q: "Open question" };
+const optL = (d, v) => { if (!d.options) return v; const o = d.options.find(o => (o.v || o) === v); return o ? (o.l || o) : v; };
+const chipsSoFar = i => { const all = []; SPEC.steps.slice(0, i + 1).forEach(s => s.chips.forEach(c => { const j = all.findIndex(a => a[0] === c[0]); if (j >= 0) all[j] = c; else all.push(c); })); return all; };
+let html = `<div class="kick">${esc(SPEC.vertical)} · ${esc(SPEC.source)} · process explainer</div>
+<h1>${esc(SPEC.title)}</h1>
+<p class="lede">${esc(SPEC.intro)}</p>
+<ol class="journey">${SPEC.steps.map(s => `<li><b>${s.n}</b>${esc(s.title)}<small>${esc(SPEC.phases[s.ph])}</small></li>`).join("")}</ol>
+<div class="legend"><span><i class="g"></i>Gate: must be met to continue</span><span><i class="d"></i>Data carried forward</span><span><i></i>Rule</span><span><i class="q"></i>Open question or incident</span></div>`;
+SPEC.steps.forEach((s, i) => {
+  const sc = s.screen;
+  html += `<section class="step"><div class="sh"><div class="n">${s.n}</div><div class="ph">${esc(SPEC.phases[s.ph])}</div><h2>${esc(s.title)}</h2></div>
+  <p class="say">${esc(s.say)}</p>
+  ${s.badge ? `<div class="badge"><b>${esc(s.badge[0])}</b><span>${esc(s.badge[1])}</span></div>` : ""}
+  <ul class="rules">${s.rules.map(r => `<li class="${r[0]}">${esc(r[1])}</li>`).join("")}</ul>`;
+  const f = (sc.fields || []);
+  if (f.length) html += `<h3>On the screen</h3><table><thead><tr><th>Field</th><th>How it's filled</th><th>Sample</th><th>Stored in</th></tr></thead><tbody>${f.map(d => `<tr><td>${esc(d.label)}${d.required ? ' <span class="req">*</span>' : ""}</td><td>${esc({ system: "System", linked: "Linked automatically", computed: "Calculated", select: "Choose from list", toggle: "Yes / no", date: "Date", number: "Number", text: "Typed" }[d.type] || d.type)}${d.options && d.type === "select" ? `: ${esc(d.options.map(o => o.l || o).join(", "))}` : ""}</td><td>${esc(optL(d, SPEC.sample[d.k]) || "")}</td><td class="m">${esc(d.k)}</td></tr>`).join("")}</tbody></table>`;
+  if (sc.list) html += `<h3>${esc(sc.list.label)} to choose from</h3><table><thead><tr><th>Code</th><th>Name</th>${sc.list.amtLabel ? `<th>${esc(sc.list.amtLabel)}</th>` : ""}</tr></thead><tbody>${sc.list.options.map(o => `<tr><td class="m">${esc(o.code)}</td><td>${esc(o.l)}${o.off ? " (inactive)" : ""}</td>${sc.list.amtLabel ? `<td>${o.amt != null ? "R " + Number(o.amt).toFixed(2) : ""}</td>` : ""}</tr>`).join("")}</tbody></table>`;
+  if (sc.checks) html += `<h3>Rules checked</h3><table><thead><tr><th>Rule</th><th>What it checks</th><th>Message when it fails</th></tr></thead><tbody>${sc.checks.map(c => `<tr><td class="m">${esc(c.code)}</td><td>${esc(c.text)}</td><td>${esc(c.conds.map(x => x.msg).filter(Boolean).slice(0, 2).join(" / "))}</td></tr>`).join("")}</tbody></table>`;
+  if (sc.action) html += `<h3>Before it can go through</h3><ul class="rules">${sc.action.needsValidation ? `<li class="gate">Validation passed, and nothing changed since.</li>` : ""}${sc.action.roles.length ? `<li class="gate">Done by ${esc(sc.action.roles.join(" or "))} only.</li>` : ""}${sc.action.statusKey ? `<li class="data">Status moves from ${esc(sc.action.from)} to ${esc(sc.action.to)}.</li>` : ""}</ul>`;
+  const ch = chipsSoFar(i);
+  if (ch.length) html += `<div class="carry"><b>What the application is carrying</b><div class="chips">${ch.map(c => `<span class="chip">${esc(c[1])}</span>`).join("")}</div></div>`;
+  html += `<h3>Behind the screen</h3><div class="trace"><div><b>Requirement:</b> ${esc(s.trace.req ? `${s.trace.req} ${s.trace.reqTitle || ""}` : "none matched")}</div><div><b>Rule codes:</b> ${esc(s.trace.rules.join(", ") || "none")}</div><div><b>Tables:</b> ${esc(s.trace.tables.join(", ") || "none")}</div><div><b>Code:</b> ${s.trace.files.map(x => `<code>${esc(x)}</code>`).join(", ") || "none matched"}</div><div><b>Tests:</b> ${s.trace.tests.map(x => `<code>${esc(x)}</code>`).join(", ") || "none"}</div></div>`;
+  if (s.history.changes.length || s.history.incidents.length) html += `<h3>History</h3><ul class="hist">${s.history.changes.map(c => `<li><span class="d">${esc(c.date)}</span>${esc(c.subject)} <code>${esc(c.id)}</code>${c.ticket ? ` <code>${esc(c.ticket)}</code>` : ""}</li>`).join("")}${s.history.incidents.map(x => `<li><span class="d">${esc(x.id)}</span>${esc(x.title)}${x.status ? ` (${esc(x.status)})` : ""}</li>`).join("")}</ul>`;
+  html += `</section>`;
+});
+if (SPEC.openQuestions.length) html += `<section class="step"><h2>Open questions and incidents</h2><ul class="qs">${SPEC.openQuestions.map(q => `<li>${esc(q)}</li>`).join("")}</ul></section>`;
+html += `<p class="foot">Generated by Lens on ${esc(String(SPEC.generated).slice(0, 10))} from ${esc(SPEC.source)} at commit ${esc(SPEC.commit || "unknown")}${SPEC.refined ? ". Wording refined with Claude" : ""}. Screens, fields, options and rules come from the code; sample values are made up.</p>`;
+document.getElementById("doc").innerHTML = html;
+</script>
+</body>
+</html>

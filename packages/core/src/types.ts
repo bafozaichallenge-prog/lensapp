@@ -11,6 +11,8 @@ export interface Evidence {
   reason: string;
   /** Stable entity refs (see refs.ts) or file paths supporting it. */
   refs?: string[];
+  /** Position among a step's matches (best first / document order); used to keep prototype ordering. */
+  rank?: number;
 }
 
 export interface Edge {

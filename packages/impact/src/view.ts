@@ -47,7 +47,7 @@ export function buildView(g: GraphInput, extra: { incidents?: ViewIncident[]; ti
     steps: p.steps.map((s) => {
       const ref = `step:${p.name}#${s.n}`;
       const es = g.edges.filter((e) => e.from === ref);
-      const of = (t: string) => es.filter((e) => e.type === t).map((e) => e.to.replace(/^[a-z]+:/, ''));
+      const of = (t: string) => es.filter((e) => e.type === t).sort((a, b) => (a.evidence?.rank ?? 0) - (b.evidence?.rank ?? 0)).map((e) => e.to.replace(/^[a-z]+:/, ''));
       return { n: s.n, name: s.name, req: of('maps-step-req')[0] ?? null, files: of('maps-step-file'), rules: of('maps-step-rule'), tables: of('maps-step-table') };
     }),
   }));

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --stage:#E6E9EC; --panel:#F6F7F8; --ink:#23262B; --ink-soft:#5E656F; --line:#C9CED4;
+  --accent:__BRAND__; --green:#1E8E1E; --chip:#FFFFFF; --chip-ink:#23262B;
+  --cond:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif; --app:Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--stage:#1A1D21;--panel:#23272C;--ink:#E9EBEE;--ink-soft:#A3AAB4;--line:#3A4048;--green:#4CC24C;--chip:#2C3137;--chip-ink:#E9EBEE}}
+:root[data-theme="dark"]{--stage:#1A1D21;--panel:#23272C;--ink:#E9EBEE;--ink-soft:#A3AAB4;--line:#3A4048;--green:#4CC24C;--chip:#2C3137;--chip-ink:#E9EBEE}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--stage);color:var(--ink);font-family:var(--cond);font-size:17px;line-height:1.45}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 40px}
+.top{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:flex-end;justify-content:space-between;margin-bottom:26px}
+.top h1{font-size:clamp(28px,4vw,44px);line-height:1.02;font-weight:700;margin:0;letter-spacing:-.01em;max-width:18ch}
+.top p{margin:10px 0 0;color:var(--ink-soft);max-width:56ch}
+.controls{display:flex;gap:8px}
+.controls button{border:1.5px solid var(--ink);background:transparent;border-radius:999px;padding:8px 18px;font-weight:600;cursor:pointer;font-size:16px}
+.controls button.primary{background:var(--ink);color:var(--stage)}
+.controls button:hover{border-color:var(--accent)}
+.stage{display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:start}
+.device{width:312px;height:640px;border-radius:44px;background:#15171B;padding:12px;position:relative;box-shadow:0 30px 60px -30px rgba(20,24,30,.55),inset 0 0 0 2px #2B2F36}
+.device::before{content:"";position:absolute;top:18px;left:50%;width:84px;height:22px;margin-left:-42px;background:#15171B;border-radius:12px;z-index:5}
+.screen{position:relative;width:100%;height:100%;border-radius:33px;overflow:hidden;background:#F1F1F1;font-family:var(--app);color:#2A2A2A;--app-c:__BRAND__}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;transition:transform .5s cubic-bezier(.3,.7,.2,1),opacity .5s}
+.scene.enter{transform:translateX(40px);opacity:0}
+.sb{height:34px;display:flex;justify-content:space-between;align-items:flex-end;padding:0 26px 4px;font-size:12px;font-weight:500;background:var(--app-c);color:#fff;flex:none}
+.ab{height:46px;background:var(--app-c);color:#fff;display:flex;align-items:center;gap:12px;padding:0 14px;flex:none}
+.ab b{font-weight:500;font-size:15.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.burger{width:18px;height:12px;border-top:2px solid #fff;border-bottom:2px solid #fff;position:relative;flex:none}
+.burger::after{content:"";position:absolute;left:0;right:0;top:3px;border-top:2px solid #fff}
+.vp{flex:1;overflow:hidden;padding:12px;scroll-behavior:smooth}
+.card{background:#fff;border-radius:3px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.card>header{background:var(--app-c);color:#fff;font-size:13px;font-weight:500;padding:8px 12px}
+.card>.bd{padding:10px 12px}
+.fld{margin-bottom:9px}
+.fld label{display:block;font-size:11px;color:#8A8A8A;margin-bottom:2px}
+.fld label i{color:var(--app-c);font-style:normal}
+.fld .in{border-bottom:1.5px solid #CFCFCF;min-height:24px;font-size:14px;padding:2px 0;display:flex;align-items:center;gap:6px}
+.fld .in.on{border-color:var(--app-c)}
+.fld .in .lock{margin-left:auto;font-size:11px;color:#8A8A8A}
+.fld.sys .in{color:#7A7A7A}
+.caret::after{content:"";display:inline-block;width:1.5px;height:15px;background:#2A2A2A;margin-left:1px;animation:blink 1s steps(1) infinite;vertical-align:-2px}
+@keyframes blink{50%{opacity:0}}
+.btn{display:block;width:100%;border:0;border-radius:3px;padding:10px;font-family:var(--app);font-size:13.5px;font-weight:500;text-align:center;background:#3F3F3F;color:#fff;margin-top:8px;transition:transform .15s,background .3s}
+.btn.go{background:#22A722}.btn.brand{background:var(--app-c)}
+.btn.ghost{background:#fff;color:#3F3F3F;border:1px solid #CFCFCF}
+.btn.off{opacity:.4}
+.tap{transform:scale(.96);box-shadow:0 0 0 4px rgba(34,167,34,.25)}
+.navb{display:flex;gap:8px;padding:10px 12px 18px;background:#F1F1F1;flex:none}
+.navb .btn{margin:0}
+.opt{display:flex;align-items:center;gap:10px;border:1.5px solid #D8D8D8;border-radius:8px;padding:10px 12px;margin-bottom:8px;background:#fff;transition:border-color .3s,background .3s;font-size:13.5px}
+.opt i{width:18px;height:18px;border:2px solid #9A9A9A;border-radius:3px;flex:none;display:grid;place-items:center;font-style:normal;color:#fff;font-size:12px;transition:all .25s}
+.opt.sel{border-color:var(--app-c);background:#F4F8FE}
+.opt.sel i{background:var(--app-c);border-color:var(--app-c)}
+.opt.sel i::after{content:"✓"}
+.opt b{flex:1;font-weight:500}.opt small{color:#8A8A8A}.opt .p{font-weight:700}
+.opt.offl{opacity:.45}
+.seg{display:flex;gap:6px}
+.seg span{flex:1;text-align:center;border:1.5px solid #D8D8D8;border-radius:999px;padding:6px;font-size:13px;background:#fff;transition:all .3s}
+.seg span.sel{background:var(--app-c);border-color:var(--app-c);color:#fff}
+.qbar{margin-top:auto;background:#2A2A2A;color:#fff;border-radius:6px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.qbar .amt{font-size:22px;font-weight:700;transition:color .3s}
+.qbar .amt.bump{color:#7CE07C}
+.qbar small{color:#BDBDBD;font-size:11px;display:block}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:12px;padding:7px 0;border-bottom:1px solid #EEE;line-height:1.35;color:#8A8A8A;transition:color .3s}
+.chk i{width:18px;height:18px;border-radius:50%;border:2px solid #C4C4C4;flex:none;display:grid;place-items:center;font-style:normal;color:#fff;font-size:11px;transition:all .25s}
+.chk.on{color:#2A2A2A}.chk.on i{background:#22A722;border-color:#22A722}.chk.on i::after{content:"✓"}
+.chk b{display:block;font-size:11px;color:#6A6A6A}
+.stat{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:14px;margin-bottom:10px;font-size:13px}
+.stat b{font-size:17px;transition:color .4s}.stat b.ok{color:#1B7F1B}
+.role{display:inline-block;background:#EEF3FB;border:1px solid #CBD9EE;color:#23446F;border-radius:999px;padding:3px 10px;font-size:11.5px;margin-bottom:10px}
+.toast{position:absolute;left:14px;right:14px;bottom:78px;background:#2A2A2A;color:#fff;font-size:12.5px;padding:10px 12px;border-radius:6px;opacity:0;transform:translateY(10px);transition:all .3s;z-index:3}
+.toast.in{opacity:1;transform:none}
+.narr{min-height:640px;display:flex;flex-direction:column}
+.head{display:grid;grid-template-columns:auto 1fr;gap:4px 18px;align-items:end}
+.num{font-size:96px;line-height:.8;font-weight:700;color:var(--accent);letter-spacing:-.04em;grid-row:span 2;font-variant-numeric:tabular-nums}
+.phase{font-size:15px;color:var(--ink-soft)}
+.head h2{margin:0;font-size:clamp(26px,3vw,36px);line-height:1.05;font-weight:700}
+.say{font-size:19px;margin:22px 0 18px;max-width:46ch}
+.badge{display:flex;gap:12px;align-items:flex-start;border:2px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:16px;max-width:60ch}
+.badge b{background:var(--accent);color:#fff;border-radius:4px;padding:1px 9px;font-size:14px;flex:none;margin-top:2px}
+.rules{list-style:none;padding:0;margin:0 0 20px;max-width:60ch}
+.rules li{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:16px}
+.rules li::before{content:"";width:12px;height:12px;margin-top:6px;border-radius:50%;background:var(--ink-soft)}
+.rules li.gate::before{border-radius:2px;background:var(--accent)}
+.rules li.data::before{background:transparent;border:2.5px solid var(--green)}
+.rules li.q::before{background:transparent;border:2px dashed var(--ink-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--ink-soft);margin-bottom:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;background:var(--ink-soft);display:inline-block}
+.legend i.g{border-radius:2px;background:var(--accent)}.legend i.d{background:transparent;border:2.5px solid var(--green)}.legend i.q{background:transparent;border:2px dashed var(--ink-soft)}
+.carry{margin-top:auto;background:var(--panel);border-radius:14px;padding:16px 18px 18px}
+.carry h3{margin:0 0 4px;font-size:18px}.carry p{margin:0 0 12px;color:var(--ink-soft);font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;min-height:38px}
+.chip{background:var(--chip);color:var(--chip-ink);border:1.5px solid var(--line);border-radius:999px;padding:5px 13px;font-size:14.5px;animation:pop .45s cubic-bezier(.3,1.5,.5,1)}
+.chip.new{border-color:var(--accent)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.track{margin-top:34px;display:grid;gap:10px;overflow-x:auto;padding-bottom:4px}
+.ph h4{margin:0 0 8px;font-size:15px;font-weight:600;color:var(--ink-soft);white-space:nowrap}
+.ph.cur h4{color:var(--ink)}
+.ticks{display:flex;gap:4px}
+.tick{flex:1;min-width:26px;height:34px;border:0;background:var(--panel);border-radius:4px;position:relative;cursor:pointer;overflow:hidden;padding:0}
+.tick span{position:relative;z-index:1;font-size:12px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.tick .fill{position:absolute;inset:0;width:0;background:var(--accent);opacity:.9}
+.tick.done .fill{width:100%;opacity:.35}
+.tick.cur span{color:var(--ink);font-weight:700}
+.foot{margin-top:18px;font-size:14px;color:var(--ink-soft);max-width:80ch}
+@media (max-width:900px){.stage{grid-template-columns:1fr;gap:28px}.device{margin:0 auto}.narr{min-height:0}.num{font-size:72px}}
+@media (max-width:380px){.device{transform:scale(.92);transform-origin:top center;margin-bottom:-50px}}
+@media (prefers-reduced-motion: reduce){.scene,.chip,.toast{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><h1 id="h1"></h1><p id="intro"></p></div>
+    <div class="controls" role="group" aria-label="Playback">
+      <button id="prev" aria-label="Previous step">Back</button>
+      <button id="play" class="primary" aria-pressed="true">Pause</button>
+      <button id="next" aria-label="Next step">Next</button>
+    </div>
+  </header>
+  <div class="stage">
+    <div class="device"><div class="screen" id="screen" aria-hidden="true"></div></div>
+    <section class="narr" aria-live="polite">
+      <div class="head"><div class="num" id="num">01</div><div class="phase" id="phase"></div><h2 id="title"></h2></div>
+      <p class="say" id="say"></p>
+      <div id="badge"></div>
+      <ul class="rules" id="rules"></ul>
+      <div class="legend"><span><i class="g"></i>Gate: must be met to continue</span><span><i class="d"></i>Data carried forward</span><span><i></i>Rule</span><span><i class="q"></i>Open question or incident</span></div>
+      <div class="carry"><h3>What the application is carrying</h3><p id="carryNote"></p><div class="chips" id="chips"></div></div>
+    </section>
+  </div>
+  <nav class="track" id="track" aria-label="Journey steps"></nav>
+  <p class="foot" id="foot"></p>
+</div>
+<script>
+const SPEC = __SPEC__;
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+document.title = SPEC.title + " explained";
+$("#h1").textContent = SPEC.title;
+$("#intro").textContent = `${SPEC.vertical}, ${SPEC.source}. Screens, rules and data are generated from the code at commit ${SPEC.commit || "unknown"}; names and numbers are sample data.`;
+$("#foot").textContent = `Generated by Lens on ${String(SPEC.generated).slice(0, 10)}${SPEC.refined ? ", wording refined with Claude" : ""}. Step numbers follow the process outline.`;
+const optLabel = (d, v) => { if (!d.options) return v; const o = d.options.find(o => (o.v || o) === v); return o ? (o.l || o) : v; };
+
+/* ---------- screens from the spec ---------- */
+const frame = (title, body, nav) => `
+  <div class="sb"><span>12:14</span><span>●●● ■</span></div>
+  <div class="ab"><span class="burger"></span><b>${esc(title)}</b></div>
+  <div class="vp" style="display:flex;flex-direction:column">${body}</div>
+  ${nav ? `<div class="navb"><div class="btn ghost">Back</div><div class="btn go" data-a="next">${esc(nav)}</div></div>` : ""}
+  <div class="toast" data-a="toast"></div>`;
+const fld = (d, i) => {
+  const lock = d.type === "system" ? "system" : d.type === "linked" ? "linked" : "";
+  return `<div class="fld ${lock ? "sys" : ""}"><label>${esc(d.label)}${d.required ? " <i>*</i>" : ""}</label><div class="in" data-a="f${i}">${lock ? `<span></span><span class="lock">${lock}</span>` : ""}</div></div>`;
+};
+function build(step) {
+  const sc = step.screen, acts = []; let t = 500;
+  const add = (ms, fn) => acts.push([ms, fn]);
+  const type = (sel, text, sp) => { sp = sp || 55; const t0 = t; add(t0, r => { const e = r.querySelector(sel); e.classList.add("on", "caret"); e.textContent = ""; e.scrollIntoView({ block: "nearest" }); });
+    [...text].forEach((_, i) => add(t0 + (i + 1) * sp, r => { const e = r.querySelector(sel); e.textContent = text.slice(0, i + 1); if (i === text.length - 1) e.classList.remove("caret"); })); t = t0 + text.length * sp + 350; };
+  const tap = sel => { add(t, r => r.querySelector(sel) && r.querySelector(sel).classList.add("tap")); add(t + 220, r => r.querySelector(sel) && r.querySelector(sel).classList.remove("tap")); t += 500; };
+  const toast = msg => { add(t, r => { const e = r.querySelector("[data-a=toast]"); e.textContent = msg; e.classList.add("in"); }); add(t + 2200, r => r.querySelector("[data-a=toast]").classList.remove("in")); t += 900; };
+  let html = "", nav = "Next";
+  if (sc.kind === "form") {
+    const fields = (sc.fields || []).filter(d => d.type !== "computed");
+    const byTable = {};
+    fields.forEach((d, i) => (byTable[d.table] ||= []).push([d, i]));
+    for (const [tb, list] of Object.entries(byTable)) html += `<div class="card"><header>${esc(tb.replace(/([a-z])([A-Z])/g, "$1 $2"))}</header><div class="bd">${list.map(([d, i]) => fld(d, i)).join("")}</div></div>`;
+    if (sc.list) {
+      const L = sc.list, tot = (sc.fields || []).find(d => d.type === "computed");
+      html += `<div class="card"><header>${esc(L.label)}</header><div class="bd">${L.options.map((o, i) => `<div class="opt ${o.off ? "offl" : ""}" data-a="o${i}"><i></i><b>${esc(o.code)}<br><small>${esc(o.l)}${o.off ? ", inactive" : ""}</small></b>${o.amt != null ? `<span class="p">R ${Number(o.amt).toFixed(2)}</span>` : ""}</div>`).join("")}</div></div>`;
+      if (tot || L.options.some(o => o.amt != null)) html += `<div class="qbar"><div><small>${esc(tot ? tot.label : "Total")}</small><span class="amt" data-a="amt">R 0.00</span></div></div>`;
+    }
+    fields.forEach((d, i) => {
+      const v = SPEC.sample[d.k];
+      if (d.type === "system" || d.type === "linked") add(t, r => { const e = r.querySelector(`[data-a=f${i}] span`); e.textContent = d.type === "system" ? (v || "Set on save") : v; t += 0; });
+      else if (d.type === "select") { t += 200; add(t, r => { const e = r.querySelector(`[data-a=f${i}]`); e.classList.add("on"); e.textContent = optLabel(d, v); e.scrollIntoView({ block: "nearest" }); }); t += 700; }
+      else if (d.type === "toggle") { add(t, r => { r.querySelector(`[data-a=f${i}]`).textContent = "Yes"; }); t += 500; }
+      else if (v) type(`[data-a=f${i}]`, String(v), String(v).length > 16 ? 38 : 55);
+      if (d.type === "system" || d.type === "linked") t += 300;
+    });
+    if (sc.list) {
+      let run = 0;
+      sc.list.options.forEach((o, i) => { if (!sc.list.sample.includes(o.v)) return; const from = run; run += o.amt || 0; const to = run;
+        add(t, r => { const e = r.querySelector(`[data-a=o${i}]`); e.classList.add("sel"); e.scrollIntoView({ block: "nearest" }); const a = r.querySelector("[data-a=amt]"); if (a) tween(a, from, to); }); t += 1300; });
+    }
+    const saved = [...new Set(fields.filter(d => d.type !== "linked").map(d => d.table))].concat(sc.list ? [sc.list.table] : []);
+    tap("[data-a=next]"); if (saved.length) toast(`Saved to ${saved.join(" and ")}.`);
+  } else if (sc.kind === "validate") {
+    html = `<div class="card"><header>Validation</header><div class="bd">${sc.checks.map((c, i) => `<div class="chk" data-a="c${i}"><i></i><div>${esc(c.text)}<b>${esc(c.code)}</b></div></div>`).join("")}</div></div><div class="btn brand" data-a="run">Validate</div>`;
+    tap("[data-a=run]");
+    sc.checks.forEach((c, i) => { add(t, r => { const e = r.querySelector(`[data-a=c${i}]`); e.classList.add("on"); e.scrollIntoView({ block: "nearest" }); }); t += 380; });
+    toast(`All ${sc.checks.length} rules passed. Ready to continue.`);
+  } else {
+    const a = sc.action;
+    html = `${a.roles.length ? `<span class="role">Acting as ${esc(a.roles[0])}</span>` : ""}
+      ${a.statusKey ? `<div class="stat"><span>Status</span><b data-a="st">${esc(a.from)}</b></div>` : ""}
+      <div class="card"><header>Before this can go through</header><div class="bd">
+        ${a.needsValidation ? `<div class="chk on"><i></i><div>Validation passed and nothing has changed since</div></div>` : ""}
+        ${a.roles.length ? `<div class="chk on"><i></i><div>Only ${esc(a.roles.join(" or "))} can do this</div></div>` : ""}
+        ${a.statusKey ? `<div class="chk on"><i></i><div>Status is ${esc(a.from)}</div></div>` : ""}</div></div>
+      <div class="btn go" data-a="act" style="margin-top:auto">${esc(a.label)}</div>`;
+    nav = "";
+    t += 900; tap("[data-a=act]");
+    if (a.statusKey) add(t, r => { const e = r.querySelector("[data-a=st]"); e.textContent = a.to; e.classList.add("ok"); });
+    t += 300; toast(a.statusKey ? `Status is now ${a.to}.` : "Done.");
+  }
+  return { html: frame(sc.title, html, nav), acts, dur: Math.max(t + 1600, 5000) };
+}
+function tween(el, from, to, ms) {
+  ms = ms || 600; const t0 = performance.now(); el.classList.add("bump");
+  const step = now => { const k = Math.min(1, (now - t0) / ms); el.textContent = "R " + (from + (to - from) * (1 - Math.pow(1 - k, 3))).toFixed(2); if (k < 1) requestAnimationFrame(step); else setTimeout(() => el.classList.remove("bump"), 250); };
+  requestAnimationFrame(step);
+}
+
+/* ---------- player ---------- */
+const S = SPEC.steps.map(s => Object.assign({}, s, build(s)));
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let cur = 0, playing = !reduced, elapsed = 0, last = 0, fired = 0, sceneEl = null;
+const track = $("#track");
+track.style.gridTemplateColumns = SPEC.phases.map((p, pi) => `${Math.max(1.4, S.filter(s => s.ph === pi).length)}fr`).join(" ");
+track.innerHTML = SPEC.phases.map((p, pi) => `<div class="ph" data-ph="${pi}"><h4>${esc(p)}</h4><div class="ticks">${S.map((s, i) => s.ph === pi ? `<button class="tick" data-i="${i}" aria-label="Step ${s.n}: ${esc(s.title)}"><div class="fill"></div><span>${s.n}</span></button>` : "").join("")}</div></div>`).join("");
+track.addEventListener("click", e => { const b = e.target.closest(".tick"); if (b) show(+b.dataset.i); });
+function renderChips(i) {
+  const all = []; S.slice(0, i + 1).forEach((x, xi) => x.chips.forEach(c => { const j = all.findIndex(a => a.k === c[0]); const o = { k: c[0], t: c[1], isNew: xi === i }; if (j >= 0) all[j] = o; else all.push(o); }));
+  $("#carryNote").textContent = all.length ? "Everything captured so far travels with the application." : "Nothing captured yet.";
+  $("#chips").innerHTML = all.map(c => `<span class="chip ${c.isNew ? "new" : ""}" ${c.isNew ? "" : 'style="animation:none"'}>${esc(c.t)}</span>`).join("");
+}
+function show(i) {
+  cur = (i + S.length) % S.length; elapsed = 0; fired = 0;
+  const s = S[cur];
+  $("#num").textContent = s.n; $("#phase").textContent = SPEC.phases[s.ph]; $("#title").textContent = s.title; $("#say").textContent = s.say;
+  $("#badge").innerHTML = s.badge ? `<div class="badge"><b>${esc(s.badge[0])}</b><span>${esc(s.badge[1])}</span></div>` : "";
+  $("#rules").innerHTML = s.rules.map(r => `<li class="${r[0]}">${esc(r[1])}</li>`).join("");
+  renderChips(cur);
+  const scr = $("#screen"); const el = document.createElement("div"); el.className = "scene enter"; el.innerHTML = s.html;
+  if (sceneEl) { const old = sceneEl; old.style.opacity = 0; setTimeout(() => old.remove(), 500); }
+  scr.appendChild(el); sceneEl = el; requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("enter")));
+  document.querySelectorAll(".tick").forEach((b, bi) => { b.classList.toggle("done", bi < cur); b.classList.toggle("cur", bi === cur); b.querySelector(".fill").style.width = bi < cur ? "100%" : "0"; });
+  document.querySelectorAll(".ph").forEach(p => p.classList.toggle("cur", +p.dataset.ph === s.ph));
+  if (reduced || !playing) { s.acts.forEach(([, fn]) => { try { fn(el); } catch (e) {} }); fired = s.acts.length; }
+}
+function loop(now) {
+  const dt = last ? now - last : 0; last = now;
+  if (playing && sceneEl) {
+    elapsed += dt; const s = S[cur];
+    while (fired < s.acts.length && s.acts[fired][0] <= elapsed) { try { s.acts[fired][1](sceneEl); } catch (e) {} fired++; }
+    const fill = document.querySelector(`.tick[data-i="${cur}"] .fill`); if (fill) fill.style.width = Math.min(100, elapsed / s.dur * 100) + "%";
+    if (elapsed >= s.dur) show(cur + 1);
+  }
+  requestAnimationFrame(loop);
+}
+$("#play").onclick = () => { playing = !playing; $("#play").textContent = playing ? "Pause" : "Play"; $("#play").setAttribute("aria-pressed", String(playing)); if (playing && fired >= S[cur].acts.length) { /* resume */ } };
+$("#prev").onclick = () => show(cur - 1);
+$("#next").onclick = () => show(cur + 1);
+if (reduced) { $("#play").textContent = "Play"; $("#play").setAttribute("aria-pressed", "false"); }
+show(0); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

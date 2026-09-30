@@ -28,7 +28,7 @@ describe('golden: BafozAIChallenge-project', () => {
     expect(fx.graph.requirements.filter((r) => r.kind === 'requirement').map((r) => r.code)).toEqual(['BR-001', 'BR-002', 'BR-003', 'BR-004', 'BR-005', 'BR-006', 'BR-007']);
     expect(fx.graph.ruleCodes.map((r) => r.code)).toContain('NB-COLLECTION-002');
     const tables = fx.graph.tables.filter((t) => t.type === 'table').map((t) => t.name);
-    expect(tables).toEqual(['Benefit', 'Campaign', 'CollectionInstruction', 'Contract', 'ContractAudit', 'ContractBenefit', 'Person']);
+    expect([...tables].sort()).toEqual(['Benefit', 'Campaign', 'CollectionInstruction', 'Contract', 'ContractAudit', 'ContractBenefit', 'Person']);
     expect(fx.graph.tables.find((t) => t.type === 'sequence')?.name).toBe('SeqContract');
   });
 
