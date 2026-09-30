@@ -1,0 +1,465 @@
+/* newbusiness.df
+   Progress OpenEdge Data Dictionary dump (.df) for the New Business
+   mock database. Load with the Data Dictionary "Load" utility, or via:
+
+       PROUTIL <db> -C LOAD-DF database/schema/newbusiness.df
+
+   These tables are the production-shaped persistence target described
+   in NewBusinessProcess.md Section 32/33. The mock repositories under
+   src/infrastructure/repositories/ currently persist in-process
+   (Section 24 note); swapping them to FOR EACH/buffer access against
+   these tables requires no change to any calling code, because every
+   caller depends only on the I*Repository interfaces.
+*/
+
+ADD TABLE "Contract"
+  AREA "Schema Area"
+  LABEL "Contract"
+  DUMP-NAME "contract"
+
+ADD FIELD "ContractId" OF "Contract" AS character
+  FORMAT "x(12)"
+  LABEL "Contract Id"
+  POSITION 2
+  MAX-WIDTH 24
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "Status" OF "Contract" AS character
+  FORMAT "x(20)"
+  INITIAL "NEW"
+  LABEL "Status"
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "CampaignId" OF "Contract" AS character
+  FORMAT "x(12)"
+  LABEL "Campaign Id"
+  POSITION 4
+  MAX-WIDTH 24
+  ORDER 30
+
+ADD FIELD "OwnerPersonId" OF "Contract" AS character
+  FORMAT "x(12)"
+  LABEL "Owner Person Id"
+  POSITION 5
+  MAX-WIDTH 24
+  ORDER 40
+
+ADD FIELD "TotalPremium" OF "Contract" AS decimal
+  FORMAT "->>>,>>9.99"
+  INITIAL "0"
+  LABEL "Total Premium"
+  POSITION 6
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "CreatedDate" OF "Contract" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  LABEL "Created Date"
+  POSITION 7
+  MAX-WIDTH 16
+  ORDER 60
+
+ADD FIELD "ModifiedDate" OF "Contract" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  LABEL "Modified Date"
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "ActivatedDate" OF "Contract" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  LABEL "Activated Date"
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD INDEX "ContractId" ON "Contract"
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ContractId" ASCENDING
+
+ADD INDEX "OwnerPersonId" ON "Contract"
+  AREA "Schema Area"
+  INDEX-FIELD "OwnerPersonId" ASCENDING
+
+ADD INDEX "CampaignId" ON "Contract"
+  AREA "Schema Area"
+  INDEX-FIELD "CampaignId" ASCENDING
+
+
+ADD TABLE "Person"
+  AREA "Schema Area"
+  LABEL "Person"
+  DUMP-NAME "person"
+
+ADD FIELD "PersonId" OF "Person" AS character
+  FORMAT "x(12)"
+  LABEL "Person Id"
+  POSITION 2
+  MAX-WIDTH 24
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "FirstName" OF "Person" AS character
+  FORMAT "x(40)"
+  LABEL "First Name"
+  POSITION 3
+  MAX-WIDTH 80
+  ORDER 20
+
+ADD FIELD "Surname" OF "Person" AS character
+  FORMAT "x(40)"
+  LABEL "Surname"
+  POSITION 4
+  MAX-WIDTH 80
+  ORDER 30
+
+ADD FIELD "DateOfBirth" OF "Person" AS date
+  FORMAT "99/99/9999"
+  LABEL "Date Of Birth"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "IDNumber" OF "Person" AS character
+  FORMAT "x(20)"
+  LABEL "ID Number"
+  POSITION 6
+  MAX-WIDTH 40
+  ORDER 50
+
+ADD FIELD "Email" OF "Person" AS character
+  FORMAT "x(60)"
+  LABEL "Email"
+  POSITION 7
+  MAX-WIDTH 120
+  ORDER 60
+
+ADD FIELD "MobileNumber" OF "Person" AS character
+  FORMAT "x(20)"
+  LABEL "Mobile Number"
+  POSITION 8
+  MAX-WIDTH 40
+  ORDER 70
+
+ADD FIELD "Address" OF "Person" AS character
+  FORMAT "x(120)"
+  LABEL "Address"
+  POSITION 9
+  MAX-WIDTH 240
+  ORDER 80
+
+ADD INDEX "PersonId" ON "Person"
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "PersonId" ASCENDING
+
+ADD INDEX "IDNumber" ON "Person"
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "IDNumber" ASCENDING
+
+
+ADD TABLE "Campaign"
+  AREA "Schema Area"
+  LABEL "Campaign"
+  DUMP-NAME "campaign"
+
+ADD FIELD "CampaignId" OF "Campaign" AS character
+  FORMAT "x(12)"
+  LABEL "Campaign Id"
+  POSITION 2
+  MAX-WIDTH 24
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "CampaignCode" OF "Campaign" AS character
+  FORMAT "x(30)"
+  LABEL "Campaign Code"
+  POSITION 3
+  MAX-WIDTH 60
+  ORDER 20
+
+ADD FIELD "CampaignName" OF "Campaign" AS character
+  FORMAT "x(60)"
+  LABEL "Campaign Name"
+  POSITION 4
+  MAX-WIDTH 120
+  ORDER 30
+
+ADD FIELD "StartDate" OF "Campaign" AS date
+  FORMAT "99/99/9999"
+  LABEL "Start Date"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "EndDate" OF "Campaign" AS date
+  FORMAT "99/99/9999"
+  LABEL "End Date"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD FIELD "Status" OF "Campaign" AS character
+  FORMAT "x(20)"
+  INITIAL "ACTIVE"
+  LABEL "Status"
+  POSITION 7
+  MAX-WIDTH 40
+  ORDER 60
+
+ADD INDEX "CampaignId" ON "Campaign"
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "CampaignId" ASCENDING
+
+ADD INDEX "CampaignCode" ON "Campaign"
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "CampaignCode" ASCENDING
+
+
+ADD TABLE "Benefit"
+  AREA "Schema Area"
+  LABEL "Benefit"
+  DUMP-NAME "benefit"
+
+ADD FIELD "BenefitId" OF "Benefit" AS character
+  FORMAT "x(12)"
+  LABEL "Benefit Id"
+  POSITION 2
+  MAX-WIDTH 24
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "BenefitCode" OF "Benefit" AS character
+  FORMAT "x(30)"
+  LABEL "Benefit Code"
+  POSITION 3
+  MAX-WIDTH 60
+  ORDER 20
+
+ADD FIELD "BenefitName" OF "Benefit" AS character
+  FORMAT "x(60)"
+  LABEL "Benefit Name"
+  POSITION 4
+  MAX-WIDTH 120
+  ORDER 30
+
+ADD FIELD "Description" OF "Benefit" AS character
+  FORMAT "x(120)"
+  LABEL "Description"
+  POSITION 5
+  MAX-WIDTH 240
+  ORDER 40
+
+ADD FIELD "Premium" OF "Benefit" AS decimal
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Premium"
+  POSITION 6
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "Status" OF "Benefit" AS character
+  FORMAT "x(20)"
+  INITIAL "ACTIVE"
+  LABEL "Status"
+  POSITION 7
+  MAX-WIDTH 40
+  ORDER 60
+
+ADD INDEX "BenefitId" ON "Benefit"
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "BenefitId" ASCENDING
+
+ADD INDEX "BenefitCode" ON "Benefit"
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "BenefitCode" ASCENDING
+
+
+ADD TABLE "ContractBenefit"
+  AREA "Schema Area"
+  LABEL "Contract Benefit"
+  DUMP-NAME "contractbenefit"
+
+ADD FIELD "ContractId" OF "ContractBenefit" AS character
+  FORMAT "x(12)"
+  LABEL "Contract Id"
+  POSITION 2
+  MAX-WIDTH 24
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "BenefitId" OF "ContractBenefit" AS character
+  FORMAT "x(12)"
+  LABEL "Benefit Id"
+  POSITION 3
+  MAX-WIDTH 24
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "BenefitCode" OF "ContractBenefit" AS character
+  FORMAT "x(30)"
+  LABEL "Benefit Code"
+  POSITION 4
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "Premium" OF "ContractBenefit" AS decimal
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Premium"
+  POSITION 5
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 40
+
+ADD FIELD "EffectiveDate" OF "ContractBenefit" AS date
+  FORMAT "99/99/9999"
+  LABEL "Effective Date"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 50
+
+ADD INDEX "ContractBenefit" ON "ContractBenefit"
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ContractId" ASCENDING
+  INDEX-FIELD "BenefitId" ASCENDING
+
+
+ADD TABLE "CollectionInstruction"
+  AREA "Schema Area"
+  LABEL "Collection Instruction"
+  DUMP-NAME "collectioninstruction"
+
+ADD FIELD "ContractId" OF "CollectionInstruction" AS character
+  FORMAT "x(12)"
+  LABEL "Contract Id"
+  POSITION 2
+  MAX-WIDTH 24
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "CollectionMethod" OF "CollectionInstruction" AS character
+  FORMAT "x(20)"
+  LABEL "Collection Method"
+  POSITION 3
+  MAX-WIDTH 40
+  ORDER 20
+
+ADD FIELD "CollectionDay" OF "CollectionInstruction" AS integer
+  FORMAT ">9"
+  LABEL "Collection Day"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "AccountNumber" OF "CollectionInstruction" AS character
+  FORMAT "x(30)"
+  LABEL "Account Number"
+  POSITION 5
+  MAX-WIDTH 60
+  ORDER 40
+
+ADD FIELD "BankCode" OF "CollectionInstruction" AS character
+  FORMAT "x(10)"
+  LABEL "Bank Code"
+  POSITION 6
+  MAX-WIDTH 20
+  ORDER 50
+
+ADD FIELD "AccountHolderName" OF "CollectionInstruction" AS character
+  FORMAT "x(60)"
+  LABEL "Account Holder Name"
+  POSITION 7
+  MAX-WIDTH 120
+  ORDER 60
+
+ADD INDEX "ContractId" ON "CollectionInstruction"
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "ContractId" ASCENDING
+
+
+ADD TABLE "ContractAudit"
+  AREA "Schema Area"
+  LABEL "Contract Audit"
+  DUMP-NAME "contractaudit"
+
+ADD FIELD "AuditId" OF "ContractAudit" AS character
+  FORMAT "x(12)"
+  LABEL "Audit Id"
+  POSITION 2
+  MAX-WIDTH 24
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "ContractId" OF "ContractAudit" AS character
+  FORMAT "x(12)"
+  LABEL "Contract Id"
+  POSITION 3
+  MAX-WIDTH 24
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "Action" OF "ContractAudit" AS character
+  FORMAT "x(30)"
+  LABEL "Action"
+  POSITION 4
+  MAX-WIDTH 60
+  ORDER 30
+
+ADD FIELD "OldValue" OF "ContractAudit" AS character
+  FORMAT "x(60)"
+  LABEL "Old Value"
+  POSITION 5
+  MAX-WIDTH 120
+  ORDER 40
+
+ADD FIELD "NewValue" OF "ContractAudit" AS character
+  FORMAT "x(60)"
+  LABEL "New Value"
+  POSITION 6
+  MAX-WIDTH 120
+  ORDER 50
+
+ADD FIELD "UserId" OF "ContractAudit" AS character
+  FORMAT "x(20)"
+  LABEL "User Id"
+  POSITION 7
+  MAX-WIDTH 40
+  ORDER 60
+
+ADD FIELD "Timestamp" OF "ContractAudit" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  LABEL "Timestamp"
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD INDEX "AuditId" ON "ContractAudit"
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "AuditId" ASCENDING
+
+ADD INDEX "ContractId" ON "ContractAudit"
+  AREA "Schema Area"
+  INDEX-FIELD "ContractId" ASCENDING

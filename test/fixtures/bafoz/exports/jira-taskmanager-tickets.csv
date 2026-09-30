@@ -1,0 +1,8 @@
+id,tm,type,title,commit,status,tm_note,reqs
+NBJ-101,TM-48213,Story,Bootstrap GitLab CI for New Business,4b4b37f,Done,Research team asked verticals to adopt the shared PCT build. Flattened doubled src/tests roots at the same time.,
+NBJ-114,TM-48260,Story,Default sum assured on the benefit catalogue,46b1810,Done,Product wanted brokers to see a default cover per benefit. CoverAmount is informational only; premium is still Benefit.Premium.,BR-004
+NBJ-120,TM-48301,Story,Persist contracts to the database on PASOE,e533edb,Done,In-memory repositories lost contracts on agent restart. Uses EXCLUSIVE-LOCK NO-WAIT; lock conflicts surface as NB-REPO-423.,BR-001;BR-007
+NBJ-127,TM-48344,Bug,Debit orders on day 29-31 fail in short months,7b94784,Done,Raised from INC-2291. Recurring methods now limited to 1-28; one-off methods keep 1-31. Existing contracts with 29-31 NOT migrated.,BR-005;BRULE-008
+NBJ-131,TM-48377,Story,Contract status report and nightly CSV extract,6853a3d,Done,Ops needs a daily list of contracts by status. Shared ttContractStatus.i used by both the API and the batch extract.,
+NBJ-133,TM-48390,Story,Add owner and collection columns to status report,4653bf6,Done,Changing ttContractStatus.i changes the CSV layout; downstream Finance import must be told.,
+NBJ-138,TM-48402,Bug,Pipelines stuck pending without an OpenEdge runner,9309aeb,Done,"OpenEdge jobs now gated behind OE_RUNNER. Compile/test do not run on shared runners, so MRs merge without ABLUnit results.",

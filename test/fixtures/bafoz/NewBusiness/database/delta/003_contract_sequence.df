@@ -1,0 +1,13 @@
+/* database/delta/003_contract_sequence.df
+   Adds the SeqContract sequence used by DbContractRepository to mint
+   CON-000001-style identifiers at the database layer.
+
+       proutil newbusiness -C LOAD-DF database/delta/003_contract_sequence.df
+*/
+
+ADD SEQUENCE "SeqContract"
+  INITIAL 1
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL 1
+  MAX-VAL 999999

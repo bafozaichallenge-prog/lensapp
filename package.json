@@ -1,0 +1,24 @@
+{
+  "name": "lens",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "db:validate": "prisma validate --schema packages/storage/prisma/schema.prisma",
+    "db:generate": "prisma generate --schema packages/storage/prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/papaparse": "^5.5.2",
+    "prisma": "^6.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0",
+    "zod": "^3.23.0"
+  }
+}

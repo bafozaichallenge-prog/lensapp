@@ -1,0 +1,495 @@
+{
+  "request": "Brokers want debit-order and payroll clients to be able to choose \"last day of the month\" as their collection day, instead of being limited to days 1 to 28.",
+  "summary": {
+    "business": "Today a monthly debit order or payroll deduction can only be collected on days 1 to 28. That limit was added on 20 September after collections on the 31st bounced in shorter months (INC-2291). This change adds a \"last day of the month\" option so the collection moves with the month: 28 or 29 February, 30 April, 31 May. It touches two process steps (capturing collection details and validating), the database, and the screens and API brokers use. The biggest open question is outside this codebase: whatever system actually sends the debit order to the bank must understand the new option, or the September incident will repeat.",
+    "technical": "Add a CollectsOnLastDay flag to CollectionInstruction (entity, schema delta 004, DbContractRepository persistence) rather than overloading CollectionDay with a sentinel value. IsValidCollectionDay() accepts the flag for recurring methods (DEBIT_ORDER, PAYROLL); NB-COLLECTION-002 messaging changes accordingly. Carry the flag through CollectionInstructionRequest, CollectionService and NewBusinessService via a new overload so ICollectionService's existing signature and its callers stay intact. Expose an effective-date helper so downstream collections never has to interpret the flag themselves."
+  },
+  "questions": [
+    "Does \"last day\" mean the last calendar day, or the last business day? Banks will not process a debit order on a Sunday, so 31 May 2026 would roll to Monday 1 June unless we say otherwise.",
+    "Which system builds the monthly debit-order file for the bank? It is not in this repo, and it must honour the new flag.",
+    "Should the existing contracts still carrying day 29, 30 or 31 (left over from before the INC-2291 fix) be converted to \"last day\"? If so, who approves the conversion and do clients need to be told?",
+    "Should one-off methods (EFT, CARD, CASH) also offer \"last day\", or only recurring monthly methods?",
+    "Does Finance need the collection day or the new flag on the nightly contract-status CSV?"
+  ],
+  "stages": [
+    {
+      "n": 1,
+      "change": "none"
+    },
+    {
+      "n": 2,
+      "change": "none"
+    },
+    {
+      "n": 3,
+      "change": "none"
+    },
+    {
+      "n": 4,
+      "change": "none"
+    },
+    {
+      "n": 5,
+      "change": "modified",
+      "note": "Broker can pick \"Last day of month\" instead of a day number for debit order and payroll."
+    },
+    {
+      "n": 6,
+      "change": "modified",
+      "note": "NB-COLLECTION-002 accepts the last-day option for recurring methods; day 29-31 is still rejected."
+    },
+    {
+      "n": 7,
+      "change": "none",
+      "note": "No change to activation, but the first collection date shown after activation must be calculated, not read from the day field."
+    }
+  ],
+  "new_stages": [],
+  "impact": [
+    {
+      "path": "src/domain/entities/CollectionInstruction.cls",
+      "change": "modify",
+      "reason": "Add CollectsOnLastDay, UseLastDayOfMonth(), GetCollectionDateFor(); IsValidCollectionDay() and Validate() accept the flag for recurring methods."
+    },
+    {
+      "path": "src/domain/rules/CollectionDateRequiredRule.cls",
+      "change": "modify",
+      "reason": "Failure message for recurring methods should mention the last-day option."
+    },
+    {
+      "path": "database/delta/004_collection_last_day.df",
+      "change": "new",
+      "reason": "Add logical field CollectsOnLastDay to CollectionInstruction (initial no)."
+    },
+    {
+      "path": "database/migrations/004_collection_last_day.md",
+      "change": "new",
+      "reason": "Required by the validate:repo CI job for every delta."
+    },
+    {
+      "path": "src/infrastructure/repositories/DbContractRepository.cls",
+      "change": "modify",
+      "reason": "Read and write the new field where CollectionDay is persisted (around lines 152 and 275)."
+    },
+    {
+      "path": "src/api/dto/CollectionInstructionRequest.cls",
+      "change": "modify",
+      "reason": "Accept optional collectionLastDay in the JSON body."
+    },
+    {
+      "path": "src/api/controllers/NewBusinessController.cls",
+      "change": "modify",
+      "reason": "Pass the flag into NewBusinessService."
+    },
+    {
+      "path": "src/application/services/NewBusinessService.cls",
+      "change": "modify",
+      "reason": "New SetCollectionInstruction overload that takes the flag; existing signature delegates with FALSE."
+    },
+    {
+      "path": "src/application/services/CollectionService.cls",
+      "change": "modify",
+      "reason": "New CaptureCollection overload; calls UseLastDayOfMonth() before Validate()."
+    },
+    {
+      "path": "src/domain/interfaces/ICollectionService.cls",
+      "change": "modify",
+      "reason": "Add the overload to the interface. Only CollectionService implements it."
+    },
+    {
+      "path": "new-business-console.html",
+      "change": "modify",
+      "reason": "Broker UI: add the \"Last day of month\" choice next to the day picker."
+    },
+    {
+      "path": "tests/rules/CollectionDateRequiredRuleTest.cls",
+      "change": "modify",
+      "reason": "Add last-day cases; keep the existing day-0 and day-31 regressions untouched."
+    },
+    {
+      "path": "include/ttContractStatus.i",
+      "change": "review",
+      "reason": "Only change if Finance needs the flag. Any field added here changes the CSV layout (see INC-2318)."
+    }
+  ],
+  "tables": [
+    {
+      "table": "CollectionInstruction",
+      "change": "add field",
+      "detail": "CollectsOnLastDay (logical, initial no). CollectionDay keeps its current meaning."
+    }
+  ],
+  "risks": [
+    {
+      "title": "The bank file may ignore the new option and repeat INC-2291",
+      "severity": "high",
+      "why": "INC-2291 happened because a collection day did not exist in every month. The system that builds the debit-order run is outside this repo, so nothing here proves it will read CollectsOnLastDay. If it only reads CollectionDay, a last-day client would be collected on whatever placeholder day is stored.",
+      "evidence": [
+        "INC-2291",
+        "NBJ-127",
+        "src/domain/entities/CollectionInstruction.cls"
+      ],
+      "mitigation": "Confirm the consumer before build. Give it GetCollectionDateFor() or a pre-computed date rather than the raw flag."
+    },
+    {
+      "title": "Reusing CollectionDay as a code (0 or 99) would break an existing regression test",
+      "severity": "high",
+      "why": "Evaluate_Fails_WhenCollectionDayIsZero asserts that day 0 is invalid, and DbContractRepository stores the day as a plain integer. A sentinel value changes the meaning of a field every consumer already reads.",
+      "evidence": [
+        "tests/rules/CollectionDateRequiredRuleTest.cls",
+        "src/infrastructure/repositories/DbContractRepository.cls"
+      ],
+      "mitigation": "Use a separate logical field (recommended in this plan)."
+    },
+    {
+      "title": "Merge requests will not run the ABLUnit suite",
+      "severity": "medium",
+      "why": "Since NBJ-138, compile and test jobs only run when OE_RUNNER is true. Without a self-hosted OpenEdge runner, this change can merge with only the repository-structure check passing.",
+      "evidence": [
+        "NBJ-138",
+        "9309aeb"
+      ],
+      "mitigation": "Run the suite locally and attach results to the MR, or enable an OpenEdge runner before this work starts."
+    },
+    {
+      "title": "Changing the service interface ripples to every caller",
+      "severity": "medium",
+      "why": "ICollectionService.CaptureCollection and NewBusinessService.SetCollectionInstruction are called from the controller, NewBusinessServiceTest and EdgeCaseTest. Changing their signatures breaks compilation in all of them.",
+      "evidence": [
+        "src/domain/interfaces/ICollectionService.cls",
+        "src/application/services/NewBusinessService.cls",
+        "tests/services/NewBusinessServiceTest.cls",
+        "tests/edgecases/EdgeCaseTest.cls"
+      ],
+      "mitigation": "Add overloads; keep the existing signatures delegating with the flag set to FALSE."
+    },
+    {
+      "title": "Converting old day 29-31 contracts will force re-validation",
+      "severity": "medium",
+      "why": "Any change to a contract after Validate() makes its validation stale (Edge Case 47). NEW contracts converted in bulk will be refused at activation until re-validated, which is the confusion already seen in INC-2311.",
+      "evidence": [
+        "INC-2311",
+        "src/domain/entities/Contract.cls",
+        "src/domain/validation/ValidationSummary.cls"
+      ],
+      "mitigation": "Convert only IN-FORCE contracts in the migration, or re-run validation for converted NEW contracts and tell supervisors."
+    },
+    {
+      "title": "Adding the flag to the status report changes the Finance CSV",
+      "severity": "low",
+      "why": "ttContractStatus.i drives both the API and the nightly CSV. The last layout change broke the Finance import.",
+      "evidence": [
+        "INC-2318",
+        "NBJ-133",
+        "include/ttContractStatus.i"
+      ],
+      "mitigation": "Leave the report unchanged unless Finance asks, and agree the new layout with them first."
+    },
+    {
+      "title": "The persistence code has no direct tests",
+      "severity": "low",
+      "why": "DbContractRepository has no test that references it directly, so a mistake mapping the new field to the database would only show up in a PASOE environment.",
+      "evidence": [
+        "src/infrastructure/repositories/DbContractRepository.cls"
+      ],
+      "mitigation": "Add a round-trip test against a test database, or verify manually on the CI schema database."
+    }
+  ],
+  "plan": {
+    "business": [
+      {
+        "title": "Settle the definition",
+        "detail": "Agree with Collections and the bank whether \"last day\" is the last calendar day or last business day, and which methods offer it."
+      },
+      {
+        "title": "Decide on existing contracts",
+        "detail": "Choose whether contracts still on day 29-31 are converted, and whether clients must be notified of the change."
+      },
+      {
+        "title": "Confirm the downstream system",
+        "detail": "Get the owner of the debit-order run to confirm they will honour the new option before development starts."
+      },
+      {
+        "title": "Update broker guidance",
+        "detail": "Update capture scripts and the broker console wording so the new choice is explained at the point of sale."
+      },
+      {
+        "title": "Sign off in UAT",
+        "detail": "Walk through a February, a 30-day and a 31-day month with a sample contract."
+      }
+    ],
+    "developer": [
+      {
+        "title": "Schema",
+        "detail": "Add delta 004_collection_last_day.df (CollectsOnLastDay, logical, initial no) and its migration doc so validate:repo passes.",
+        "files": [
+          "database/delta/004_collection_last_day.df",
+          "database/migrations/004_collection_last_day.md"
+        ]
+      },
+      {
+        "title": "Domain",
+        "detail": "In CollectionInstruction add the property, UseLastDayOfMonth() (guarded to recurring methods) and GetCollectionDateFor(pdMonth). Make IsValidCollectionDay() return TRUE when the flag is set; keep the 1-28 rule otherwise.",
+        "files": [
+          "src/domain/entities/CollectionInstruction.cls"
+        ]
+      },
+      {
+        "title": "Rule message",
+        "detail": "Update the recurring-method failure message in CollectionDateRequiredRule. Rule code stays NB-COLLECTION-002.",
+        "files": [
+          "src/domain/rules/CollectionDateRequiredRule.cls"
+        ]
+      },
+      {
+        "title": "Services and API",
+        "detail": "Add overloads to ICollectionService, CollectionService and NewBusinessService; read collectionLastDay in the DTO and pass it through the controller.",
+        "files": [
+          "src/domain/interfaces/ICollectionService.cls",
+          "src/application/services/CollectionService.cls",
+          "src/application/services/NewBusinessService.cls",
+          "src/api/dto/CollectionInstructionRequest.cls",
+          "src/api/controllers/NewBusinessController.cls"
+        ]
+      },
+      {
+        "title": "Persistence",
+        "detail": "Map the field in DbContractRepository next to CollectionDay on read and write.",
+        "files": [
+          "src/infrastructure/repositories/DbContractRepository.cls"
+        ]
+      },
+      {
+        "title": "UI",
+        "detail": "Add the option to the collection step of the broker console.",
+        "files": [
+          "new-business-console.html"
+        ]
+      }
+    ],
+    "qa": [
+      {
+        "title": "Rule tests",
+        "detail": "Last-day accepted for DEBIT_ORDER and PAYROLL; rejected for one-off methods if that is the agreed rule; day 29-31 still rejected."
+      },
+      {
+        "title": "Date calculation",
+        "detail": "February in a leap and a non-leap year, a 30-day month and a 31-day month."
+      },
+      {
+        "title": "End to end",
+        "detail": "Create, capture with last day, validate, activate as a supervisor; check the stored record and the API response."
+      },
+      {
+        "title": "Regression",
+        "detail": "Existing CollectionDateRequiredRuleTest cases unchanged and passing; full ABLUnit suite run and attached to the MR (CI will not run it)."
+      },
+      {
+        "title": "Stale validation",
+        "detail": "Switch an already-validated NEW contract to last day and confirm activation asks for re-validation."
+      }
+    ],
+    "architect": [
+      {
+        "title": "Separate flag, not a sentinel",
+        "detail": "CollectionDay keeps a single meaning; the flag is additive, so old readers keep working."
+      },
+      {
+        "title": "Additive interface change",
+        "detail": "Overloads rather than signature changes keep ICollectionService callers compiling and avoid touching the Bootstrap wiring."
+      },
+      {
+        "title": "One place computes the date",
+        "detail": "GetCollectionDateFor() lives on the entity so no consumer re-implements month-end logic. Expose it to the downstream collections run."
+      },
+      {
+        "title": "Report contract",
+        "detail": "Treat ttContractStatus.i as a published contract; version it or agree changes with Finance before adding fields."
+      }
+    ]
+  },
+  "tests": [
+    {
+      "name": "Evaluate_Passes_WhenDebitOrderUsesLastDayOfMonth",
+      "file": "tests/rules/CollectionDateRequiredRuleTest.cls",
+      "kind": "new",
+      "purpose": "A monthly debit order set to the last day of the month passes NB-COLLECTION-002.",
+      "code": "    @Test.\n    METHOD PUBLIC VOID Evaluate_Passes_WhenDebitOrderUsesLastDayOfMonth ( ):\n        DEFINE VARIABLE oRule        AS CollectionDateRequiredRule NO-UNDO.\n        DEFINE VARIABLE oContract    AS Contract                    NO-UNDO.\n        DEFINE VARIABLE oInstruction AS CollectionInstruction       NO-UNDO.\n        DEFINE VARIABLE oResult      AS ValidationResult            NO-UNDO.\n\n        oContract = NEW Contract().\n        oContract:Create(\"CON-TEST-060\", \"test\").\n\n        oInstruction = NEW CollectionInstruction().\n        oInstruction:Create(\"CON-TEST-060\", CollectionInstruction:METHOD_DEBIT_ORDER, 0, \"123456\", \"001\", \"John Doe\", \"test\").\n        oInstruction:UseLastDayOfMonth().\n        oContract:SetCollectionInstruction(oInstruction).\n\n        oRule   = NEW CollectionDateRequiredRule().\n        oResult = oRule:Evaluate(oContract).\n\n        Assert:IsTrue(oResult:IsValid, \"DEBIT_ORDER on the last day of the month should pass\").\n    END METHOD."
+    },
+    {
+      "name": "Evaluate_StillFails_WhenDebitOrderDayIs31WithoutLastDayOption",
+      "file": "tests/rules/CollectionDateRequiredRuleTest.cls",
+      "kind": "new",
+      "purpose": "Guards the INC-2291 fix: choosing day 31 explicitly is still rejected.",
+      "code": "    @Test.\n    METHOD PUBLIC VOID Evaluate_StillFails_WhenDebitOrderDayIs31WithoutLastDayOption ( ):\n        DEFINE VARIABLE oRule        AS CollectionDateRequiredRule NO-UNDO.\n        DEFINE VARIABLE oContract    AS Contract                    NO-UNDO.\n        DEFINE VARIABLE oInstruction AS CollectionInstruction       NO-UNDO.\n        DEFINE VARIABLE oResult      AS ValidationResult            NO-UNDO.\n\n        oContract = NEW Contract().\n        oContract:Create(\"CON-TEST-061\", \"test\").\n\n        oInstruction = NEW CollectionInstruction().\n        oInstruction:Create(\"CON-TEST-061\", CollectionInstruction:METHOD_DEBIT_ORDER, 31, \"123456\", \"001\", \"John Doe\", \"test\").\n        oContract:SetCollectionInstruction(oInstruction).\n\n        oRule   = NEW CollectionDateRequiredRule().\n        oResult = oRule:Evaluate(oContract).\n\n        Assert:IsFalse(oResult:IsValid, \"Day 31 without the last-day option must still fail\").\n        Assert:Equals(\"NB-COLLECTION-002\", oResult:RuleCode).\n    END METHOD."
+    },
+    {
+      "name": "UseLastDayOfMonth_Throws_ForOneOffMethod",
+      "file": "tests/domain/CollectionInstructionTest.cls",
+      "kind": "new",
+      "purpose": "The last-day option is only allowed for recurring monthly methods (pending business confirmation).",
+      "code": "    @Test(expected=\"exceptions.BusinessRuleException\").\n    METHOD PUBLIC VOID UseLastDayOfMonth_Throws_ForOneOffMethod ( ):\n        DEFINE VARIABLE oInstruction AS CollectionInstruction NO-UNDO.\n\n        oInstruction = NEW CollectionInstruction().\n        oInstruction:Create(\"CON-TEST-062\", CollectionInstruction:METHOD_EFT, 0, \"123456\", \"001\", \"John Doe\", \"test\").\n        oInstruction:UseLastDayOfMonth().\n    END METHOD."
+    },
+    {
+      "name": "GetCollectionDateFor_ReturnsMonthEnd",
+      "file": "tests/domain/CollectionInstructionTest.cls",
+      "kind": "new",
+      "purpose": "The calculated date is correct for February (leap and non-leap), a 30-day and a 31-day month.",
+      "code": "    @Test.\n    METHOD PUBLIC VOID GetCollectionDateFor_ReturnsMonthEnd ( ):\n        DEFINE VARIABLE oInstruction AS CollectionInstruction NO-UNDO.\n\n        oInstruction = NEW CollectionInstruction().\n        oInstruction:Create(\"CON-TEST-063\", CollectionInstruction:METHOD_DEBIT_ORDER, 0, \"123456\", \"001\", \"John Doe\", \"test\").\n        oInstruction:UseLastDayOfMonth().\n\n        Assert:Equals(DATE(2, 28, 2027), oInstruction:GetCollectionDateFor(DATE(2, 1, 2027))).\n        Assert:Equals(DATE(2, 29, 2028), oInstruction:GetCollectionDateFor(DATE(2, 10, 2028))).\n        Assert:Equals(DATE(4, 30, 2027), oInstruction:GetCollectionDateFor(DATE(4, 1, 2027))).\n        Assert:Equals(DATE(5, 31, 2027), oInstruction:GetCollectionDateFor(DATE(5, 15, 2027))).\n    END METHOD."
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T1",
+      "system": "Taskmanager",
+      "type": "Decision",
+      "owner": "BA",
+      "priority": "High",
+      "title": "Decide: last calendar day or last business day",
+      "description": "Agree with Collections and the bank what \"last day of the month\" means, and which collection methods may use it.",
+      "acceptance": [
+        "Definition signed off by Collections",
+        "Allowed methods listed (DEBIT_ORDER, PAYROLL, others?)"
+      ],
+      "step": "New Business Process, step 5",
+      "depends_on": []
+    },
+    {
+      "id": "T2",
+      "system": "Taskmanager",
+      "type": "Decision",
+      "owner": "BA",
+      "priority": "High",
+      "title": "Confirm the debit-order run will honour the new option",
+      "description": "The system that builds the bank file is outside this repo. Its owner must confirm it will read the new flag or a calculated date, so INC-2291 cannot repeat.",
+      "acceptance": [
+        "Owner of the collections run named",
+        "Agreed interface: flag or pre-computed date"
+      ],
+      "step": "New Business Process, step 5",
+      "depends_on": []
+    },
+    {
+      "id": "T3",
+      "system": "Taskmanager",
+      "type": "Decision",
+      "owner": "BA",
+      "priority": "Medium",
+      "title": "Decide what happens to contracts still on day 29 to 31",
+      "description": "Choose whether to convert them to last day, and whether clients are told. Converting NEW contracts forces re-validation (INC-2311).",
+      "acceptance": [
+        "Conversion yes/no agreed",
+        "Client communication agreed"
+      ],
+      "depends_on": [
+        "T1"
+      ]
+    },
+    {
+      "id": "T4",
+      "system": "Jira",
+      "type": "Task",
+      "owner": "Developer",
+      "priority": "High",
+      "title": "Add CollectsOnLastDay to CollectionInstruction (schema delta 004)",
+      "description": "New logical field with delta 004_collection_last_day.df and its migration doc, mapped in DbContractRepository on read and write.",
+      "acceptance": [
+        "Delta and migration doc pass validate:repo",
+        "Field round-trips through DbContractRepository"
+      ],
+      "files": [
+        "database/delta/004_collection_last_day.df",
+        "database/migrations/004_collection_last_day.md",
+        "src/infrastructure/repositories/DbContractRepository.cls"
+      ],
+      "step": "New Business Process, step 5",
+      "depends_on": [
+        "T1"
+      ]
+    },
+    {
+      "id": "T5",
+      "system": "Jira",
+      "type": "Story",
+      "owner": "Developer",
+      "priority": "High",
+      "title": "Accept last day in CollectionInstruction and NB-COLLECTION-002",
+      "description": "Add UseLastDayOfMonth() and GetCollectionDateFor(); IsValidCollectionDay() accepts the flag for recurring methods; update the rule message.",
+      "acceptance": [
+        "Day 29-31 still rejected for recurring methods",
+        "Last-day option accepted for DEBIT_ORDER and PAYROLL",
+        "Existing CollectionDateRequiredRuleTest cases unchanged and passing"
+      ],
+      "files": [
+        "src/domain/entities/CollectionInstruction.cls",
+        "src/domain/rules/CollectionDateRequiredRule.cls"
+      ],
+      "step": "New Business Process, steps 5 and 6",
+      "depends_on": [
+        "T4"
+      ]
+    },
+    {
+      "id": "T6",
+      "system": "Jira",
+      "type": "Story",
+      "owner": "Developer",
+      "priority": "Medium",
+      "title": "Carry the option through the services, API and broker console",
+      "description": "Overloads on ICollectionService, CollectionService and NewBusinessService; collectionLastDay in the DTO and controller; new choice in the console.",
+      "acceptance": [
+        "Existing callers compile unchanged",
+        "POST .../collection accepts collectionLastDay"
+      ],
+      "files": [
+        "src/domain/interfaces/ICollectionService.cls",
+        "src/application/services/CollectionService.cls",
+        "src/application/services/NewBusinessService.cls",
+        "src/api/dto/CollectionInstructionRequest.cls",
+        "src/api/controllers/NewBusinessController.cls",
+        "new-business-console.html"
+      ],
+      "step": "New Business Process, step 5",
+      "depends_on": [
+        "T5"
+      ]
+    },
+    {
+      "id": "T7",
+      "system": "Jira",
+      "type": "Test",
+      "owner": "QA",
+      "priority": "High",
+      "title": "Test last-day collections across month lengths",
+      "description": "Add the generated ABLUnit tests and an end-to-end run: capture, validate, activate as supervisor.",
+      "acceptance": [
+        "February leap and non-leap, 30- and 31-day months covered",
+        "Full ABLUnit suite run locally and attached (CI won't run it)"
+      ],
+      "files": [
+        "tests/rules/CollectionDateRequiredRuleTest.cls"
+      ],
+      "step": "New Business Process, steps 5 to 7",
+      "depends_on": [
+        "T5",
+        "T6"
+      ]
+    },
+    {
+      "id": "T8",
+      "system": "Jira",
+      "type": "Task",
+      "owner": "Architect",
+      "priority": "Low",
+      "title": "Agree the contract-status CSV stays unchanged",
+      "description": "Confirm with Finance that the nightly CSV layout doesn't change, or version it first (INC-2318).",
+      "acceptance": [
+        "Finance confirms, or new layout agreed before release"
+      ],
+      "files": [
+        "include/ttContractStatus.i"
+      ],
+      "depends_on": []
+    }
+  ]
+}

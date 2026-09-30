@@ -1,0 +1,854 @@
+class Bootstrap class inherits=- implements=- methods=SeedMockData tests=-
+class api.RestGateway class inherits=- implements=IWebHandler methods=ErrorJson+ErrorJson2+ExtractContractId+ReadRequestBody+ResolveUser+RunContractStatusReport+Service+WriteJsonResponse tests=-
+class api.controllers.BenefitController class inherits=- implements=- methods=GetBenefit tests=-
+class api.controllers.CampaignController class inherits=- implements=- methods=GetCampaign tests=-
+class api.controllers.ContractController class inherits=- implements=- methods=GetContract tests=-
+class api.controllers.NewBusinessController class inherits=- implements=- methods=ActivateContract+AddBenefit+CaptureCollection+CapturePerson+CreateContract+ValidateContract tests=-
+class api.controllers.PersonController class inherits=- implements=- methods=GetPerson tests=-
+class api.dto.ActivationResponse class inherits=- implements=- methods=FromContract+ToJsonObject tests=-
+class api.dto.AddBenefitRequest class inherits=- implements=- methods=FromJson tests=-
+class api.dto.CapturePersonRequest class inherits=- implements=- methods=FromJson+ParseIsoDate tests=-
+class api.dto.CollectionInstructionRequest class inherits=- implements=- methods=FromJson tests=-
+class api.dto.ContractResponse class inherits=- implements=- methods=FromContract+ToJsonObject tests=-
+class api.dto.CreateContractRequest class inherits=- implements=- methods=FromJson tests=-
+class api.dto.ValidationResponse class inherits=- implements=- methods=FromSummary+ToJsonObject tests=-
+class application.services.BenefitService class inherits=- implements=IBenefitService methods=AddBenefitToContract+GetBenefit tests=-
+class application.services.CampaignService class inherits=- implements=ICampaignService methods=GetCampaign+GetCampaignByCode tests=-
+class application.services.CollectionService class inherits=- implements=ICollectionService methods=CaptureCollection tests=-
+class application.services.ContractService class inherits=- implements=IContractService methods=Activate+AssignCampaign+AssignOwner+CreateContract+GetContract tests=-
+class application.services.NewBusinessService class inherits=- implements=- methods=Activate+AddBenefit+CapturePerson+CreateContract+GetContract+GetWorkflow+GetWorkflowState+LinkCampaign+SetCollectionInstruction+StartNewBusiness+Validate tests=-
+class application.services.PersonService class inherits=- implements=IPersonService methods=CapturePerson+GetPerson tests=-
+class application.workflow.NewBusinessWorkflow class inherits=- implements=IWorkflow methods=CanTransition+GetAllowedTransitions+GetCurrentState+ListContains+TransitionTo tests=-
+class domain.entities.AbstractDomainEntity abstract inherits=- implements=- methods=GetEntityName+StampCreated+Touch tests=-
+class domain.entities.Benefit class inherits=AbstractDomainEntity implements=- methods=CalculatePremium+Create+GetEntityName+IsActive+SetCoverAmount+Validate tests=-
+class domain.entities.Campaign class inherits=AbstractDomainEntity implements=- methods=Create+GetEntityName+IsActive+Validate tests=-
+class domain.entities.CollectionInstruction class inherits=AbstractDomainEntity implements=- methods=Create+GetEntityName+IsRecurringMonthly+IsValidCollectionDay+IsValidCollectionMethod+Validate tests=-
+class domain.entities.Contract class inherits=AbstractDomainEntity implements=- methods=Activate+AddBenefit+AssignCampaign+AssignOwner+Cancel+Create+GetBenefitCount+GetBenefits+GetEntityName+GuardMutable+Lapse+MarkValidationFailed+RecalculatePremium+ResetForRecapture+RestoreBenefit+RestorePersistedState+SetCollectionInstruction+Validate tests=-
+class domain.entities.ContractBenefit class inherits=AbstractDomainEntity implements=- methods=CalculatePremium+Create+GetEntityName+RestorePersistedState+Validate tests=-
+class domain.entities.Person class inherits=AbstractDomainEntity implements=- methods=Create+GetEntityName+UpdateDetails+ValidateMandatoryDetails tests=-
+class domain.interfaces.IBenefitRepository interface inherits=IRepository implements=- methods=GetByCode+GetById+Save+Update tests=-
+class domain.interfaces.IBenefitService interface inherits=- implements=- methods=AddBenefitToContract+GetBenefit tests=-
+class domain.interfaces.IBusinessRule interface inherits=- implements=- methods=Evaluate+GetDescription+GetRequirementId+GetRuleCode tests=-
+class domain.interfaces.ICampaignRepository interface inherits=IRepository implements=- methods=GetByCode+GetById+Save+Update tests=-
+class domain.interfaces.ICampaignService interface inherits=- implements=- methods=GetCampaign+GetCampaignByCode tests=-
+class domain.interfaces.ICollectionRepository interface inherits=IRepository implements=- methods=GetByContractId+Save+Update tests=-
+class domain.interfaces.ICollectionService interface inherits=- implements=- methods=CaptureCollection tests=-
+class domain.interfaces.IContractBenefitRepository interface inherits=IRepository implements=- methods=GetByContractId+Save tests=-
+class domain.interfaces.IContractRepository interface inherits=IRepository implements=- methods=GetById+GetNextContractId+HasActiveContractForOwner+Save+Update tests=-
+class domain.interfaces.IContractService interface inherits=- implements=- methods=Activate+AssignCampaign+AssignOwner+CreateContract+GetContract tests=-
+class domain.interfaces.IContractValidator interface inherits=- implements=- methods=ValidateContract tests=-
+class domain.interfaces.IPersonRepository interface inherits=IRepository implements=- methods=GetById+GetNextPersonId+Save+Update tests=-
+class domain.interfaces.IPersonService interface inherits=- implements=- methods=CapturePerson+GetPerson tests=-
+class domain.interfaces.IRepository interface inherits=- implements=- methods=Delete+Exists tests=-
+class domain.interfaces.IWorkflow interface inherits=- implements=- methods=CanTransition+GetAllowedTransitions+GetCurrentState+TransitionTo tests=-
+class domain.rules.AbstractBusinessRule abstract inherits=- implements=IBusinessRule methods=CreateFailureResult+CreateSuccessResult+Evaluate+GetDescription+GetRequirementId+GetRuleCode tests=-
+class domain.rules.BenefitActiveRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.rules.BenefitRequiredRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.rules.BusinessRuleRegistry class inherits=- implements=- methods=GetRules+RegisterRule+RuleCount tests=-
+class domain.rules.CampaignRequiredRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.rules.CollectionDateRequiredRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.rules.CollectionMethodRequiredRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.rules.ContractOwnerRequiredRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.rules.ContractStatusRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.rules.DuplicateContractRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.rules.PersonMandatoryDetailsRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.rules.PremiumPositiveRule class inherits=AbstractBusinessRule implements=- methods=Evaluate tests=-
+class domain.validation.ContractValidator class inherits=- implements=IContractValidator methods=ValidateContract tests=-
+class domain.validation.ValidationResult class inherits=- implements=- methods=IsError+IsWarning+ToJsonObject tests=-
+class domain.validation.ValidationSummary class inherits=- implements=- methods=AddResult+Count+GetAllResults+GetErrors+GetResult+GetWarnings+HasErrors+IsStaleAsOf+IsValid+ToJsonArray tests=-
+class exceptions.ApplicationException class inherits=Progress.Lang.AppError implements=- methods= tests=-
+class exceptions.BusinessRuleException class inherits=exceptions.ApplicationException implements=- methods= tests=-
+class exceptions.ContractStateException class inherits=exceptions.ApplicationException implements=- methods= tests=-
+class exceptions.RepositoryException class inherits=exceptions.ApplicationException implements=- methods= tests=-
+class exceptions.ValidationException class inherits=exceptions.ApplicationException implements=- methods= tests=-
+class infrastructure.audit.AuditService class inherits=- implements=IAuditService methods=GetAuditTrail+RecordAction tests=-
+class infrastructure.audit.ContractAudit class inherits=- implements=- methods=ToJsonObject tests=-
+class infrastructure.audit.IAuditService interface inherits=- implements=- methods=GetAuditTrail+RecordAction tests=-
+class infrastructure.logging.ILogger interface inherits=- implements=- methods=LogError+LogInfo+LogWarn tests=-
+class infrastructure.logging.Logger class inherits=- implements=ILogger methods=LogError+LogInfo+LogWarn+WriteEntry tests=-
+class infrastructure.repositories.AbstractRepository abstract inherits=- implements=- methods=Count+Delete+Exists+GuardExists+LogOperation+WrapError tests=-
+class infrastructure.repositories.BenefitRepository class inherits=AbstractRepository implements=IBenefitRepository methods=GetByCode+GetById+Save+Update tests=-
+class infrastructure.repositories.CampaignRepository class inherits=AbstractRepository implements=ICampaignRepository methods=GetByCode+GetById+Save+Update tests=-
+class infrastructure.repositories.CollectionRepository class inherits=AbstractRepository implements=ICollectionRepository methods=GetByContractId+Save+Update tests=-
+class infrastructure.repositories.ContractBenefitRepository class inherits=AbstractRepository implements=IContractBenefitRepository methods=GetByContractId+Save tests=-
+class infrastructure.repositories.ContractRepository class inherits=AbstractRepository implements=IContractRepository methods=GetById+GetNextContractId+HasActiveContractForOwner+Save+Update tests=-
+class infrastructure.repositories.DbContractRepository class inherits=- implements=IContractRepository methods=Delete+Exists+GetById+GetNextContractId+HasActiveContractForOwner+LogOperation+Save+Update+WrapError+WriteChildren tests=-
+class infrastructure.repositories.PersonRepository class inherits=AbstractRepository implements=IPersonRepository methods=GetById+GetNextPersonId+Save+Update tests=-
+class infrastructure.security.IUserContext interface inherits=- implements=- methods=GetUserId+GetUsername+HasRole tests=-
+class infrastructure.security.UserContext class inherits=- implements=IUserContext methods=GetUserId+GetUsername+HasRole tests=-
+class tests.domain.ContractActivationTest test inherits=- implements=- methods=Activate_IsIdempotent_OnRepeatedCalls+Activate_Succeeds_WhenValidationPassed+Activate_Throws_WhenContractIsCancelled+Activate_Throws_WhenNeverValidated+Activate_Throws_WhenValidationSummaryIsStale+TryActivateExpectingStateException+TryActivateExpectingValidationException tests=Activate_Throws_WhenNeverValidated+Activate_Throws_WhenContractIsCancelled+Activate_Succeeds_WhenValidationPassed+Activate_IsIdempotent_OnRepeatedCalls+Activate_Throws_WhenValidationSummaryIsStale
+class tests.domain.FakeContractValidator test inherits=- implements=IContractValidator methods=ValidateContract tests=-
+class tests.edgecases.EdgeCaseTest test inherits=- implements=- methods=AddBenefit_Throws_WhenSameBenefitAddedTwice+AssignCampaign_Throws_WhenContractAlreadyActivated+Validate_Fails_WhenOwnerAlreadyHasActiveContract tests=AddBenefit_Throws_WhenSameBenefitAddedTwice+AssignCampaign_Throws_WhenContractAlreadyActivated+Validate_Fails_WhenOwnerAlreadyHasActiveContract
+class tests.rules.BenefitRequiredRuleTest test inherits=- implements=- methods=Evaluate_Fails_WhenNoBenefitsSelected+Evaluate_Passes_WhenAtLeastOneBenefitSelected tests=Evaluate_Fails_WhenNoBenefitsSelected+Evaluate_Passes_WhenAtLeastOneBenefitSelected
+class tests.rules.CampaignRequiredRuleTest test inherits=- implements=- methods=BuildRepositoryWithCampaign+Evaluate_Fails_WhenCampaignHasExpired+Evaluate_Fails_WhenCampaignIdIsBlank+Evaluate_Passes_WhenCampaignIsActive tests=Evaluate_Fails_WhenCampaignIdIsBlank+Evaluate_Fails_WhenCampaignHasExpired+Evaluate_Passes_WhenCampaignIsActive
+class tests.rules.CollectionDateRequiredRuleTest test inherits=- implements=- methods=Evaluate_Fails_WhenCollectionDayIsZero+Evaluate_Fails_WhenDebitOrderDayDoesNotExistEveryMonth+Evaluate_Fails_WhenNoCollectionInstructionSet+Evaluate_Passes_WhenDebitOrderDayIsWithinMonthlyRange+Evaluate_Passes_WhenEftDayIs31 tests=Evaluate_Fails_WhenNoCollectionInstructionSet+Evaluate_Fails_WhenCollectionDayIsZero+Evaluate_Fails_WhenDebitOrderDayDoesNotExistEveryMonth+Evaluate_Passes_WhenDebitOrderDayIsWithinMonthlyRange+Evaluate_Passes_WhenEftDayIs31
+class tests.rules.CollectionMethodRequiredRuleTest test inherits=- implements=- methods=Evaluate_Fails_WhenCollectionMethodIsUnsupported+Evaluate_Fails_WhenNoCollectionInstructionSet+Evaluate_Passes_WhenCollectionMethodIsDebitOrder tests=Evaluate_Fails_WhenNoCollectionInstructionSet+Evaluate_Fails_WhenCollectionMethodIsUnsupported+Evaluate_Passes_WhenCollectionMethodIsDebitOrder
+class tests.rules.ContractOwnerRequiredRuleTest test inherits=- implements=- methods=Evaluate_Fails_WhenNoOwnerAssigned+Evaluate_Passes_WhenOwnerAssigned tests=Evaluate_Fails_WhenNoOwnerAssigned+Evaluate_Passes_WhenOwnerAssigned
+class tests.rules.PremiumPositiveRuleTest test inherits=- implements=- methods=Evaluate_Fails_WhenTotalPremiumIsZero+Evaluate_Passes_WhenTotalPremiumIsPositive tests=Evaluate_Fails_WhenTotalPremiumIsZero+Evaluate_Passes_WhenTotalPremiumIsPositive
+class tests.services.NewBusinessServiceTest test inherits=- implements=- methods=Activate_Throws_WhenUserLacksSupervisorRole+Activate_Throws_WhenValidationFailed+FullNewBusinessFlow_ActivatesContract+NewSeededBootstrap+Validate_Fails_WhenCampaignMissing+Validate_Fails_WhenCollectionDayIsZero+Validate_Fails_WhenNoBenefitSelected+Validate_Fails_WhenPersonMissing tests=FullNewBusinessFlow_ActivatesContract+Validate_Fails_WhenCampaignMissing+Validate_Fails_WhenPersonMissing+Validate_Fails_WhenNoBenefitSelected+Validate_Fails_WhenCollectionDayIsZero+Activate_Throws_WhenValidationFailed+Activate_Throws_WhenUserLacksSupervisorRole
+class tests.workflow.NewBusinessWorkflowTest test inherits=- implements=- methods=ActivatedStage_HasNoFurtherTransitions+CanTransition_AllowsLoopingBack_FromValidationFailedToValidating+InitialState_IsContractCreated+TransitionTo_Succeeds_ForNextStageInSequence+TransitionTo_Throws_ForSkippedStage tests=InitialState_IsContractCreated+TransitionTo_Succeeds_ForNextStageInSequence+TransitionTo_Throws_ForSkippedStage+CanTransition_AllowsLoopingBack_FromValidationFailedToValidating+ActivatedStage_HasNoFurtherTransitions
+edge creates file:NewBusiness/src/domain/entities/Benefit.cls -> file:NewBusiness/src/exceptions/BusinessRuleException.cls EXPLICIT 1
+edge creates file:NewBusiness/src/domain/entities/Contract.cls -> file:NewBusiness/src/exceptions/BusinessRuleException.cls EXPLICIT 1
+edge creates file:NewBusiness/src/domain/entities/ContractBenefit.cls -> file:NewBusiness/src/exceptions/BusinessRuleException.cls EXPLICIT 1
+edge db-read file:NewBusiness/src/api/procs/ContractStatusReport.p -> table:collectioninstruction EXPLICIT 1
+edge db-read file:NewBusiness/src/api/procs/ContractStatusReport.p -> table:contract EXPLICIT 1
+edge db-read file:NewBusiness/src/api/procs/ContractStatusReport.p -> table:contractbenefit EXPLICIT 1
+edge db-read file:NewBusiness/src/api/procs/ContractStatusReport.p -> table:person EXPLICIT 1
+edge db-read file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> table:collectioninstruction EXPLICIT 1
+edge db-read file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> table:contract EXPLICIT 1
+edge db-read file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> table:contractbenefit EXPLICIT 1
+edge db-write file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> table:collectioninstruction EXPLICIT 1
+edge db-write file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> table:contract EXPLICIT 1
+edge db-write file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> table:contractbenefit EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> rule:NB-BENEFIT-004 EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls -> rule:NB-BENEFIT-001 EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls -> rule:NB-CAMPAIGN-001 EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls -> rule:NB-COLLECTION-002 EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls -> rule:NB-COLLECTION-001 EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls -> rule:NB-PERSON-001 EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/ContractStatusRule.cls -> rule:NB-STATUS-001 EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/DuplicateContractRule.cls -> rule:NB-CONTRACT-002 EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls -> rule:NB-PERSON-002 EXPLICIT 1
+edge enforces file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls -> rule:NB-PREMIUM-001 EXPLICIT 1
+edge enforces file:NewBusiness/src/exceptions/ApplicationException.cls -> rule:NB-CAMPAIGN-001 EXPLICIT 1
+edge enforces file:NewBusiness/tests/rules/BenefitRequiredRuleTest.cls -> rule:NB-BENEFIT-001 EXPLICIT 1
+edge enforces file:NewBusiness/tests/rules/CampaignRequiredRuleTest.cls -> rule:NB-CAMPAIGN-001 EXPLICIT 1
+edge enforces file:NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls -> rule:NB-COLLECTION-002 EXPLICIT 1
+edge enforces file:NewBusiness/tests/rules/CollectionMethodRequiredRuleTest.cls -> rule:NB-COLLECTION-001 EXPLICIT 1
+edge enforces file:NewBusiness/tests/rules/ContractOwnerRequiredRuleTest.cls -> rule:NB-PERSON-001 EXPLICIT 1
+edge enforces file:NewBusiness/tests/rules/PremiumPositiveRuleTest.cls -> rule:NB-PREMIUM-001 EXPLICIT 1
+edge implements file:NewBusiness/src/application/services/BenefitService.cls -> file:NewBusiness/src/domain/interfaces/IBenefitService.cls EXPLICIT 1
+edge implements file:NewBusiness/src/application/services/CampaignService.cls -> file:NewBusiness/src/domain/interfaces/ICampaignService.cls EXPLICIT 1
+edge implements file:NewBusiness/src/application/services/CollectionService.cls -> file:NewBusiness/src/domain/interfaces/ICollectionService.cls EXPLICIT 1
+edge implements file:NewBusiness/src/application/services/ContractService.cls -> file:NewBusiness/src/domain/interfaces/IContractService.cls EXPLICIT 1
+edge implements file:NewBusiness/src/application/services/PersonService.cls -> file:NewBusiness/src/domain/interfaces/IPersonService.cls EXPLICIT 1
+edge implements file:NewBusiness/src/application/workflow/NewBusinessWorkflow.cls -> file:NewBusiness/src/domain/interfaces/IWorkflow.cls EXPLICIT 1
+edge implements file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls -> file:NewBusiness/src/domain/interfaces/IBusinessRule.cls EXPLICIT 1
+edge implements file:NewBusiness/src/domain/validation/ContractValidator.cls -> file:NewBusiness/src/domain/interfaces/IContractValidator.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/audit/AuditService.cls -> file:NewBusiness/src/infrastructure/audit/IAuditService.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/logging/Logger.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/repositories/BenefitRepository.cls -> file:NewBusiness/src/domain/interfaces/IBenefitRepository.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/repositories/CampaignRepository.cls -> file:NewBusiness/src/domain/interfaces/ICampaignRepository.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/repositories/CollectionRepository.cls -> file:NewBusiness/src/domain/interfaces/ICollectionRepository.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/repositories/ContractBenefitRepository.cls -> file:NewBusiness/src/domain/interfaces/IContractBenefitRepository.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/repositories/ContractRepository.cls -> file:NewBusiness/src/domain/interfaces/IContractRepository.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> file:NewBusiness/src/domain/interfaces/IContractRepository.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/repositories/PersonRepository.cls -> file:NewBusiness/src/domain/interfaces/IPersonRepository.cls EXPLICIT 1
+edge implements file:NewBusiness/src/infrastructure/security/UserContext.cls -> file:NewBusiness/src/infrastructure/security/IUserContext.cls EXPLICIT 1
+edge implements file:NewBusiness/tests/domain/FakeContractValidator.cls -> file:NewBusiness/src/domain/interfaces/IContractValidator.cls EXPLICIT 1
+edge implements-req file:NewBusiness/src/application/services/BenefitService.cls -> req:BR-004 EXPLICIT 1
+edge implements-req file:NewBusiness/src/application/services/CampaignService.cls -> req:BR-002 EXPLICIT 1
+edge implements-req file:NewBusiness/src/application/services/CollectionService.cls -> req:BR-005 EXPLICIT 1
+edge implements-req file:NewBusiness/src/application/services/ContractService.cls -> req:BR-007 EXPLICIT 1
+edge implements-req file:NewBusiness/src/application/services/NewBusinessService.cls -> req:BR-007 EXPLICIT 1
+edge implements-req file:NewBusiness/src/application/services/PersonService.cls -> req:BR-003 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Benefit.cls -> req:BR-004 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Benefit.cls -> req:BRULE-005 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Campaign.cls -> req:BR-002 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Campaign.cls -> req:BRULE-001 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/CollectionInstruction.cls -> req:BR-005 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/CollectionInstruction.cls -> req:BRULE-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/CollectionInstruction.cls -> req:BRULE-007 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/CollectionInstruction.cls -> req:BRULE-008 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Contract.cls -> req:BR-001 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Contract.cls -> req:BR-002 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Contract.cls -> req:BR-003 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Contract.cls -> req:BR-004 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Contract.cls -> req:BR-005 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Contract.cls -> req:BR-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Contract.cls -> req:BR-007 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Contract.cls -> req:BRULE-010 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Contract.cls -> req:BRULE-011 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/ContractBenefit.cls -> req:BR-004 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Person.cls -> req:BR-003 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/entities/Person.cls -> req:BRULE-003 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/interfaces/IBusinessRule.cls -> req:BR-002 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/interfaces/IContractValidator.cls -> req:BR-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> req:BR-004 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> req:BRULE-005 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls -> req:BR-004 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls -> req:BRULE-004 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls -> req:BR-002 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls -> req:BRULE-001 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls -> req:BR-005 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls -> req:BRULE-007 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls -> req:BRULE-008 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls -> req:BR-005 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls -> req:BRULE-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls -> req:BR-003 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls -> req:BRULE-002 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/ContractStatusRule.cls -> req:BR-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/ContractStatusRule.cls -> req:BRULE-010 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/DuplicateContractRule.cls -> req:BR-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls -> req:BR-003 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls -> req:BRULE-003 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls -> req:BR-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls -> req:BRULE-009 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/validation/ContractValidator.cls -> req:BR-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/validation/ValidationResult.cls -> req:BR-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/domain/validation/ValidationSummary.cls -> req:BR-006 EXPLICIT 1
+edge implements-req file:NewBusiness/src/exceptions/ContractStateException.cls -> req:BR-007 EXPLICIT 1
+edge implements-req file:NewBusiness/src/exceptions/ValidationException.cls -> req:BR-006 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/domain/ContractActivationTest.cls -> req:BR-007 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/domain/ContractActivationTest.cls -> req:BRULE-010 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/domain/ContractActivationTest.cls -> req:BRULE-011 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/rules/BenefitRequiredRuleTest.cls -> req:BR-004 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/rules/CampaignRequiredRuleTest.cls -> req:BR-002 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls -> req:BR-005 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls -> req:BRULE-008 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/rules/CollectionMethodRequiredRuleTest.cls -> req:BR-005 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/rules/ContractOwnerRequiredRuleTest.cls -> req:BR-003 EXPLICIT 1
+edge implements-req file:NewBusiness/tests/rules/PremiumPositiveRuleTest.cls -> req:BR-006 EXPLICIT 1
+edge includes file:NewBusiness/src/api/RestGateway.cls -> file:NewBusiness/include/ttContractStatus.i EXPLICIT 1
+edge includes file:NewBusiness/src/api/procs/ContractStatusReport.p -> file:NewBusiness/include/ttContractStatus.i EXPLICIT 1
+edge includes file:NewBusiness/src/batch/ExportContractStatusCsv.p -> file:NewBusiness/include/ttContractStatus.i EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/entities/Benefit.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/entities/Campaign.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/entities/CollectionInstruction.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/entities/Contract.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/entities/ContractBenefit.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/entities/Person.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/interfaces/IBenefitRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/interfaces/ICampaignRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/interfaces/ICollectionRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/interfaces/IContractBenefitRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/interfaces/IContractRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/interfaces/IPersonRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/ContractStatusRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/DuplicateContractRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/exceptions/BusinessRuleException.cls -> file:NewBusiness/src/exceptions/ApplicationException.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/exceptions/ContractStateException.cls -> file:NewBusiness/src/exceptions/ApplicationException.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/exceptions/RepositoryException.cls -> file:NewBusiness/src/exceptions/ApplicationException.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/exceptions/ValidationException.cls -> file:NewBusiness/src/exceptions/ApplicationException.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/infrastructure/repositories/BenefitRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/infrastructure/repositories/CampaignRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/infrastructure/repositories/CollectionRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/infrastructure/repositories/ContractBenefitRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/infrastructure/repositories/ContractRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge inherits file:NewBusiness/src/infrastructure/repositories/PersonRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge maps-step-file step:New Business Process#1 -> file:NewBusiness/src/api/dto/ContractResponse.cls INFERRED 0.5
+edge maps-step-file step:New Business Process#1 -> file:NewBusiness/src/domain/entities/Contract.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#1 -> file:NewBusiness/src/domain/entities/ContractBenefit.cls INFERRED 0.5
+edge maps-step-file step:New Business Process#1 -> file:NewBusiness/src/exceptions/ContractStateException.cls INFERRED 0.5
+edge maps-step-file step:New Business Process#2 -> file:NewBusiness/src/application/services/CampaignService.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#2 -> file:NewBusiness/src/domain/entities/Campaign.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#2 -> file:NewBusiness/src/domain/interfaces/IBusinessRule.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#2 -> file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#3 -> file:NewBusiness/src/application/services/PersonService.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#3 -> file:NewBusiness/src/domain/entities/Person.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#3 -> file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#3 -> file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#4 -> file:NewBusiness/src/application/services/BenefitService.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#4 -> file:NewBusiness/src/domain/entities/Benefit.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#4 -> file:NewBusiness/src/domain/entities/ContractBenefit.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#4 -> file:NewBusiness/src/domain/rules/BenefitActiveRule.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#4 -> file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#5 -> file:NewBusiness/src/application/services/CollectionService.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#5 -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#5 -> file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#5 -> file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#6 -> file:NewBusiness/src/domain/interfaces/IContractValidator.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#6 -> file:NewBusiness/src/domain/rules/ContractStatusRule.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#6 -> file:NewBusiness/src/domain/rules/DuplicateContractRule.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#6 -> file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#6 -> file:NewBusiness/src/domain/validation/ContractValidator.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#6 -> file:NewBusiness/src/domain/validation/ValidationResult.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#6 -> file:NewBusiness/src/domain/validation/ValidationSummary.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#6 -> file:NewBusiness/src/exceptions/ValidationException.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#7 -> file:NewBusiness/src/application/services/ContractService.cls INFERRED 0.9
+edge maps-step-file step:New Business Process#7 -> file:NewBusiness/src/application/services/NewBusinessService.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#7 -> file:NewBusiness/src/domain/entities/Contract.cls INFERRED 0.7
+edge maps-step-file step:New Business Process#7 -> file:NewBusiness/src/exceptions/ContractStateException.cls INFERRED 0.9
+edge maps-step-req step:New Business Process#1 -> req:BR-001 INFERRED 0.9
+edge maps-step-req step:New Business Process#2 -> req:BR-002 INFERRED 0.9
+edge maps-step-req step:New Business Process#3 -> req:BR-003 INFERRED 0.9
+edge maps-step-req step:New Business Process#4 -> req:BR-004 INFERRED 0.9
+edge maps-step-req step:New Business Process#5 -> req:BR-005 INFERRED 0.9
+edge maps-step-req step:New Business Process#6 -> req:BR-006 INFERRED 0.9
+edge maps-step-req step:New Business Process#7 -> req:BR-007 INFERRED 0.9
+edge maps-step-rule step:New Business Process#2 -> rule:NB-CAMPAIGN-001 INFERRED 0.9
+edge maps-step-rule step:New Business Process#3 -> rule:NB-PERSON-001 INFERRED 0.9
+edge maps-step-rule step:New Business Process#3 -> rule:NB-PERSON-002 INFERRED 0.9
+edge maps-step-rule step:New Business Process#4 -> rule:NB-BENEFIT-001 INFERRED 0.9
+edge maps-step-rule step:New Business Process#4 -> rule:NB-BENEFIT-004 INFERRED 0.9
+edge maps-step-rule step:New Business Process#5 -> rule:NB-COLLECTION-001 INFERRED 0.9
+edge maps-step-rule step:New Business Process#5 -> rule:NB-COLLECTION-002 INFERRED 0.9
+edge maps-step-rule step:New Business Process#6 -> rule:NB-CONTRACT-002 INFERRED 0.9
+edge maps-step-rule step:New Business Process#6 -> rule:NB-PREMIUM-001 INFERRED 0.9
+edge maps-step-rule step:New Business Process#6 -> rule:NB-STATUS-001 INFERRED 0.9
+edge maps-step-table step:New Business Process#1 -> table:contract INFERRED 0.7
+edge maps-step-table step:New Business Process#1 -> table:contractbenefit INFERRED 0.7
+edge maps-step-table step:New Business Process#2 -> table:campaign INFERRED 0.7
+edge maps-step-table step:New Business Process#3 -> table:person INFERRED 0.7
+edge maps-step-table step:New Business Process#4 -> table:benefit INFERRED 0.7
+edge maps-step-table step:New Business Process#4 -> table:contractbenefit INFERRED 0.7
+edge maps-step-table step:New Business Process#5 -> table:collectioninstruction INFERRED 0.7
+edge maps-step-table step:New Business Process#7 -> table:contract INFERRED 0.7
+edge mirrors file:NewBusiness/src/domain/entities/Benefit.cls -> table:benefit INFERRED 0.9
+edge mirrors file:NewBusiness/src/domain/entities/Campaign.cls -> table:campaign INFERRED 0.9
+edge mirrors file:NewBusiness/src/domain/entities/CollectionInstruction.cls -> table:collectioninstruction INFERRED 0.9
+edge mirrors file:NewBusiness/src/domain/entities/Contract.cls -> table:contract INFERRED 0.9
+edge mirrors file:NewBusiness/src/domain/entities/ContractBenefit.cls -> table:contractbenefit INFERRED 0.9
+edge mirrors file:NewBusiness/src/domain/entities/Person.cls -> table:person INFERRED 0.9
+edge runs file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/database/seed/SeedData.p EXPLICIT 1
+edge runs file:NewBusiness/src/api/RestGateway.cls -> file:NewBusiness/src/api/procs/ContractStatusReport.p EXPLICIT 1
+edge runs file:NewBusiness/src/batch/ExportContractStatusCsv.p -> file:NewBusiness/src/api/procs/ContractStatusReport.p EXPLICIT 1
+edge tests file:NewBusiness/tests/domain/ContractActivationTest.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/domain/ContractActivationTest.cls -> file:NewBusiness/src/exceptions/ContractStateException.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/domain/ContractActivationTest.cls -> file:NewBusiness/src/exceptions/ValidationException.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/domain/ContractActivationTest.cls -> file:NewBusiness/tests/domain/FakeContractValidator.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/domain/FakeContractValidator.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/domain/FakeContractValidator.cls -> file:NewBusiness/src/domain/interfaces/IContractValidator.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/domain/FakeContractValidator.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/domain/FakeContractValidator.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/Bootstrap.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/exceptions/BusinessRuleException.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/exceptions/ContractStateException.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/infrastructure/security/IUserContext.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/edgecases/EdgeCaseTest.cls -> file:NewBusiness/src/infrastructure/security/UserContext.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/BenefitRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/BenefitRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/BenefitRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/BenefitRequiredRuleTest.cls -> file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/BenefitRequiredRuleTest.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CampaignRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/Campaign.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CampaignRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CampaignRequiredRuleTest.cls -> file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CampaignRequiredRuleTest.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CampaignRequiredRuleTest.cls -> file:NewBusiness/src/infrastructure/repositories/CampaignRepository.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls -> file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CollectionMethodRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CollectionMethodRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CollectionMethodRequiredRuleTest.cls -> file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/CollectionMethodRequiredRuleTest.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/ContractOwnerRequiredRuleTest.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/ContractOwnerRequiredRuleTest.cls -> file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/ContractOwnerRequiredRuleTest.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/PremiumPositiveRuleTest.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/PremiumPositiveRuleTest.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/PremiumPositiveRuleTest.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/PremiumPositiveRuleTest.cls -> file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/rules/PremiumPositiveRuleTest.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/services/NewBusinessServiceTest.cls -> file:NewBusiness/src/Bootstrap.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/services/NewBusinessServiceTest.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/services/NewBusinessServiceTest.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/services/NewBusinessServiceTest.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/services/NewBusinessServiceTest.cls -> file:NewBusiness/src/exceptions/BusinessRuleException.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/services/NewBusinessServiceTest.cls -> file:NewBusiness/src/exceptions/ValidationException.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/services/NewBusinessServiceTest.cls -> file:NewBusiness/src/infrastructure/security/IUserContext.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/services/NewBusinessServiceTest.cls -> file:NewBusiness/src/infrastructure/security/UserContext.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/workflow/NewBusinessWorkflowTest.cls -> file:NewBusiness/src/application/workflow/NewBusinessWorkflow.cls EXPLICIT 1
+edge tests file:NewBusiness/tests/workflow/NewBusinessWorkflowTest.cls -> file:NewBusiness/src/exceptions/ContractStateException.cls EXPLICIT 1
+edge uses file:NewBusiness/database/seed/SeedData.p -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge uses file:NewBusiness/database/seed/SeedData.p -> file:NewBusiness/src/domain/entities/Campaign.cls EXPLICIT 1
+edge uses file:NewBusiness/database/seed/SeedData.p -> file:NewBusiness/src/domain/interfaces/IBenefitRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/database/seed/SeedData.p -> file:NewBusiness/src/domain/interfaces/ICampaignRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/api/controllers/BenefitController.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/api/controllers/CampaignController.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/api/controllers/ContractController.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/api/controllers/NewBusinessController.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/api/controllers/PersonController.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/application/services/BenefitService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/application/services/CampaignService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/application/services/CollectionService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/application/services/ContractService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/application/services/NewBusinessService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/application/services/PersonService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/interfaces/IContractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/interfaces/IContractValidator.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/BenefitActiveRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/BusinessRuleRegistry.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/ContractStatusRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/DuplicateContractRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/domain/validation/ContractValidator.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/audit/AuditService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/audit/IAuditService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/logging/Logger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/repositories/BenefitRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/repositories/CampaignRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/repositories/CollectionRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/repositories/ContractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/Bootstrap.cls -> file:NewBusiness/src/infrastructure/repositories/PersonRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/RestGateway.cls -> file:NewBusiness/src/Bootstrap.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/RestGateway.cls -> file:NewBusiness/src/api/controllers/NewBusinessController.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/RestGateway.cls -> file:NewBusiness/src/exceptions/ApplicationException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/RestGateway.cls -> file:NewBusiness/src/infrastructure/security/IUserContext.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/RestGateway.cls -> file:NewBusiness/src/infrastructure/security/UserContext.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/BenefitController.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/BenefitController.cls -> file:NewBusiness/src/domain/interfaces/IBenefitService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/CampaignController.cls -> file:NewBusiness/src/domain/entities/Campaign.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/CampaignController.cls -> file:NewBusiness/src/domain/interfaces/ICampaignService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/ContractController.cls -> file:NewBusiness/src/api/dto/ContractResponse.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/ContractController.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/ContractController.cls -> file:NewBusiness/src/domain/interfaces/IContractService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/api/dto/ActivationResponse.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/api/dto/AddBenefitRequest.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/api/dto/CapturePersonRequest.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/api/dto/CollectionInstructionRequest.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/api/dto/ContractResponse.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/api/dto/CreateContractRequest.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/api/dto/ValidationResponse.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/application/services/NewBusinessService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/domain/entities/Person.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/NewBusinessController.cls -> file:NewBusiness/src/infrastructure/security/IUserContext.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/PersonController.cls -> file:NewBusiness/src/domain/entities/Person.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/controllers/PersonController.cls -> file:NewBusiness/src/domain/interfaces/IPersonService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/dto/ActivationResponse.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/dto/ContractResponse.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/dto/ContractResponse.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/api/dto/ValidationResponse.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/BenefitService.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/BenefitService.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/BenefitService.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/BenefitService.cls -> file:NewBusiness/src/domain/interfaces/IBenefitRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/BenefitService.cls -> file:NewBusiness/src/domain/interfaces/IBenefitService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/BenefitService.cls -> file:NewBusiness/src/domain/interfaces/IContractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/BenefitService.cls -> file:NewBusiness/src/exceptions/BusinessRuleException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/BenefitService.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CampaignService.cls -> file:NewBusiness/src/domain/entities/Campaign.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CampaignService.cls -> file:NewBusiness/src/domain/interfaces/ICampaignRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CampaignService.cls -> file:NewBusiness/src/domain/interfaces/ICampaignService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CollectionService.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CollectionService.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CollectionService.cls -> file:NewBusiness/src/domain/interfaces/ICollectionRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CollectionService.cls -> file:NewBusiness/src/domain/interfaces/ICollectionService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CollectionService.cls -> file:NewBusiness/src/domain/interfaces/IContractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CollectionService.cls -> file:NewBusiness/src/exceptions/BusinessRuleException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/CollectionService.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/ContractService.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/ContractService.cls -> file:NewBusiness/src/domain/interfaces/IContractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/ContractService.cls -> file:NewBusiness/src/domain/interfaces/IContractService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/ContractService.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/application/workflow/NewBusinessWorkflow.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/entities/Person.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/interfaces/IBenefitService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/interfaces/ICollectionService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/interfaces/IContractService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/interfaces/IContractValidator.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/interfaces/IPersonService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/exceptions/BusinessRuleException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/infrastructure/audit/AuditService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/infrastructure/audit/IAuditService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/infrastructure/security/IUserContext.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/NewBusinessService.cls -> file:NewBusiness/src/infrastructure/security/UserContext.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/PersonService.cls -> file:NewBusiness/src/domain/entities/Person.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/PersonService.cls -> file:NewBusiness/src/domain/interfaces/IPersonRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/PersonService.cls -> file:NewBusiness/src/domain/interfaces/IPersonService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/services/PersonService.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/workflow/NewBusinessWorkflow.cls -> file:NewBusiness/src/domain/interfaces/IWorkflow.cls EXPLICIT 1
+edge uses file:NewBusiness/src/application/workflow/NewBusinessWorkflow.cls -> file:NewBusiness/src/exceptions/ContractStateException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Benefit.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Campaign.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/CollectionInstruction.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Contract.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Contract.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Contract.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Contract.cls -> file:NewBusiness/src/domain/interfaces/IContractValidator.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Contract.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Contract.cls -> file:NewBusiness/src/exceptions/ContractStateException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Contract.cls -> file:NewBusiness/src/exceptions/ValidationException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/ContractBenefit.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/ContractBenefit.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/entities/Person.cls -> file:NewBusiness/src/domain/entities/AbstractDomainEntity.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IBenefitRepository.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IBenefitRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IBenefitService.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IBenefitService.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IBusinessRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IBusinessRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/ICampaignRepository.cls -> file:NewBusiness/src/domain/entities/Campaign.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/ICampaignRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/ICampaignService.cls -> file:NewBusiness/src/domain/entities/Campaign.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/ICollectionRepository.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/ICollectionRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/ICollectionService.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IContractBenefitRepository.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IContractBenefitRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IContractRepository.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IContractRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IContractService.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IContractValidator.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IContractValidator.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IPersonRepository.cls -> file:NewBusiness/src/domain/entities/Person.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IPersonRepository.cls -> file:NewBusiness/src/domain/interfaces/IRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/interfaces/IPersonService.cls -> file:NewBusiness/src/domain/entities/Person.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls -> file:NewBusiness/src/domain/interfaces/IBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> file:NewBusiness/src/domain/interfaces/IBenefitRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BenefitActiveRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BenefitRequiredRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/BusinessRuleRegistry.cls -> file:NewBusiness/src/domain/interfaces/IBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls -> file:NewBusiness/src/domain/entities/Campaign.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls -> file:NewBusiness/src/domain/interfaces/ICampaignRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CampaignRequiredRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/ContractStatusRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/ContractStatusRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/ContractStatusRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/DuplicateContractRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/DuplicateContractRule.cls -> file:NewBusiness/src/domain/interfaces/IContractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/DuplicateContractRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/DuplicateContractRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls -> file:NewBusiness/src/domain/entities/Person.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls -> file:NewBusiness/src/domain/interfaces/IPersonRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls -> file:NewBusiness/src/domain/rules/AbstractBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/rules/PremiumPositiveRule.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/validation/ContractValidator.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/validation/ContractValidator.cls -> file:NewBusiness/src/domain/interfaces/IBusinessRule.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/validation/ContractValidator.cls -> file:NewBusiness/src/domain/interfaces/IContractValidator.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/validation/ContractValidator.cls -> file:NewBusiness/src/domain/rules/BusinessRuleRegistry.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/validation/ContractValidator.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/validation/ContractValidator.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/domain/validation/ValidationSummary.cls -> file:NewBusiness/src/domain/validation/ValidationResult.cls EXPLICIT 1
+edge uses file:NewBusiness/src/exceptions/ValidationException.cls -> file:NewBusiness/src/domain/validation/ValidationSummary.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/audit/AuditService.cls -> file:NewBusiness/src/infrastructure/audit/ContractAudit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/audit/AuditService.cls -> file:NewBusiness/src/infrastructure/audit/IAuditService.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/audit/AuditService.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/logging/Logger.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls -> file:NewBusiness/src/exceptions/RepositoryException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/BenefitRepository.cls -> file:NewBusiness/src/domain/entities/Benefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/BenefitRepository.cls -> file:NewBusiness/src/domain/interfaces/IBenefitRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/BenefitRepository.cls -> file:NewBusiness/src/exceptions/RepositoryException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/BenefitRepository.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/BenefitRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CampaignRepository.cls -> file:NewBusiness/src/domain/entities/Campaign.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CampaignRepository.cls -> file:NewBusiness/src/domain/interfaces/ICampaignRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CampaignRepository.cls -> file:NewBusiness/src/exceptions/RepositoryException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CampaignRepository.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CampaignRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CollectionRepository.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CollectionRepository.cls -> file:NewBusiness/src/domain/interfaces/ICollectionRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CollectionRepository.cls -> file:NewBusiness/src/exceptions/RepositoryException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CollectionRepository.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/CollectionRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/ContractBenefitRepository.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/ContractBenefitRepository.cls -> file:NewBusiness/src/domain/interfaces/IContractBenefitRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/ContractBenefitRepository.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/ContractBenefitRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/ContractRepository.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/ContractRepository.cls -> file:NewBusiness/src/domain/interfaces/IContractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/ContractRepository.cls -> file:NewBusiness/src/exceptions/RepositoryException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/ContractRepository.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/ContractRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> file:NewBusiness/src/domain/entities/CollectionInstruction.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> file:NewBusiness/src/domain/entities/Contract.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> file:NewBusiness/src/domain/entities/ContractBenefit.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> file:NewBusiness/src/domain/interfaces/IContractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> file:NewBusiness/src/exceptions/RepositoryException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/DbContractRepository.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/PersonRepository.cls -> file:NewBusiness/src/domain/entities/Person.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/PersonRepository.cls -> file:NewBusiness/src/domain/interfaces/IPersonRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/PersonRepository.cls -> file:NewBusiness/src/exceptions/RepositoryException.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/PersonRepository.cls -> file:NewBusiness/src/infrastructure/logging/ILogger.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/repositories/PersonRepository.cls -> file:NewBusiness/src/infrastructure/repositories/AbstractRepository.cls EXPLICIT 1
+edge uses file:NewBusiness/src/infrastructure/security/UserContext.cls -> file:NewBusiness/src/infrastructure/security/IUserContext.cls EXPLICIT 1
+file CHANGELOG.md kind=doc layer=docs loc=49
+file NewBusiness/ARCHITECTURE.md kind=doc layer=docs loc=151
+file NewBusiness/NewBusinessProcess.md kind=doc layer=docs loc=1923
+file NewBusiness/README.md kind=doc layer=docs loc=196
+file NewBusiness/TRACEABILITY.md kind=doc layer=docs loc=148
+file NewBusiness/database/delta/002_benefit_cover_amount.df kind=schema layer=database loc=15
+file NewBusiness/database/delta/003_contract_sequence.df kind=schema layer=database loc=14
+file NewBusiness/database/migrations/001_initial_schema.md kind=doc layer=docs loc=19
+file NewBusiness/database/migrations/002_benefit_cover_amount.md kind=doc layer=docs loc=15
+file NewBusiness/database/migrations/003_contract_sequence.md kind=doc layer=docs loc=16
+file NewBusiness/database/schema/newbusiness.df kind=schema layer=database loc=466
+file NewBusiness/database/seed/SeedData.p kind=procedure layer=database loc=75
+file NewBusiness/include/ttContractStatus.i kind=include layer=include loc=33
+file NewBusiness/new-business-console.html kind=other layer=root loc=777
+file NewBusiness/src/Bootstrap.cls kind=class layer=root loc=157
+file NewBusiness/src/api/RestGateway.cls kind=class layer=api loc=232
+file NewBusiness/src/api/controllers/BenefitController.cls kind=class layer=api loc=36
+file NewBusiness/src/api/controllers/CampaignController.cls kind=class layer=api loc=36
+file NewBusiness/src/api/controllers/ContractController.cls kind=class layer=api loc=29
+file NewBusiness/src/api/controllers/NewBusinessController.cls kind=class layer=api loc=129
+file NewBusiness/src/api/controllers/PersonController.cls kind=class layer=api loc=38
+file NewBusiness/src/api/dto/ActivationResponse.cls kind=class layer=api loc=42
+file NewBusiness/src/api/dto/AddBenefitRequest.cls kind=class layer=api loc=22
+file NewBusiness/src/api/dto/CapturePersonRequest.cls kind=class layer=api loc=54
+file NewBusiness/src/api/dto/CollectionInstructionRequest.cls kind=class layer=api loc=36
+file NewBusiness/src/api/dto/ContractResponse.cls kind=class layer=api loc=71
+file NewBusiness/src/api/dto/CreateContractRequest.cls kind=class layer=api loc=23
+file NewBusiness/src/api/dto/ValidationResponse.cls kind=class layer=api loc=32
+file NewBusiness/src/api/procs/ContractStatusReport.p kind=procedure layer=api loc=76
+file NewBusiness/src/application/services/BenefitService.cls kind=class layer=application loc=65
+file NewBusiness/src/application/services/CampaignService.cls kind=class layer=application loc=31
+file NewBusiness/src/application/services/CollectionService.cls kind=class layer=application loc=64
+file NewBusiness/src/application/services/ContractService.cls kind=class layer=application loc=87
+file NewBusiness/src/application/services/NewBusinessService.cls kind=class layer=application loc=243
+file NewBusiness/src/application/services/PersonService.cls kind=class layer=application loc=57
+file NewBusiness/src/application/workflow/NewBusinessWorkflow.cls kind=class layer=application loc=109
+file NewBusiness/src/batch/ExportContractStatusCsv.p kind=procedure layer=batch loc=44
+file NewBusiness/src/domain/entities/AbstractDomainEntity.cls kind=class layer=domain loc=46
+file NewBusiness/src/domain/entities/Benefit.cls kind=class layer=domain loc=105
+file NewBusiness/src/domain/entities/Campaign.cls kind=class layer=domain loc=84
+file NewBusiness/src/domain/entities/CollectionInstruction.cls kind=class layer=domain loc=107
+file NewBusiness/src/domain/entities/Contract.cls kind=class layer=domain loc=292
+file NewBusiness/src/domain/entities/ContractBenefit.cls kind=class layer=domain loc=93
+file NewBusiness/src/domain/entities/Person.cls kind=class layer=domain loc=97
+file NewBusiness/src/domain/interfaces/IBenefitRepository.cls kind=class layer=domain loc=15
+file NewBusiness/src/domain/interfaces/IBenefitService.cls kind=class layer=domain loc=11
+file NewBusiness/src/domain/interfaces/IBusinessRule.cls kind=class layer=domain loc=27
+file NewBusiness/src/domain/interfaces/ICampaignRepository.cls kind=class layer=domain loc=15
+file NewBusiness/src/domain/interfaces/ICampaignService.cls kind=class layer=domain loc=10
+file NewBusiness/src/domain/interfaces/ICollectionRepository.cls kind=class layer=domain loc=13
+file NewBusiness/src/domain/interfaces/ICollectionService.cls kind=class layer=domain loc=15
+file NewBusiness/src/domain/interfaces/IContractBenefitRepository.cls kind=class layer=domain loc=12
+file NewBusiness/src/domain/interfaces/IContractRepository.cls kind=class layer=domain loc=30
+file NewBusiness/src/domain/interfaces/IContractService.cls kind=class layer=domain loc=25
+file NewBusiness/src/domain/interfaces/IContractValidator.cls kind=class layer=domain loc=18
+file NewBusiness/src/domain/interfaces/IPersonRepository.cls kind=class layer=domain loc=15
+file NewBusiness/src/domain/interfaces/IPersonService.cls kind=class layer=domain loc=18
+file NewBusiness/src/domain/interfaces/IRepository.cls kind=class layer=domain loc=27
+file NewBusiness/src/domain/interfaces/IWorkflow.cls kind=class layer=domain loc=23
+file NewBusiness/src/domain/rules/AbstractBusinessRule.cls kind=class layer=domain loc=60
+file NewBusiness/src/domain/rules/BenefitActiveRule.cls kind=class layer=domain loc=60
+file NewBusiness/src/domain/rules/BenefitRequiredRule.cls kind=class layer=domain loc=31
+file NewBusiness/src/domain/rules/BusinessRuleRegistry.cls kind=class layer=domain loc=35
+file NewBusiness/src/domain/rules/CampaignRequiredRule.cls kind=class layer=domain loc=51
+file NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls kind=class layer=domain loc=43
+file NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls kind=class layer=domain loc=37
+file NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls kind=class layer=domain loc=31
+file NewBusiness/src/domain/rules/ContractStatusRule.cls kind=class layer=domain loc=33
+file NewBusiness/src/domain/rules/DuplicateContractRule.cls kind=class layer=domain loc=41
+file NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls kind=class layer=domain loc=56
+file NewBusiness/src/domain/rules/PremiumPositiveRule.cls kind=class layer=domain loc=32
+file NewBusiness/src/domain/validation/ContractValidator.cls kind=class layer=domain loc=57
+file NewBusiness/src/domain/validation/ValidationResult.cls kind=class layer=domain loc=57
+file NewBusiness/src/domain/validation/ValidationSummary.cls kind=class layer=domain loc=101
+file NewBusiness/src/exceptions/ApplicationException.cls kind=class layer=exceptions loc=29
+file NewBusiness/src/exceptions/BusinessRuleException.cls kind=class layer=exceptions loc=20
+file NewBusiness/src/exceptions/ContractStateException.cls kind=class layer=exceptions loc=29
+file NewBusiness/src/exceptions/RepositoryException.cls kind=class layer=exceptions loc=21
+file NewBusiness/src/exceptions/ValidationException.cls kind=class layer=exceptions loc=20
+file NewBusiness/src/infrastructure/audit/AuditService.cls kind=class layer=infrastructure loc=70
+file NewBusiness/src/infrastructure/audit/ContractAudit.cls kind=class layer=infrastructure loc=54
+file NewBusiness/src/infrastructure/audit/IAuditService.cls kind=class layer=infrastructure loc=21
+file NewBusiness/src/infrastructure/logging/ILogger.cls kind=class layer=infrastructure loc=19
+file NewBusiness/src/infrastructure/logging/Logger.cls kind=class layer=infrastructure loc=48
+file NewBusiness/src/infrastructure/repositories/AbstractRepository.cls kind=class layer=infrastructure loc=84
+file NewBusiness/src/infrastructure/repositories/BenefitRepository.cls kind=class layer=infrastructure loc=59
+file NewBusiness/src/infrastructure/repositories/CampaignRepository.cls kind=class layer=infrastructure loc=59
+file NewBusiness/src/infrastructure/repositories/CollectionRepository.cls kind=class layer=infrastructure loc=39
+file NewBusiness/src/infrastructure/repositories/ContractBenefitRepository.cls kind=class layer=infrastructure loc=46
+file NewBusiness/src/infrastructure/repositories/ContractRepository.cls kind=class layer=infrastructure loc=69
+file NewBusiness/src/infrastructure/repositories/DbContractRepository.cls kind=class layer=infrastructure loc=298
+file NewBusiness/src/infrastructure/repositories/PersonRepository.cls kind=class layer=infrastructure loc=48
+file NewBusiness/src/infrastructure/security/IUserContext.cls kind=class layer=infrastructure loc=22
+file NewBusiness/src/infrastructure/security/UserContext.cls kind=class layer=infrastructure loc=49
+file NewBusiness/tests/domain/ContractActivationTest.cls kind=class layer=tests loc=131 test
+file NewBusiness/tests/domain/FakeContractValidator.cls kind=class layer=tests loc=31 test
+file NewBusiness/tests/edgecases/EdgeCaseTest.cls kind=class layer=tests loc=129 test
+file NewBusiness/tests/rules/BenefitRequiredRuleTest.cls kind=class layer=tests loc=57 test
+file NewBusiness/tests/rules/CampaignRequiredRuleTest.cls kind=class layer=tests loc=82 test
+file NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls kind=class layer=tests loc=119 test
+file NewBusiness/tests/rules/CollectionMethodRequiredRuleTest.cls kind=class layer=tests loc=72 test
+file NewBusiness/tests/rules/ContractOwnerRequiredRuleTest.cls kind=class layer=tests loc=47 test
+file NewBusiness/tests/rules/PremiumPositiveRuleTest.cls kind=class layer=tests loc=58 test
+file NewBusiness/tests/services/NewBusinessServiceTest.cls kind=class layer=tests loc=208 test
+file NewBusiness/tests/workflow/NewBusinessWorkflowTest.cls kind=class layer=tests loc=82 test
+metric CHANGELOG.md loc=49 churn=2 fanIn=0 tests=0
+metric NewBusiness/ARCHITECTURE.md loc=151 churn=0 fanIn=0 tests=0
+metric NewBusiness/NewBusinessProcess.md loc=1923 churn=0 fanIn=0 tests=0
+metric NewBusiness/README.md loc=196 churn=0 fanIn=0 tests=0
+metric NewBusiness/TRACEABILITY.md loc=148 churn=0 fanIn=0 tests=0
+metric NewBusiness/database/delta/002_benefit_cover_amount.df loc=15 churn=1 fanIn=0 tests=0
+metric NewBusiness/database/delta/003_contract_sequence.df loc=14 churn=1 fanIn=0 tests=0
+metric NewBusiness/database/migrations/001_initial_schema.md loc=19 churn=0 fanIn=0 tests=0
+metric NewBusiness/database/migrations/002_benefit_cover_amount.md loc=15 churn=1 fanIn=0 tests=0
+metric NewBusiness/database/migrations/003_contract_sequence.md loc=16 churn=1 fanIn=0 tests=0
+metric NewBusiness/database/schema/newbusiness.df loc=466 churn=0 fanIn=0 tests=0
+metric NewBusiness/database/seed/SeedData.p loc=75 churn=1 fanIn=1 tests=0
+metric NewBusiness/include/ttContractStatus.i loc=33 churn=2 fanIn=3 tests=0
+metric NewBusiness/new-business-console.html loc=777 churn=0 fanIn=0 tests=0
+metric NewBusiness/src/Bootstrap.cls loc=157 churn=1 fanIn=1 tests=2
+metric NewBusiness/src/api/RestGateway.cls loc=232 churn=2 fanIn=0 tests=0
+metric NewBusiness/src/api/controllers/BenefitController.cls loc=36 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/controllers/CampaignController.cls loc=36 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/controllers/ContractController.cls loc=29 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/controllers/NewBusinessController.cls loc=129 churn=0 fanIn=2 tests=0
+metric NewBusiness/src/api/controllers/PersonController.cls loc=38 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/dto/ActivationResponse.cls loc=42 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/dto/AddBenefitRequest.cls loc=22 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/dto/CapturePersonRequest.cls loc=54 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/dto/CollectionInstructionRequest.cls loc=36 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/dto/ContractResponse.cls loc=71 churn=0 fanIn=2 tests=0
+metric NewBusiness/src/api/dto/CreateContractRequest.cls loc=23 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/dto/ValidationResponse.cls loc=32 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/api/procs/ContractStatusReport.p loc=76 churn=2 fanIn=2 tests=0
+metric NewBusiness/src/application/services/BenefitService.cls loc=65 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/application/services/CampaignService.cls loc=31 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/application/services/CollectionService.cls loc=64 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/application/services/ContractService.cls loc=87 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/application/services/NewBusinessService.cls loc=243 churn=0 fanIn=2 tests=0
+metric NewBusiness/src/application/services/PersonService.cls loc=57 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/application/workflow/NewBusinessWorkflow.cls loc=109 churn=0 fanIn=1 tests=1
+metric NewBusiness/src/batch/ExportContractStatusCsv.p loc=44 churn=2 fanIn=0 tests=0
+metric NewBusiness/src/domain/entities/AbstractDomainEntity.cls loc=46 churn=0 fanIn=12 tests=0
+metric NewBusiness/src/domain/entities/Benefit.cls loc=105 churn=1 fanIn=8 tests=3
+metric NewBusiness/src/domain/entities/Campaign.cls loc=84 churn=0 fanIn=7 tests=1
+metric NewBusiness/src/domain/entities/CollectionInstruction.cls loc=107 churn=1 fanIn=8 tests=4
+metric NewBusiness/src/domain/entities/Contract.cls loc=292 churn=1 fanIn=26 tests=10
+metric NewBusiness/src/domain/entities/ContractBenefit.cls loc=93 churn=1 fanIn=10 tests=3
+metric NewBusiness/src/domain/entities/Person.cls loc=97 churn=0 fanIn=8 tests=0
+metric NewBusiness/src/domain/interfaces/IBenefitRepository.cls loc=15 churn=0 fanIn=5 tests=0
+metric NewBusiness/src/domain/interfaces/IBenefitService.cls loc=11 churn=0 fanIn=4 tests=0
+metric NewBusiness/src/domain/interfaces/IBusinessRule.cls loc=27 churn=0 fanIn=4 tests=0
+metric NewBusiness/src/domain/interfaces/ICampaignRepository.cls loc=15 churn=0 fanIn=5 tests=0
+metric NewBusiness/src/domain/interfaces/ICampaignService.cls loc=10 churn=0 fanIn=3 tests=0
+metric NewBusiness/src/domain/interfaces/ICollectionRepository.cls loc=13 churn=0 fanIn=3 tests=0
+metric NewBusiness/src/domain/interfaces/ICollectionService.cls loc=15 churn=0 fanIn=3 tests=0
+metric NewBusiness/src/domain/interfaces/IContractBenefitRepository.cls loc=12 churn=0 fanIn=2 tests=0
+metric NewBusiness/src/domain/interfaces/IContractRepository.cls loc=30 churn=0 fanIn=9 tests=0
+metric NewBusiness/src/domain/interfaces/IContractService.cls loc=25 churn=0 fanIn=4 tests=0
+metric NewBusiness/src/domain/interfaces/IContractValidator.cls loc=18 churn=0 fanIn=6 tests=1
+metric NewBusiness/src/domain/interfaces/IPersonRepository.cls loc=15 churn=0 fanIn=4 tests=0
+metric NewBusiness/src/domain/interfaces/IPersonService.cls loc=18 churn=0 fanIn=4 tests=0
+metric NewBusiness/src/domain/interfaces/IRepository.cls loc=27 churn=0 fanIn=12 tests=0
+metric NewBusiness/src/domain/interfaces/IWorkflow.cls loc=23 churn=0 fanIn=2 tests=0
+metric NewBusiness/src/domain/rules/AbstractBusinessRule.cls loc=60 churn=0 fanIn=20 tests=0
+metric NewBusiness/src/domain/rules/BenefitActiveRule.cls loc=60 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/domain/rules/BenefitRequiredRule.cls loc=31 churn=0 fanIn=1 tests=1
+metric NewBusiness/src/domain/rules/BusinessRuleRegistry.cls loc=35 churn=0 fanIn=2 tests=0
+metric NewBusiness/src/domain/rules/CampaignRequiredRule.cls loc=51 churn=0 fanIn=1 tests=1
+metric NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls loc=43 churn=1 fanIn=1 tests=1
+metric NewBusiness/src/domain/rules/CollectionMethodRequiredRule.cls loc=37 churn=0 fanIn=1 tests=1
+metric NewBusiness/src/domain/rules/ContractOwnerRequiredRule.cls loc=31 churn=0 fanIn=1 tests=1
+metric NewBusiness/src/domain/rules/ContractStatusRule.cls loc=33 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/domain/rules/DuplicateContractRule.cls loc=41 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/domain/rules/PersonMandatoryDetailsRule.cls loc=56 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/domain/rules/PremiumPositiveRule.cls loc=32 churn=0 fanIn=1 tests=1
+metric NewBusiness/src/domain/validation/ContractValidator.cls loc=57 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/domain/validation/ValidationResult.cls loc=57 churn=0 fanIn=13 tests=7
+metric NewBusiness/src/domain/validation/ValidationSummary.cls loc=101 churn=0 fanIn=7 tests=3
+metric NewBusiness/src/exceptions/ApplicationException.cls loc=29 churn=0 fanIn=5 tests=0
+metric NewBusiness/src/exceptions/BusinessRuleException.cls loc=20 churn=0 fanIn=6 tests=2
+metric NewBusiness/src/exceptions/ContractStateException.cls loc=29 churn=0 fanIn=2 tests=3
+metric NewBusiness/src/exceptions/RepositoryException.cls loc=21 churn=0 fanIn=7 tests=0
+metric NewBusiness/src/exceptions/ValidationException.cls loc=20 churn=0 fanIn=1 tests=2
+metric NewBusiness/src/infrastructure/audit/AuditService.cls loc=70 churn=0 fanIn=2 tests=0
+metric NewBusiness/src/infrastructure/audit/ContractAudit.cls loc=54 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/infrastructure/audit/IAuditService.cls loc=21 churn=0 fanIn=4 tests=0
+metric NewBusiness/src/infrastructure/logging/ILogger.cls loc=19 churn=0 fanIn=18 tests=0
+metric NewBusiness/src/infrastructure/logging/Logger.cls loc=48 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/infrastructure/repositories/AbstractRepository.cls loc=84 churn=0 fanIn=12 tests=0
+metric NewBusiness/src/infrastructure/repositories/BenefitRepository.cls loc=59 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/infrastructure/repositories/CampaignRepository.cls loc=59 churn=0 fanIn=1 tests=1
+metric NewBusiness/src/infrastructure/repositories/CollectionRepository.cls loc=39 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/infrastructure/repositories/ContractBenefitRepository.cls loc=46 churn=0 fanIn=0 tests=0
+metric NewBusiness/src/infrastructure/repositories/ContractRepository.cls loc=69 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/infrastructure/repositories/DbContractRepository.cls loc=298 churn=1 fanIn=1 tests=0
+metric NewBusiness/src/infrastructure/repositories/PersonRepository.cls loc=48 churn=0 fanIn=1 tests=0
+metric NewBusiness/src/infrastructure/security/IUserContext.cls loc=22 churn=0 fanIn=5 tests=2
+metric NewBusiness/src/infrastructure/security/UserContext.cls loc=49 churn=0 fanIn=2 tests=2
+metric NewBusiness/tests/domain/ContractActivationTest.cls loc=131 churn=0 fanIn=0 tests=0
+metric NewBusiness/tests/domain/FakeContractValidator.cls loc=31 churn=0 fanIn=0 tests=1
+metric NewBusiness/tests/edgecases/EdgeCaseTest.cls loc=129 churn=0 fanIn=0 tests=0
+metric NewBusiness/tests/rules/BenefitRequiredRuleTest.cls loc=57 churn=0 fanIn=0 tests=0
+metric NewBusiness/tests/rules/CampaignRequiredRuleTest.cls loc=82 churn=0 fanIn=0 tests=0
+metric NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls loc=119 churn=1 fanIn=0 tests=0
+metric NewBusiness/tests/rules/CollectionMethodRequiredRuleTest.cls loc=72 churn=0 fanIn=0 tests=0
+metric NewBusiness/tests/rules/ContractOwnerRequiredRuleTest.cls loc=47 churn=0 fanIn=0 tests=0
+metric NewBusiness/tests/rules/PremiumPositiveRuleTest.cls loc=58 churn=0 fanIn=0 tests=0
+metric NewBusiness/tests/services/NewBusinessServiceTest.cls loc=208 churn=0 fanIn=0 tests=0
+metric NewBusiness/tests/workflow/NewBusinessWorkflowTest.cls loc=82 churn=0 fanIn=0 tests=0
+process New Business Process DETECTED steps=7
+req BR-001 requirement "Create Contract" doc=NewBusinessProcess.md
+req BR-002 requirement "Link Campaign" doc=NewBusinessProcess.md
+req BR-003 requirement "Capture Client Details" doc=NewBusinessProcess.md
+req BR-004 requirement "Link Benefits" doc=NewBusinessProcess.md
+req BR-005 requirement "Capture Collection Details" doc=NewBusinessProcess.md
+req BR-006 requirement "Validate New Business" doc=NewBusinessProcess.md
+req BR-007 requirement "Activate Contract" doc=NewBusinessProcess.md
+req BRULE-001 rule "Campaign Required" doc=NewBusinessProcess.md
+req BRULE-002 rule "Contract Owner Required" doc=NewBusinessProcess.md
+req BRULE-003 rule "Person Details Required" doc=NewBusinessProcess.md
+req BRULE-004 rule "Benefit Required" doc=NewBusinessProcess.md
+req BRULE-005 rule "Benefit Must Be Active" doc=NewBusinessProcess.md
+req BRULE-006 rule "Collection Method Required" doc=NewBusinessProcess.md
+req BRULE-007 rule "Collection Date Required" doc=NewBusinessProcess.md
+req BRULE-008 rule "Valid Collection Day" doc=NewBusinessProcess.md
+req BRULE-009 rule "Positive Premium" doc=NewBusinessProcess.md
+req BRULE-010 rule "Activation Status" doc=NewBusinessProcess.md
+req BRULE-011 rule "All Mandatory Validations Must Pass" doc=NewBusinessProcess.md
+rule NB-BENEFIT-001 impl="BenefitRequiredRule" trace="BR-004 / BRULE-004"
+rule NB-BENEFIT-004 impl="BenefitActiveRule" trace="BR-004 / BRULE-005"
+rule NB-CAMPAIGN-001 impl="CampaignRequiredRule" trace="BR-002 / BRULE-001"
+rule NB-COLLECTION-001 impl="CollectionMethodRequiredRule" trace="BR-005 / BRULE-006"
+rule NB-COLLECTION-002 impl="CollectionDateRequiredRule" trace="BR-005 / BRULE-007, BRULE-008"
+rule NB-CONTRACT-002 impl="DuplicateContractRule" trace="BR-006"
+rule NB-PERSON-001 impl="ContractOwnerRequiredRule" trace="BR-003 / BRULE-002"
+rule NB-PERSON-002 impl="PersonMandatoryDetailsRule" trace="BR-003 / BRULE-003"
+rule NB-PREMIUM-001 impl="PremiumPositiveRule" trace="BR-006 / BRULE-009"
+rule NB-STATUS-001 impl="ContractStatusRule" trace="BR-006 / BRULE-010"
+step New Business Process#1 "Open contract"
+step New Business Process#2 "Link campaign"
+step New Business Process#3 "Capture client details"
+step New Business Process#4 "Link benefits"
+step New Business Process#5 "Capture collection details"
+step New Business Process#6 "Validate new business"
+step New Business Process#7 "Activate contract"
+table Benefit table added=NewBusiness/database/schema/newbusiness.df fields=BenefitId:character@NewBusiness/database/schema/newbusiness.df,BenefitCode:character@NewBusiness/database/schema/newbusiness.df,BenefitName:character@NewBusiness/database/schema/newbusiness.df,Description:character@NewBusiness/database/schema/newbusiness.df,Premium:decimal@NewBusiness/database/schema/newbusiness.df,Status:character@NewBusiness/database/schema/newbusiness.df,CoverAmount:decimal@NewBusiness/database/delta/002_benefit_cover_amount.df
+table Campaign table added=NewBusiness/database/schema/newbusiness.df fields=CampaignId:character@NewBusiness/database/schema/newbusiness.df,CampaignCode:character@NewBusiness/database/schema/newbusiness.df,CampaignName:character@NewBusiness/database/schema/newbusiness.df,StartDate:date@NewBusiness/database/schema/newbusiness.df,EndDate:date@NewBusiness/database/schema/newbusiness.df,Status:character@NewBusiness/database/schema/newbusiness.df
+table CollectionInstruction table added=NewBusiness/database/schema/newbusiness.df fields=ContractId:character@NewBusiness/database/schema/newbusiness.df,CollectionMethod:character@NewBusiness/database/schema/newbusiness.df,CollectionDay:integer@NewBusiness/database/schema/newbusiness.df,AccountNumber:character@NewBusiness/database/schema/newbusiness.df,BankCode:character@NewBusiness/database/schema/newbusiness.df,AccountHolderName:character@NewBusiness/database/schema/newbusiness.df
+table Contract table added=NewBusiness/database/schema/newbusiness.df fields=ContractId:character@NewBusiness/database/schema/newbusiness.df,Status:character@NewBusiness/database/schema/newbusiness.df,CampaignId:character@NewBusiness/database/schema/newbusiness.df,OwnerPersonId:character@NewBusiness/database/schema/newbusiness.df,TotalPremium:decimal@NewBusiness/database/schema/newbusiness.df,CreatedDate:datetime@NewBusiness/database/schema/newbusiness.df,ModifiedDate:datetime@NewBusiness/database/schema/newbusiness.df,ActivatedDate:datetime@NewBusiness/database/schema/newbusiness.df
+table ContractAudit table added=NewBusiness/database/schema/newbusiness.df fields=AuditId:character@NewBusiness/database/schema/newbusiness.df,ContractId:character@NewBusiness/database/schema/newbusiness.df,Action:character@NewBusiness/database/schema/newbusiness.df,OldValue:character@NewBusiness/database/schema/newbusiness.df,NewValue:character@NewBusiness/database/schema/newbusiness.df,UserId:character@NewBusiness/database/schema/newbusiness.df,Timestamp:datetime@NewBusiness/database/schema/newbusiness.df
+table ContractBenefit table added=NewBusiness/database/schema/newbusiness.df fields=ContractId:character@NewBusiness/database/schema/newbusiness.df,BenefitId:character@NewBusiness/database/schema/newbusiness.df,BenefitCode:character@NewBusiness/database/schema/newbusiness.df,Premium:decimal@NewBusiness/database/schema/newbusiness.df,EffectiveDate:date@NewBusiness/database/schema/newbusiness.df
+table Person table added=NewBusiness/database/schema/newbusiness.df fields=PersonId:character@NewBusiness/database/schema/newbusiness.df,FirstName:character@NewBusiness/database/schema/newbusiness.df,Surname:character@NewBusiness/database/schema/newbusiness.df,DateOfBirth:date@NewBusiness/database/schema/newbusiness.df,IDNumber:character@NewBusiness/database/schema/newbusiness.df,Email:character@NewBusiness/database/schema/newbusiness.df,MobileNumber:character@NewBusiness/database/schema/newbusiness.df,Address:character@NewBusiness/database/schema/newbusiness.df
+table SeqContract sequence added=NewBusiness/database/delta/003_contract_sequence.df fields=

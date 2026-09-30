@@ -1,0 +1,776 @@
+<title>New Business Console</title>
+<style>
+:root{
+  --ink:#14181F; --ink-muted:#586170; --paper:#F1F2EE; --surface:#FFFFFF; --surface-2:#F7F7F4;
+  --line:#DCDFD6; --line-strong:#C3C7BC;
+  --accent:#2054B5; --accent-ink:#FFFFFF; --accent-soft:#E4ECFB;
+  --success:#1F7A4D; --success-soft:#E3F3EA;
+  --warning:#B5762A; --warning-soft:#FBEEE0;
+  --error:#B5342A; --error-soft:#FAE7E4;
+  --focus:#2054B5;
+  --shadow: 0 1px 2px rgba(20,24,31,.06), 0 4px 14px rgba(20,24,31,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#ECEEF0; --ink-muted:#9AA3AE; --paper:#14171C; --surface:#1B1F26; --surface-2:#20242C;
+    --line:#2B313B; --line-strong:#3A4150;
+    --accent:#6C9BF2; --accent-ink:#0B1220; --accent-soft:#1E2A44;
+    --success:#4CAF7D; --success-soft:#173226;
+    --warning:#D99A4E; --warning-soft:#3A2B18;
+    --error:#E1665A; --error-soft:#3A1E1C;
+    --focus:#6C9BF2;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#ECEEF0; --ink-muted:#9AA3AE; --paper:#14171C; --surface:#1B1F26; --surface-2:#20242C;
+  --line:#2B313B; --line-strong:#3A4150;
+  --accent:#6C9BF2; --accent-ink:#0B1220; --accent-soft:#1E2A44;
+  --success:#4CAF7D; --success-soft:#173226;
+  --warning:#D99A4E; --warning-soft:#3A2B18;
+  --error:#E1665A; --error-soft:#3A1E1C;
+  --focus:#6C9BF2;
+  --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;}
+body{background:var(--paper); color:var(--ink);}
+body, input, select, button, textarea{
+  font-family:"IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+.font-display{font-family:"Zilla Slab", Georgia, "Times New Roman", serif;}
+.font-mono, code, .mono{font-family:"IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;}
+.tab-nums{font-variant-numeric: tabular-nums;}
+
+a{color:var(--accent);}
+button{font:inherit;}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+
+.app{max-width:1180px; margin:0 auto; padding:20px 16px 48px; display:flex; flex-direction:column; gap:18px;}
+
+/* ---- Topbar ---- */
+.topbar{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; padding-bottom:14px; border-bottom:1px solid var(--line);}
+.brand h1{font-family:"Zilla Slab", Georgia, serif; font-weight:600; font-size:26px; margin:0 0 4px; letter-spacing:.2px;}
+.brand p{margin:0; color:var(--ink-muted); font-size:13.5px; max-width:52ch; line-height:1.5;}
+.brand .codechip{display:inline-block; margin-top:8px; font-size:11px; padding:2px 7px; border:1px solid var(--line-strong); border-radius:3px; color:var(--ink-muted); background:var(--surface-2);}
+
+.role-toggle{display:flex; flex-direction:column; gap:6px; align-items:flex-end;}
+.role-toggle .label{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-muted);}
+.seg{display:inline-flex; border:1px solid var(--line-strong); border-radius:7px; overflow:hidden; background:var(--surface);}
+.seg button{border:0; background:transparent; padding:7px 13px; font-size:13px; color:var(--ink-muted); cursor:pointer; white-space:nowrap;}
+.seg button + button{border-left:1px solid var(--line-strong);}
+.seg button.active{background:var(--accent); color:var(--accent-ink); font-weight:600;}
+.role-hint{font-size:11px; color:var(--ink-muted); max-width:220px; text-align:right;}
+
+/* ---- Console grid ---- */
+.console{display:grid; grid-template-columns:230px minmax(0,1fr) 300px; gap:16px; align-items:start;}
+@media (max-width: 940px){ .console{grid-template-columns:1fr;} }
+
+/* ---- Stepper ---- */
+.stepper{display:flex; flex-direction:column; gap:2px; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:8px; box-shadow:var(--shadow);}
+.step{display:flex; align-items:flex-start; gap:10px; padding:9px 8px; border-radius:7px; cursor:pointer; border:1px solid transparent; text-align:left; background:transparent; width:100%; color:var(--ink);}
+.step:hover{background:var(--surface-2);}
+.step.current{background:var(--accent-soft); border-color:var(--accent);}
+.step .dot{flex:0 0 auto; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; border:1.5px solid var(--line-strong); color:var(--ink-muted); background:var(--surface); margin-top:1px;}
+.step.done .dot{background:var(--success); border-color:var(--success); color:#fff;}
+.step.current .dot{border-color:var(--accent); color:var(--accent); background:var(--surface);}
+.step .txt{display:flex; flex-direction:column; gap:1px; min-width:0;}
+.step .txt .lbl{font-size:13px; font-weight:600; line-height:1.3;}
+.step .txt .req{font-size:10.5px; color:var(--ink-muted); font-family:"IBM Plex Mono", monospace;}
+@media (max-width: 940px){
+  .stepper{flex-direction:row; overflow-x:auto; gap:4px;}
+  .step{flex:0 0 auto; min-width:150px;}
+}
+
+/* ---- Panel ---- */
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:18px 20px 20px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:14px; min-width:0;}
+.panel-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:10px;}
+.panel-head h2{font-family:"Zilla Slab", Georgia, serif; font-size:19px; margin:0; font-weight:600;}
+.panel-head .maps-to{font-size:11px; color:var(--ink-muted); font-family:"IBM Plex Mono", monospace;}
+.panel-body{display:flex; flex-direction:column; gap:12px;}
+.field-row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+@media (max-width:520px){ .field-row{grid-template-columns:1fr;} }
+label{display:flex; flex-direction:column; gap:4px; font-size:12.5px; color:var(--ink-muted); font-weight:600;}
+input[type=text], input[type=date], input[type=number], input[type=email], select, textarea{
+  font-size:13.5px; padding:8px 10px; border-radius:6px; border:1px solid var(--line-strong);
+  background:var(--surface); color:var(--ink); width:100%;
+}
+input::placeholder{color:var(--ink-muted); opacity:.7;}
+.hint{font-size:11.5px; color:var(--ink-muted); line-height:1.5;}
+.btn{display:inline-flex; align-items:center; gap:6px; border-radius:7px; border:1px solid transparent; padding:9px 16px; font-size:13.5px; font-weight:600; cursor:pointer;}
+.btn-primary{background:var(--accent); color:var(--accent-ink);}
+.btn-primary:disabled{background:var(--line-strong); color:var(--surface); cursor:not-allowed;}
+.btn-ghost{background:transparent; border-color:var(--line-strong); color:var(--ink);}
+.btn-ghost:hover{background:var(--surface-2);}
+.btn-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding-top:2px;}
+.link-btn{background:none; border:0; color:var(--accent); font-size:13px; font-weight:600; cursor:pointer; padding:4px 0;}
+
+/* ---- Chips / pills ---- */
+.pill{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 9px; border-radius:99px; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;}
+.pill-neutral{background:var(--surface-2); color:var(--ink-muted); border:1px solid var(--line-strong);}
+.pill-success{background:var(--success-soft); color:var(--success);}
+.pill-warning{background:var(--warning-soft); color:var(--warning);}
+.pill-error{background:var(--error-soft); color:var(--error);}
+.pill-accent{background:var(--accent-soft); color:var(--accent);}
+
+.chiplist{display:flex; flex-wrap:wrap; gap:8px;}
+.benefit-chip{display:flex; align-items:center; gap:8px; border:1px solid var(--line-strong); border-radius:8px; padding:8px 11px; background:var(--surface); cursor:pointer; text-align:left; min-width:150px;}
+.benefit-chip:hover{border-color:var(--accent);}
+.benefit-chip.added{border-color:var(--success); background:var(--success-soft);}
+.benefit-chip.inactive{border-style:dashed;}
+.benefit-chip .code{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-muted);}
+.benefit-chip .name{font-weight:600; font-size:13px;}
+.benefit-chip .prem{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-variant-numeric:tabular-nums;}
+
+.campaign-opt{display:flex; justify-content:space-between; gap:8px; align-items:center; border:1px solid var(--line-strong); border-radius:8px; padding:9px 12px; cursor:pointer; background:var(--surface);}
+.campaign-opt:hover{border-color:var(--accent);}
+.campaign-opt.selected{border-color:var(--accent); background:var(--accent-soft);}
+.campaign-opt .meta{font-size:11.5px; color:var(--ink-muted); font-family:"IBM Plex Mono",monospace;}
+
+/* ---- Ledger ---- */
+.ledger{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px 18px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:12px; position:sticky; top:16px;}
+.ledger h3{margin:0; font-family:"Zilla Slab", Georgia, serif; font-size:15px; display:flex; justify-content:space-between; align-items:center;}
+.ledger .cid{font-family:"IBM Plex Mono",monospace; font-size:15px; font-weight:700; letter-spacing:.02em;}
+.kv{display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:5px 0; border-bottom:1px dashed var(--line);}
+.kv:last-child{border-bottom:0;}
+.kv .k{color:var(--ink-muted);}
+.kv .v{font-weight:600; text-align:right; max-width:60%;}
+.premium-total{display:flex; justify-content:space-between; align-items:baseline; padding-top:6px; border-top:1px solid var(--line);}
+.premium-total .amt{font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:700; font-variant-numeric:tabular-nums;}
+.stamp{align-self:flex-start; border:2px double var(--success); color:var(--success); font-family:"Zilla Slab",serif; font-weight:700; text-transform:uppercase; letter-spacing:.12em; font-size:12px; padding:6px 12px; border-radius:4px; transform:rotate(-3deg); background:var(--success-soft);}
+.empty-ledger{color:var(--ink-muted); font-size:13px; padding:12px 0; text-align:center;}
+.portfolio{border-top:1px solid var(--line); padding-top:10px; display:flex; flex-direction:column; gap:6px;}
+.portfolio h4{margin:0 0 2px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-muted);}
+.portfolio-row{display:flex; justify-content:space-between; gap:8px; font-size:11.5px; padding:4px 0;}
+.portfolio-row .pid{font-family:"IBM Plex Mono",monospace;}
+
+/* ---- Tabs region ---- */
+.tabs-region{background:var(--surface); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow); overflow:hidden;}
+.tabs{display:flex; border-bottom:1px solid var(--line); background:var(--surface-2);}
+.tabs button{background:none; border:0; padding:11px 16px; font-size:13px; font-weight:600; color:var(--ink-muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;}
+.tabs button.active{color:var(--accent); border-bottom-color:var(--accent);}
+.tab-content{padding:14px 18px 18px; max-height:360px; overflow-y:auto;}
+
+.vrow{display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line);}
+.vrow:last-child{border-bottom:0;}
+.vrow .icon{flex:0 0 auto; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; margin-top:1px;}
+.vrow.pass .icon{background:var(--success-soft); color:var(--success);}
+.vrow.fail .icon{background:var(--error-soft); color:var(--error);}
+.vrow .body{display:flex; flex-direction:column; gap:3px; min-width:0;}
+.vrow .top{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+.vrow .rulecode{font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:700;}
+.vrow .msg{font-size:12.5px; color:var(--ink-muted); line-height:1.45;}
+.vsummary{display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; margin-bottom:4px; border-bottom:1px solid var(--line); font-size:13px;}
+
+.audit-row{display:grid; grid-template-columns:64px 130px 1fr; gap:10px; font-size:12px; padding:7px 0; border-bottom:1px solid var(--line); align-items:baseline;}
+.audit-row:last-child{border-bottom:0;}
+.audit-row .ts{font-family:"IBM Plex Mono",monospace; color:var(--ink-muted);}
+.audit-row .action{font-weight:700; font-size:11px;}
+.audit-row .detail{color:var(--ink-muted);}
+.audit-row .detail b{color:var(--ink); font-weight:600;}
+
+.api-entry{border:1px solid var(--line); border-radius:7px; margin-bottom:9px; overflow:hidden; font-family:"IBM Plex Mono",monospace; font-size:11.5px;}
+.api-entry .req{display:flex; gap:8px; align-items:center; padding:7px 10px; background:var(--surface-2);}
+.api-entry .method{font-weight:700; padding:1px 6px; border-radius:3px; background:var(--accent-soft); color:var(--accent);}
+.api-entry .path{color:var(--ink); word-break:break-all;}
+.api-entry .res{display:flex; gap:8px; padding:7px 10px; align-items:flex-start;}
+.api-entry .status{font-weight:700; flex:0 0 auto;}
+.api-entry .status.ok{color:var(--success);}
+.api-entry .status.err{color:var(--error);}
+.api-entry pre{margin:0; white-space:pre-wrap; word-break:break-word; color:var(--ink-muted); flex:1;}
+.empty-tab{color:var(--ink-muted); font-size:12.5px; text-align:center; padding:20px 0;}
+
+.guard-list{display:flex; flex-direction:column; gap:8px;}
+.guard{display:flex; align-items:center; gap:9px; font-size:13px; padding:8px 10px; border-radius:7px; background:var(--surface-2); border:1px solid var(--line);}
+.guard .gicon{width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex:0 0 auto;}
+.guard.ok .gicon{background:var(--success-soft); color:var(--success);}
+.guard.bad .gicon{background:var(--error-soft); color:var(--error);}
+
+.toast-stack{position:fixed; right:16px; bottom:16px; display:flex; flex-direction:column; gap:8px; z-index:50; max-width:min(320px, calc(100vw - 32px));}
+.toast{background:var(--surface); border:1px solid var(--line-strong); border-left:4px solid var(--accent); border-radius:7px; padding:10px 13px; font-size:12.5px; box-shadow:var(--shadow); animation:toastin .18s ease-out;}
+.toast.error{border-left-color:var(--error);}
+.toast.success{border-left-color:var(--success);}
+@keyframes toastin{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+footer.foot{text-align:center; font-size:11.5px; color:var(--ink-muted); padding-top:6px;}
+footer.foot code{font-size:11px;}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div id="root"></div>
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   MOCK MASTER DATA — mirrors database/seed/SeedData.p
+   ============================================================ */
+var today = new Date(); today.setHours(0,0,0,0);
+function addDays(d,n){ var r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function fmtDate(d){ if(!d) return "—"; return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"2-digit"}); }
+function fmtDateTime(d){ if(!d) return "—"; return d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"}); }
+function isoDay(d){ return d.toISOString().slice(0,10); }
+function pad(n,w){ return String(n).padStart(w,"0"); }
+function money(n){ return "R " + (Math.round(n*100)/100).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2}); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+var CAMPAIGNS = [
+  {id:"CAM001", code:"CAM001", name:"January New Business", status:"ACTIVE",  start:addDays(today,-20), end:addDays(today,20)},
+  {id:"CAM002", code:"CAM002", name:"Digital Campaign",      status:"ACTIVE",  start:addDays(today,-60), end:addDays(today,300)},
+  {id:"CAM003", code:"CAM003", name:"Summer Campaign",       status:"ACTIVE",  start:addDays(today,-10), end:addDays(today,50)},
+  {id:"CAM004", code:"CAM004", name:"Expired Campaign",      status:"EXPIRED", start:addDays(today,-400), end:addDays(today,-30)}
+];
+function campaignIsActive(c){
+  if(c.status !== "ACTIVE") return false;
+  if(c.start && today < c.start) return false;
+  if(c.end && today > c.end) return false;
+  return true;
+}
+function campaignReason(c){
+  if(campaignIsActive(c)) return "";
+  if(c.status==="EXPIRED" || (c.end && today>c.end)) return "Campaign has expired.";
+  if(c.start && today<c.start) return "Campaign has not started yet.";
+  return "Campaign is not active.";
+}
+
+var BENEFITS = [
+  {id:"BEN001", code:"LIFE",        name:"Life Cover",        premium:250, status:"ACTIVE"},
+  {id:"BEN002", code:"FUNERAL",     name:"Funeral Cover",     premium:150, status:"ACTIVE"},
+  {id:"BEN003", code:"ACCIDENT",    name:"Accident Cover",    premium:100, status:"ACTIVE"},
+  {id:"BEN004", code:"DISABILITY",  name:"Disability Cover",  premium:300, status:"ACTIVE"},
+  {id:"BEN005", code:"HOSPITAL",    name:"Hospital Cash Plan",premium:200, status:"ACTIVE"},
+  {id:"BEN006", code:"LEGACY_PLAN", name:"Legacy Savings Plan",premium:120, status:"INACTIVE"}
+];
+
+var COLLECTION_METHODS = ["DEBIT_ORDER","EFT","CARD","PAYROLL","CASH"];
+
+var STEPS = [
+  {n:1, key:"open",       label:"Open Contract",           req:"BR-001", maps:"ContractService.CreateContract()"},
+  {n:2, key:"campaign",   label:"Link Campaign",           req:"BR-002", maps:"ContractService.AssignCampaign()"},
+  {n:3, key:"person",     label:"Capture Client Details",  req:"BR-003", maps:"PersonService.CapturePerson()"},
+  {n:4, key:"benefits",   label:"Link Benefits",           req:"BR-004", maps:"BenefitService.AddBenefitToContract()"},
+  {n:5, key:"collection", label:"Capture Collection Details",req:"BR-005", maps:"CollectionService.CaptureCollection()"},
+  {n:6, key:"validate",   label:"Validate New Business",   req:"BR-006", maps:"ContractValidator.ValidateContract()"},
+  {n:7, key:"activate",   label:"Activate Contract",       req:"BR-007", maps:"Contract.Activate()"}
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+var seq = {contract:0, person:0, audit:0};
+var portfolio = [];   // {contractId, ownerName, idNumber, status}
+var contract = null;
+var currentStep = 1;
+var role = "AGENT";   // AGENT | SUPERVISOR
+var activeTab = "validation"; // validation | audit | api
+var personDraft = {firstName:"",surname:"",dob:"",idNumber:"",email:"",mobile:"",address:""};
+var collectionDraft = {method:"DEBIT_ORDER", day:25, accountNumber:"", bankCode:"", accountHolderName:""};
+
+function newContract(){
+  seq.contract++;
+  var id = "CON-" + pad(seq.contract,6);
+  return {
+    contractId:id, status:"NEW", createdDate:new Date(),
+    campaignId:null,
+    ownerPersonId:null, ownerName:null, ownerIdNumber:null,
+    benefits:[],           // {code,name,premium}
+    collection:null,
+    workflowStage:"CONTRACT_CREATED",
+    lastValidation:null,   // {results, isValid, evaluatedAt}
+    lastMutatedAt:Date.now(),
+    activatedDate:null,
+    activationRequestCount:0,
+    audit:[], api:[]
+  };
+}
+
+function totalPremium(c){
+  return c.benefits.reduce(function(s,b){ return s+b.premium; }, 0);
+}
+function markMutated(){ contract.lastMutatedAt = Date.now(); }
+
+function addAudit(action, oldV, newV){
+  seq.audit++;
+  contract.audit.unshift({id:"AUD-"+pad(seq.audit,6), action:action, oldValue:oldV, newValue:newV, user:role==="SUPERVISOR"?"supervisor1":"agent1", ts:new Date()});
+}
+function addApi(method, path, reqBody, status, resBody){
+  contract.api.unshift({method:method, path:path, reqBody:reqBody, status:status, resBody:resBody, ts:new Date()});
+}
+function toast(msg, kind){
+  var host = document.getElementById("toasts");
+  var el = document.createElement("div");
+  el.className = "toast" + (kind ? " "+kind : "");
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 4200);
+}
+
+/* ============================================================
+   BUSINESS RULES — mirrors src/domain/rules/*.cls exactly
+   Each returns {pass, ruleCode, severity, message, req}
+   ============================================================ */
+function ruleCampaignRequired(c){
+  var req="BR-002", code="NB-CAMPAIGN-001";
+  if(!c.campaignId) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"A campaign must be linked before the contract can be activated."};
+  var camp = CAMPAIGNS.find(function(x){return x.id===c.campaignId;});
+  if(!camp || !campaignIsActive(camp)) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message: camp? campaignReason(camp) : "Campaign does not exist."};
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"Campaign "+camp.code+" is active and in-window."};
+}
+function ruleOwnerRequired(c){
+  var req="BR-003", code="NB-PERSON-001";
+  if(!c.ownerPersonId) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"A contract must have an owner before it can be activated."};
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"Owner "+c.ownerPersonId+" is linked."};
+}
+function rulePersonMandatory(c){
+  var req="BR-003", code="NB-PERSON-002";
+  if(!c.ownerPersonId) return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"Not applicable — no owner linked yet."};
+  var p = c._personSnapshot || {};
+  var missing = [];
+  if(!p.firstName) missing.push("FirstName");
+  if(!p.surname) missing.push("Surname");
+  if(!p.dob) missing.push("DateOfBirth"); else if(new Date(p.dob) > today) missing.push("DateOfBirth(future)");
+  if(!p.idNumber) missing.push("IDNumber");
+  if(!p.mobile) missing.push("MobileNumber");
+  if(missing.length) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"Owner is missing mandatory details: "+missing.join(", ")+"."};
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"Owner has all mandatory details."};
+}
+function ruleBenefitRequired(c){
+  var req="BR-004", code="NB-BENEFIT-001";
+  if(c.benefits.length===0) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"At least one benefit must be selected."};
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:c.benefits.length+" benefit(s) selected."};
+}
+function ruleBenefitActive(c){
+  var req="BR-004", code="NB-BENEFIT-004";
+  for(var i=0;i<c.benefits.length;i++){
+    var b = BENEFITS.find(function(x){return x.code===c.benefits[i].code;});
+    if(!b || b.status!=="ACTIVE") return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"Benefit "+c.benefits[i].code+" is no longer active."};
+  }
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"All selected benefits are active."};
+}
+function ruleCollectionMethod(c){
+  var req="BR-005", code="NB-COLLECTION-001";
+  if(!c.collection) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"The contract must have a collection method."};
+  if(COLLECTION_METHODS.indexOf(c.collection.method)===-1) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"Collection method "+c.collection.method+" is not supported."};
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"Collection method "+c.collection.method+" is supported."};
+}
+function ruleCollectionDay(c){
+  var req="BR-005", code="NB-COLLECTION-002";
+  if(!c.collection) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"The contract must have a collection date/day."};
+  var d = c.collection.day;
+  if(d==null || d<1 || d>31) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"Collection day must be between 1 and 31."};
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"Collection day "+d+" is valid."};
+}
+function rulePremiumPositive(c){
+  var req="BR-006", code="NB-PREMIUM-001";
+  if(totalPremium(c) <= 0) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"The total premium must be greater than zero."};
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"Total premium is "+money(totalPremium(c))+"."};
+}
+function ruleContractStatus(c){
+  var req="BR-006", code="NB-STATUS-001";
+  if(c.status!=="NEW") return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"Contract is in "+c.status+" status; only NEW contracts can be activated."};
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"Contract is in NEW status."};
+}
+function ruleDuplicateContract(c){
+  var req="BR-006", code="NB-CONTRACT-002";
+  if(!c.ownerIdNumber) return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"Not applicable — no owner linked yet."};
+  var dup = portfolio.find(function(p){ return p.idNumber===c.ownerIdNumber && p.status==="IN-FORCE"; });
+  if(dup) return {pass:false, ruleCode:code, req:req, severity:"ERROR", message:"Owner already has an active contract ("+dup.contractId+")."};
+  return {pass:true, ruleCode:code, req:req, severity:"INFO", message:"No existing active contract for this owner."};
+}
+
+var RULES = [ruleCampaignRequired, ruleOwnerRequired, rulePersonMandatory, ruleBenefitRequired, ruleBenefitActive,
+             ruleCollectionMethod, ruleCollectionDay, rulePremiumPositive, ruleContractStatus, ruleDuplicateContract];
+
+/* ============================================================
+   ACTIONS — mirrors application/services/NewBusinessService.cls
+   ============================================================ */
+function actionCreateContract(){
+  contract = newContract();
+  addAudit("CONTRACT_CREATED","", "NEW");
+  addApi("POST","/api/new-business/contracts", {campaignId:null}, 201, {contractId:contract.contractId, status:"NEW"});
+  currentStep = 2;
+  render();
+}
+function actionLinkCampaign(campId){
+  if(!contract) return;
+  contract.campaignId = campId;
+  markMutated();
+  addAudit("CAMPAIGN_LINKED","",campId);
+  addApi("PATCH","/api/new-business/contracts/"+contract.contractId+"/campaign", {campaignId:campId}, 200, {contractId:contract.contractId, campaignId:campId});
+  render();
+}
+function actionCapturePerson(){
+  if(!contract) return;
+  seq.person++;
+  var pid = "PER-"+pad(seq.person,6);
+  contract.ownerPersonId = pid;
+  contract.ownerName = (personDraft.firstName||"—")+" "+(personDraft.surname||"");
+  contract.ownerIdNumber = personDraft.idNumber || null;
+  contract._personSnapshot = Object.assign({}, personDraft);
+  markMutated();
+  addAudit("PERSON_LINKED","",pid);
+  addApi("POST","/api/new-business/contracts/"+contract.contractId+"/person",
+    {firstName:personDraft.firstName, surname:personDraft.surname, dateOfBirth:personDraft.dob, idNumber:mask(personDraft.idNumber), mobileNumber:personDraft.mobile},
+    200, {personId:pid, contractId:contract.contractId});
+  render();
+}
+function actionAddBenefit(code){
+  if(!contract) return;
+  if(contract.benefits.some(function(b){return b.code===code;})){
+    toast("Benefit "+code+" has already been added to this contract.", "error");
+    return;
+  }
+  var b = BENEFITS.find(function(x){return x.code===code;});
+  contract.benefits.push({code:b.code, name:b.name, premium:b.premium});
+  markMutated();
+  addAudit("BENEFIT_ADDED","",b.code);
+  addApi("POST","/api/new-business/contracts/"+contract.contractId+"/benefits", {benefitId:b.id}, 200,
+    {contractId:contract.contractId, benefitCode:b.code, premium:b.premium});
+  render();
+}
+function actionSetCollection(){
+  if(!contract) return;
+  contract.collection = Object.assign({}, collectionDraft);
+  markMutated();
+  addAudit("COLLECTION_UPDATED","",collectionDraft.method);
+  addApi("POST","/api/new-business/contracts/"+contract.contractId+"/collection",
+    {collectionMethod:collectionDraft.method, collectionDay:collectionDraft.day, accountNumber:mask(collectionDraft.accountNumber)},
+    200, {contractId:contract.contractId, collectionMethod:collectionDraft.method});
+  render();
+}
+function actionValidate(){
+  if(!contract) return;
+  var results = RULES.map(function(r){ return r(contract); });
+  var isValid = results.every(function(r){ return r.pass || r.severity!=="ERROR"; });
+  contract.lastValidation = {results:results, isValid:isValid, evaluatedAt:Date.now()};
+  contract.workflowStage = isValid ? "READY_FOR_ACTIVATION" : "VALIDATION_FAILED";
+  var errCount = results.filter(function(r){return !r.pass;}).length;
+  addAudit("VALIDATION_EXECUTED","", "valid="+isValid+" errors="+errCount);
+  addApi("POST","/api/new-business/contracts/"+contract.contractId+"/validate", null, 200,
+    {valid:isValid, results:results.map(function(r){return {ruleCode:r.ruleCode, isValid:r.pass, severity:r.severity, message:r.message};})});
+  activeTab = "validation";
+  render();
+}
+function actionActivate(){
+  if(!contract) return;
+  contract.activationRequestCount++;
+
+  if(role!=="SUPERVISOR"){
+    addApi("POST","/api/new-business/contracts/"+contract.contractId+"/activate", null, 403,
+      {error:"NB-AUTH-001", message:"Activation requires SUPERVISOR or ADMIN privileges."});
+    toast("Activation requires SUPERVISOR or ADMIN privileges.", "error");
+    render();
+    return;
+  }
+  if(contract.status==="IN-FORCE"){
+    // idempotent no-op — Section 48
+    addApi("POST","/api/new-business/contracts/"+contract.contractId+"/activate", null, 200,
+      {contractId:contract.contractId, status:"IN-FORCE"});
+    toast("Already IN-FORCE — activation request was idempotent (no new event).", "success");
+    render();
+    return;
+  }
+  if(!contract.lastValidation){
+    addApi("POST","/api/new-business/contracts/"+contract.contractId+"/activate", null, 409,
+      {error:"NB-ACTIVATION-001", message:"Contract cannot be activated before it has been validated."});
+    toast("Contract cannot be activated before it has been validated.", "error");
+    render();
+    return;
+  }
+  if(contract.lastMutatedAt > contract.lastValidation.evaluatedAt){
+    addApi("POST","/api/new-business/contracts/"+contract.contractId+"/activate", null, 409,
+      {error:"NB003", message:"Validation result is stale — the contract was modified after validation."});
+    toast("Validation result is stale. Please re-validate before activating.", "error");
+    render();
+    return;
+  }
+  if(!contract.lastValidation.isValid){
+    addApi("POST","/api/new-business/contracts/"+contract.contractId+"/activate", null, 409,
+      {contractId:contract.contractId, status:"NEW", activated:false, message:"Contract failed new-business validation."});
+    toast("Contract failed new-business validation and cannot be activated.", "error");
+    render();
+    return;
+  }
+
+  contract.status = "IN-FORCE";
+  contract.activatedDate = new Date();
+  contract.workflowStage = "ACTIVATED";
+  addAudit("CONTRACT_ACTIVATED","NEW","IN-FORCE");
+  addApi("POST","/api/new-business/contracts/"+contract.contractId+"/activate", null, 200,
+    {contractId:contract.contractId, status:"IN-FORCE"});
+  portfolio.unshift({contractId:contract.contractId, ownerName:contract.ownerName, idNumber:contract.ownerIdNumber, status:"IN-FORCE"});
+  toast("Contract "+contract.contractId+" is now IN-FORCE.", "success");
+  currentStep = 7;
+  render();
+}
+function actionNewApplication(){
+  contract = null;
+  currentStep = 1;
+  personDraft = {firstName:"",surname:"",dob:"",idNumber:"",email:"",mobile:"",address:""};
+  collectionDraft = {method:"DEBIT_ORDER", day:25, accountNumber:"", bankCode:"", accountHolderName:""};
+  render();
+}
+function mask(v){ if(!v) return v; var s=String(v); return s.length<=4 ? s : "••••"+s.slice(-4); }
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function stageDoneCount(stage){
+  var order = {CONTRACT_CREATED:1, CAMPAIGN_LINKED:2, PERSON_CAPTURED:3, BENEFITS_SELECTED:4, COLLECTION_CAPTURED:5,
+    VALIDATING:5, VALIDATION_FAILED:6, READY_FOR_ACTIVATION:6, ACTIVATED:7};
+  return order[stage] || 0;
+}
+function recomputeWorkflowFromContract(){
+  if(!contract) return "—";
+  if(contract.workflowStage==="ACTIVATED") return "ACTIVATED";
+  if(contract.workflowStage==="VALIDATION_FAILED" || contract.workflowStage==="READY_FOR_ACTIVATION") return contract.workflowStage;
+  if(contract.collection) return "COLLECTION_CAPTURED";
+  if(contract.benefits.length) return "BENEFITS_SELECTED";
+  if(contract.ownerPersonId) return "PERSON_CAPTURED";
+  if(contract.campaignId) return "CAMPAIGN_LINKED";
+  return "CONTRACT_CREATED";
+}
+
+function statusPillClass(status){
+  if(status==="IN-FORCE") return "pill-success";
+  if(status==="VALIDATION_FAILED") return "pill-error";
+  if(status==="CANCELLED" || status==="LAPSED") return "pill-neutral";
+  return "pill-accent";
+}
+
+function renderStepper(){
+  if(contract) contract.workflowStage = recomputeWorkflowFromContract();
+  var done = contract ? stageDoneCount(contract.workflowStage) : 0;
+  return '<nav class="stepper" aria-label="New Business process steps">' + STEPS.map(function(s){
+    var cls = "step" + (s.n===currentStep ? " current":"") + (s.n<=done ? " done":"");
+    var dot = s.n<=done ? "✓" : s.n;
+    return '<button class="'+cls+'" onclick="NB.goStep('+s.n+')" aria-current="'+(s.n===currentStep?'step':'false')+'">'
+      + '<span class="dot">'+dot+'</span>'
+      + '<span class="txt"><span class="lbl">'+s.n+'. '+esc(s.label)+'</span><span class="req">'+s.req+'</span></span>'
+      + '</button>';
+  }).join('') + '</nav>';
+}
+
+function renderLedger(){
+  if(!contract){
+    var pf = portfolio.length ? renderPortfolio() : "";
+    return '<aside class="ledger"><h3>Contract Ledger</h3><p class="empty-ledger">No application in progress.<br>Open a contract to begin.</p>'+pf+'</aside>';
+  }
+  var c = contract;
+  var stampHtml = c.status==="IN-FORCE" ? '<div class="stamp">In-Force ✓ Policy #'+c.contractId.split("-")[1]+'</div>' : "";
+  var camp = CAMPAIGNS.find(function(x){return x.id===c.campaignId;});
+  var benRows = c.benefits.length ? c.benefits.map(function(b){return b.code+' ('+money(b.premium)+')';}).join(", ") : "—";
+  return '<aside class="ledger">'
+    + '<h3><span class="cid">'+c.contractId+'</span><span class="pill '+statusPillClass(c.status)+'">'+c.status+'</span></h3>'
+    + stampHtml
+    + '<div class="kv"><span class="k">Workflow stage</span><span class="v mono" style="font-size:11px">'+c.workflowStage+'</span></div>'
+    + '<div class="kv"><span class="k">Campaign</span><span class="v">'+(camp?camp.code+" — "+camp.name:"Not linked")+'</span></div>'
+    + '<div class="kv"><span class="k">Owner</span><span class="v">'+(c.ownerName?esc(c.ownerName)+' ('+c.ownerPersonId+')':"Not linked")+'</span></div>'
+    + '<div class="kv"><span class="k">Benefits</span><span class="v">'+esc(benRows)+'</span></div>'
+    + '<div class="kv"><span class="k">Collection</span><span class="v">'+(c.collection? c.collection.method+" · day "+c.collection.day : "Not captured")+'</span></div>'
+    + '<div class="kv"><span class="k">Validated</span><span class="v">'+(c.lastValidation? (c.lastValidation.isValid?'<span class="pill pill-success">Passed</span>':'<span class="pill pill-error">Failed</span>') : '<span class="pill pill-neutral">Not yet</span>')+'</span></div>'
+    + '<div class="kv"><span class="k">Activation attempts</span><span class="v mono">'+c.activationRequestCount+'</span></div>'
+    + '<div class="kv"><span class="k">Activated</span><span class="v">'+(c.activatedDate? fmtDateTime(c.activatedDate) : "—")+'</span></div>'
+    + '<div class="premium-total"><span class="k">Total premium</span><span class="amt">'+money(totalPremium(c))+'</span></div>'
+    + renderPortfolio()
+    + '</aside>';
+}
+function renderPortfolio(){
+  if(!portfolio.length) return "";
+  return '<div class="portfolio"><h4>Session Portfolio</h4>' + portfolio.slice(0,4).map(function(p){
+    return '<div class="portfolio-row"><span class="pid">'+p.contractId+'</span><span>'+esc(p.ownerName||"—")+'</span><span class="pill pill-success" style="font-size:9px">'+p.status+'</span></div>';
+  }).join('') + '<div class="hint">Tip: reuse an ID number from a portfolio contract to trigger NB-CONTRACT-002 (duplicate active policy).</div></div>';
+}
+
+function panelWrap(title, maps, body){
+  return '<section class="panel"><div class="panel-head"><h2>'+esc(title)+'</h2><span class="maps-to">→ '+esc(maps)+'</span></div><div class="panel-body">'+body+'</div></section>';
+}
+
+function renderStepPanel(){
+  var s = STEPS[currentStep-1];
+  if(currentStep===1) return renderStep1();
+  if(!contract) return panelWrap(s.label, s.maps, '<p class="hint">Open a contract first (Step 1) before capturing this data — exactly as the domain model requires an existing Contract aggregate before any of its mutator methods can be called.</p><div class="btn-row"><button class="btn btn-primary" onclick="NB.goStep(1)">Go to Step 1</button></div>');
+  if(currentStep===2) return renderStep2();
+  if(currentStep===3) return renderStep3();
+  if(currentStep===4) return renderStep4();
+  if(currentStep===5) return renderStep5();
+  if(currentStep===6) return renderStep6();
+  if(currentStep===7) return renderStep7();
+}
+
+function renderStep1(){
+  var body = contract
+    ? '<p class="hint">Contract <b class="mono">'+contract.contractId+'</b> already exists in status <b>'+contract.status+'</b>.</p><div class="btn-row"><button class="btn btn-ghost" onclick="NB.newApplication()">Start a new application</button><button class="btn btn-primary" onclick="NB.goStep(2)">Continue →</button></div>'
+    : '<p class="hint">Creates the aggregate in status <b>NEW</b> and generates a unique identifier, e.g. <span class="mono">CON-000001</span> — mirrors <span class="mono">Contract:Create()</span>. No campaign, person, benefit or collection detail is required yet; the process only enforces completeness later, at Step 6.</p>'
+      + '<div class="btn-row"><button class="btn btn-primary" onclick="NB.createContract()">Create Contract</button></div>';
+  return panelWrap("1. Open Contract", "ContractService.CreateContract()", body);
+}
+
+function renderStep2(){
+  var opts = CAMPAIGNS.map(function(c){
+    var active = campaignIsActive(c);
+    var sel = contract.campaignId===c.id;
+    return '<div class="campaign-opt'+(sel?' selected':'')+'" onclick="NB.linkCampaign(\''+c.id+'\')">'
+      + '<div><div style="font-weight:600;font-size:13px">'+c.code+' — '+esc(c.name)+'</div>'
+      + '<div class="meta">'+isoDay(c.start)+' → '+isoDay(c.end)+'</div></div>'
+      + '<span class="pill '+(active?'pill-success':'pill-error')+'">'+(active?'ACTIVE':c.status)+'</span>'
+      + '</div>';
+  }).join('');
+  var body = '<p class="hint">Selecting a campaign here only assigns it — it is not checked for validity until Step 6 runs <span class="mono">CampaignRequiredRule</span> (rule code <span class="mono">NB-CAMPAIGN-001</span>). Try CAM004 to see that rule fail later.</p>'
+    + '<div class="chiplist" style="flex-direction:column">'+opts+'</div>'
+    + '<div class="btn-row"><button class="link-btn" onclick="NB.goStep(3)">Continue without a campaign →</button>'+(contract.campaignId?'<button class="btn btn-primary" onclick="NB.goStep(3)">Continue →</button>':'')+'</div>';
+  return panelWrap("2. Link Campaign", "ContractService.AssignCampaign()", body);
+}
+
+function renderStep3(){
+  var d = personDraft;
+  var body = '<p class="hint">Mirrors <span class="mono">Person:Create()</span> + <span class="mono">Contract:AssignOwner()</span>. Fields are not required here — leave one blank and see <span class="mono">NB-PERSON-002</span> fire in Step 6.</p>'
+    + '<div class="field-row"><label>First name<input type="text" value="'+esc(d.firstName)+'" oninput="NB.setPerson(\'firstName\',this.value)"></label>'
+    + '<label>Surname<input type="text" value="'+esc(d.surname)+'" oninput="NB.setPerson(\'surname\',this.value)"></label></div>'
+    + '<div class="field-row"><label>Date of birth<input type="date" value="'+esc(d.dob)+'" oninput="NB.setPerson(\'dob\',this.value)"></label>'
+    + '<label>ID number<input type="text" placeholder="9001015009087" value="'+esc(d.idNumber)+'" oninput="NB.setPerson(\'idNumber\',this.value)"></label></div>'
+    + '<div class="field-row"><label>Mobile number<input type="text" placeholder="0820000000" value="'+esc(d.mobile)+'" oninput="NB.setPerson(\'mobile\',this.value)"></label>'
+    + '<label>Email<input type="email" value="'+esc(d.email)+'" oninput="NB.setPerson(\'email\',this.value)"></label></div>'
+    + '<label>Address<input type="text" value="'+esc(d.address)+'" oninput="NB.setPerson(\'address\',this.value)"></label>'
+    + '<div class="btn-row"><button class="btn btn-primary" onclick="NB.capturePerson()">Capture Person</button>'
+    + (contract.ownerPersonId ? '<span class="pill pill-success">Owner: '+contract.ownerPersonId+'</span>' : '')
+    + '<button class="link-btn" onclick="NB.goStep(4)">Continue →</button></div>';
+  return panelWrap("3. Capture Client Details", "PersonService.CapturePerson()", body);
+}
+
+function renderStep4(){
+  var chips = BENEFITS.map(function(b){
+    var added = contract.benefits.some(function(x){return x.code===b.code;});
+    var inactive = b.status!=="ACTIVE";
+    return '<button class="benefit-chip'+(added?' added':'')+(inactive?' inactive':'')+'" onclick="NB.addBenefit(\''+b.code+'\')" '+(added?'disabled':'')+'>'
+      + '<span><span class="code">'+b.code+'</span><br><span class="name">'+esc(b.name)+'</span></span>'
+      + '<span class="prem">'+money(b.premium)+'</span>'
+      + (inactive ? '<span class="pill pill-warning" style="margin-left:4px">inactive</span>' : (added ? '<span class="pill pill-success" style="margin-left:4px">added</span>' : ''))
+      + '</button>';
+  }).join('');
+  var body = '<p class="hint">Mirrors <span class="mono">Contract:AddBenefit()</span>, which rejects an exact duplicate (<span class="mono">NB-BENEFIT-002</span>). LEGACY_PLAN is deliberately INACTIVE in the catalogue — add it to see <span class="mono">NB-BENEFIT-004</span> (BenefitActiveRule) fail at Step 6.</p>'
+    + '<div class="chiplist">'+chips+'</div>'
+    + '<div class="btn-row"><span class="hint mono" style="margin:0">Total so far: '+money(totalPremium(contract))+'</span><button class="btn btn-primary" onclick="NB.goStep(5)">Continue →</button></div>';
+  return panelWrap("4. Link Benefits", "BenefitService.AddBenefitToContract()", body);
+}
+
+function renderStep5(){
+  var d = collectionDraft;
+  var methodOpts = COLLECTION_METHODS.map(function(m){ return '<option value="'+m+'"'+(d.method===m?' selected':'')+'>'+m+'</option>'; }).join('');
+  var body = '<p class="hint">Mirrors <span class="mono">CollectionInstruction:Create()</span>. Collection day is a free number here (not clamped) so you can enter <b>0</b> or <b>45</b> and watch <span class="mono">NB-COLLECTION-002</span> fail at Step 6 — exactly the kind of boundary the domain rule, not the input widget, is responsible for enforcing.</p>'
+    + '<div class="field-row"><label>Collection method<select onchange="NB.setCollection(\'method\',this.value)">'+methodOpts+'</select></label>'
+    + '<label>Collection day<input type="number" value="'+d.day+'" oninput="NB.setCollection(\'day\',this.value)"></label></div>'
+    + '<div class="field-row"><label>Account number<input type="text" placeholder="1234567890" value="'+esc(d.accountNumber)+'" oninput="NB.setCollection(\'accountNumber\',this.value)"></label>'
+    + '<label>Bank code<input type="text" placeholder="001" value="'+esc(d.bankCode)+'" oninput="NB.setCollection(\'bankCode\',this.value)"></label></div>'
+    + '<label>Account holder name<input type="text" value="'+esc(d.accountHolderName)+'" oninput="NB.setCollection(\'accountHolderName\',this.value)"></label>'
+    + '<div class="btn-row"><button class="btn btn-primary" onclick="NB.setCollectionInstruction()">Capture Collection Details</button>'
+    + (contract.collection ? '<span class="pill pill-success">Captured</span>' : '')
+    + '<button class="link-btn" onclick="NB.goStep(6)">Continue →</button></div>';
+  return panelWrap("5. Capture Collection Details", "CollectionService.CaptureCollection()", body);
+}
+
+function renderStep6(){
+  var v = contract.lastValidation;
+  var resultsHtml = "";
+  if(v){
+    resultsHtml = '<div class="vsummary"><span>'+(v.isValid?'<span class="pill pill-success">VALID</span>':'<span class="pill pill-error">INVALID</span>')+' — '+v.results.filter(function(r){return r.pass;}).length+' passed · '+v.results.filter(function(r){return !r.pass;}).length+' failed</span></div>'
+      + v.results.map(function(r){
+        return '<div class="vrow '+(r.pass?'pass':'fail')+'"><span class="icon">'+(r.pass?'✓':'✕')+'</span><div class="body"><div class="top"><span class="rulecode">'+r.ruleCode+'</span><span class="pill pill-neutral" style="font-size:9px">'+r.req+'</span></div><div class="msg">'+esc(r.message)+'</div></div></div>';
+      }).join('');
+  }
+  var body = '<p class="hint">Runs every registered <span class="mono">IBusinessRule</span> polymorphically via <span class="mono">BusinessRuleRegistry</span> — the same 10 rules shown in <span class="mono">TRACEABILITY.md</span>. Nothing before this point has blocked you; this is the single place BR-006 is enforced.</p>'
+    + '<div class="btn-row"><button class="btn btn-primary" onclick="NB.validate()">Run Validation</button>'
+    + (v ? '<button class="link-btn" onclick="NB.goStep(7)">Continue to Activation →</button>' : '') + '</div>'
+    + resultsHtml;
+  return panelWrap("6. Validate New Business", "ContractValidator.ValidateContract()", body);
+}
+
+function renderStep7(){
+  var v = contract.lastValidation;
+  var stale = v && contract.lastMutatedAt > v.evaluatedAt;
+  var guards = [
+    {ok: !!v, label: v ? "Validation has been run" : "Not yet validated"},
+    {ok: !!v && !stale, label: stale ? "Validation is stale (contract changed since)" : "Validation result is fresh"},
+    {ok: !!v && v.isValid, label: v && v.isValid ? "Validation passed" : "Validation has errors"},
+    {ok: contract.status==="NEW" || contract.status==="IN-FORCE", label: "Contract status: "+contract.status},
+    {ok: role==="SUPERVISOR", label: role==="SUPERVISOR" ? "Caller has SUPERVISOR/ADMIN role" : "Caller role (AGENT) cannot activate"}
+  ];
+  var canActivate = guards.every(function(g){return g.ok;}) || contract.status==="IN-FORCE";
+  var guardsHtml = guards.map(function(g){
+    return '<div class="guard '+(g.ok?'ok':'bad')+'"><span class="gicon">'+(g.ok?'✓':'✕')+'</span>'+esc(g.label)+'</div>';
+  }).join('');
+  var body = '<p class="hint">Mirrors <span class="mono">Contract:Activate()</span> — every guard below must hold (or the contract must already be IN-FORCE, in which case activation is an idempotent no-op, Section 48).</p>'
+    + '<div class="guard-list">'+guardsHtml+'</div>'
+    + '<div class="btn-row"><button class="btn btn-primary" onclick="NB.activate()" '+(canActivate?'':'disabled')+'>'+(contract.status==="IN-FORCE"?"Re-send Activate (idempotent)":"Activate Contract")+'</button>'
+    + (!canActivate && contract.status!=="IN-FORCE" ? '<span class="hint" style="margin:0">Resolve the guards above first.</span>' : '') + '</div>';
+  return panelWrap("7. Activate Contract", "Contract.Activate()", body);
+}
+
+function renderTabs(){
+  var tabs = [["validation","Validation"],["audit","Audit Trail"],["api","API Trace"]];
+  var tabBtns = tabs.map(function(t){ return '<button class="'+(activeTab===t[0]?'active':'')+'" onclick="NB.setTab(\''+t[0]+'\')">'+t[1]+'</button>'; }).join('');
+  var content = "";
+  if(!contract){
+    content = '<p class="empty-tab">Nothing to show yet — open a contract to begin.</p>';
+  } else if(activeTab==="validation"){
+    var v = contract.lastValidation;
+    content = v ? v.results.map(function(r){
+      return '<div class="vrow '+(r.pass?'pass':'fail')+'"><span class="icon">'+(r.pass?'✓':'✕')+'</span><div class="body"><div class="top"><span class="rulecode">'+r.ruleCode+'</span><span class="pill pill-neutral" style="font-size:9px">'+r.req+'</span></div><div class="msg">'+esc(r.message)+'</div></div></div>';
+    }).join('') : '<p class="empty-tab">Run validation at Step 6 to see rule-by-rule results here.</p>';
+  } else if(activeTab==="audit"){
+    content = contract.audit.length ? contract.audit.map(function(a){
+      return '<div class="audit-row"><span class="ts mono">'+fmtDateTime(a.ts)+'</span><span class="action pill pill-accent" style="font-size:9px">'+a.action+'</span><span class="detail">by <b>'+a.user+'</b>'+(a.newValue?' → <b>'+esc(a.newValue)+'</b>':'')+'</span></div>';
+    }).join('') : '<p class="empty-tab">No audit events yet.</p>';
+  } else if(activeTab==="api"){
+    content = contract.api.length ? contract.api.map(function(a){
+      var ok = a.status>=200 && a.status<300;
+      return '<div class="api-entry"><div class="req"><span class="method">'+a.method+'</span><span class="path">'+esc(a.path)+'</span></div>'
+        + '<div class="res"><span class="status '+(ok?'ok':'err')+'">'+a.status+'</span><pre>'+esc(JSON.stringify(a.resBody,null,2))+'</pre></div></div>';
+    }).join('') : '<p class="empty-tab">No API calls yet.</p>';
+  }
+  return '<div class="tabs-region"><div class="tabs">'+tabBtns+'</div><div class="tab-content">'+content+'</div></div>';
+}
+
+function render(){
+  var root = document.getElementById("root");
+  root.innerHTML =
+    '<div class="app">'
+    + '<header class="topbar">'
+    +   '<div class="brand"><h1 class="font-display">New Business Console</h1>'
+    +   '<p>A client-side walkthrough of the OpenEdge New Business domain model — same rule codes, same workflow stages, same request/response shapes as <span class="mono">src/</span>.</p>'
+    +   '<span class="codechip">Bootstrap.cls → NewBusinessService → ContractValidator</span></div>'
+    +   '<div class="role-toggle"><span class="label">Acting as</span>'
+    +     '<div class="seg"><button class="'+(role==="AGENT"?'active':'')+'" onclick="NB.setRole(\'AGENT\')">Agent</button><button class="'+(role==="SUPERVISOR"?'active':'')+'" onclick="NB.setRole(\'SUPERVISOR\')">Supervisor</button></div>'
+    +     '<span class="role-hint">Only SUPERVISOR/ADMIN may activate (NB-AUTH-001) — Section 38.</span></div>'
+    + '</header>'
+    + '<div class="console">' + renderStepper() + renderStepPanel() + renderLedger() + '</div>'
+    + renderTabs()
+    + '<footer class="foot">Simulates <code class="mono">Contract.cls</code>, <code class="mono">domain/rules/*.cls</code> and <code class="mono">NewBusinessService.cls</code> from the generated OpenEdge codebase. Nothing here is persisted — refreshing resets the session.</footer>'
+    + '</div>';
+}
+
+/* expose API */
+window.NB = {
+  goStep: function(n){ currentStep=n; render(); },
+  createContract: actionCreateContract,
+  linkCampaign: actionLinkCampaign,
+  setPerson: function(k,v){ personDraft[k]=v; },
+  capturePerson: actionCapturePerson,
+  addBenefit: actionAddBenefit,
+  setCollection: function(k,v){ collectionDraft[k] = (k==="day") ? parseInt(v,10) : v; },
+  setCollectionInstruction: actionSetCollection,
+  validate: actionValidate,
+  activate: actionActivate,
+  newApplication: actionNewApplication,
+  setRole: function(r){ role=r; render(); },
+  setTab: function(t){ activeTab=t; render(); }
+};
+
+render();
+})();
+</script>

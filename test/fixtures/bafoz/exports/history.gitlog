@@ -1,0 +1,249 @@
+@@7f4e4bd|7f4e4bdc0439708432cab85df1bb5b8bb550a881|Katleho Rakgosi|2026-09-20T23:01:07+02:00|432024c68e04f1ee8a8b936cb89cd9d321daa322 b091586d6da1f3e4831940f4eca222166793717d|Merge branch 'main' into 'develop'
+@@b091586|b091586d6da1f3e4831940f4eca222166793717d|Katleho Rakgosi|2026-09-20T23:00:42+02:00|efef4be4495c81063bc11c15ece41dd61d167398 2265f21e84993182cdffc85ee149c7ac828b55be|Merge remote-tracking branch 'origin/main'
+@@432024c|432024c68e04f1ee8a8b936cb89cd9d321daa322|Katleho Rakgosi|2026-09-20T23:00:03+02:00|88a0471f1c763261807d6de727832787baf0945e efef4be4495c81063bc11c15ece41dd61d167398|Merge branch 'main' into 'develop'
+@@efef4be|efef4be4495c81063bc11c15ece41dd61d167398|Katleho Rakgosi|2026-09-20T23:00:02+02:00|03dee0b98ed9371dd1b38908c5f1397a492553f5 9309aeb0b17dbcf03f6972d82ce14bf6f40809d6|Merge branch 'hotfix/ci-runner-gating'
+@@9309aeb|9309aeb0b17dbcf03f6972d82ce14bf6f40809d6|Katleho Rakgosi|2026-09-20T23:00:02+02:00|03dee0b98ed9371dd1b38908c5f1397a492553f5|fix(ci): gate OpenEdge jobs behind OE_RUNNER variable, add shared-runner validate stage
+
+64	20	.gitlab-ci.yml
+8	0	CHANGELOG.md
+@@2265f21|2265f21e84993182cdffc85ee149c7ac828b55be|katleho Rakgosi|2026-09-20T20:47:36+00:00|03dee0b98ed9371dd1b38908c5f1397a492553f5|Update .gitlab-ci.yml file
+
+1	1	.gitlab-ci.yml
+@@88a0471|88a0471f1c763261807d6de727832787baf0945e|Katleho Rakgosi|2026-09-20T21:59:54+02:00|e0fd5c7e6971fb97f7789812205056bf9c3beab7 03dee0b98ed9371dd1b38908c5f1397a492553f5|Merge branch 'main' into 'develop'
+@@03dee0b|03dee0b98ed9371dd1b38908c5f1397a492553f5|Katleho Rakgosi|2026-09-20T21:59:53+02:00|922b84ff09bffa546f3e8e2ff74c710e4bf1d86a b6e15c2a45ba2728543463fe2ef869d78ab3c8a3|Merge branch 'release/1.1.0'
+@@b6e15c2|b6e15c2a45ba2728543463fe2ef869d78ab3c8a3|Katleho Rakgosi|2026-09-20T21:59:53+02:00|e0fd5c7e6971fb97f7789812205056bf9c3beab7|chore(release): prepare 1.1.0
+
+40	0	CHANGELOG.md
+@@e0fd5c7|e0fd5c7e6971fb97f7789812205056bf9c3beab7|Katleho Rakgosi|2026-09-20T21:59:16+02:00|cf8e4b879de0ae08ef75689dd0dd3b3c7284ba04 4653bf6c91abc1b9d40eaa307bbf38b1612f14ad|Merge branch 'feature/report-owner-columns' into 'develop'
+@@4653bf6|4653bf6c91abc1b9d40eaa307bbf38b1612f14ad|Katleho Rakgosi|2026-09-20T21:59:16+02:00|cf8e4b879de0ae08ef75689dd0dd3b3c7284ba04|feat(report): add owner and collection columns to ttContractStatus
+
+12	8	NewBusiness/include/ttContractStatus.i
+20	6	NewBusiness/src/api/procs/ContractStatusReport.p
+12	2	NewBusiness/src/batch/ExportContractStatusCsv.p
+@@cf8e4b8|cf8e4b879de0ae08ef75689dd0dd3b3c7284ba04|Katleho Rakgosi|2026-09-20T21:58:37+02:00|c9bf99afe5a937e90154e4d7b883682177083848 6853a3d3e40a8f9b6813160cd33b8a65848aaea5|Merge branch 'feature/contract-status-report' into 'develop'
+@@6853a3d|6853a3d3e40a8f9b6813160cd33b8a65848aaea5|Katleho Rakgosi|2026-09-20T21:58:36+02:00|c9bf99afe5a937e90154e4d7b883682177083848|feat(api): add shared ttContractStatus.i ProDataSet and status report endpoints
+
+28	0	NewBusiness/include/ttContractStatus.i
+37	0	NewBusiness/src/api/RestGateway.cls
+61	0	NewBusiness/src/api/procs/ContractStatusReport.p
+33	0	NewBusiness/src/batch/ExportContractStatusCsv.p
+@@c9bf99a|c9bf99afe5a937e90154e4d7b883682177083848|Katleho Rakgosi|2026-09-20T21:57:21+02:00|643236a2a65b869dbaa22e2281e806c1e20ac19a 7b947840e23d4a6013eb16ee6652818f1f602080|Merge branch 'bugfix/collection-day-monthly-validity' into 'develop'
+@@7b94784|7b947840e23d4a6013eb16ee6652818f1f602080|Katleho Rakgosi|2026-09-20T21:57:21+02:00|643236a2a65b869dbaa22e2281e806c1e20ac19a|fix(domain): restrict recurring monthly collection day to 1-28 (NB-COLLECTION-002)
+
+22	5	NewBusiness/src/domain/entities/CollectionInstruction.cls
+8	2	NewBusiness/src/domain/rules/CollectionDateRequiredRule.cls
+118	0	NewBusiness/tests/rules/CollectionDateRequiredRuleTest.cls
+@@643236a|643236a2a65b869dbaa22e2281e806c1e20ac19a|Katleho Rakgosi|2026-09-20T21:55:35+02:00|e80b70d2893ebf02531a12c7710abd1411309c6f e533edbf7f4b861c49e115c84c3f7370b7d480a0|Merge branch 'feature/db-contract-repository' into 'develop'
+@@e533edb|e533edbf7f4b861c49e115c84c3f7370b7d480a0|Katleho Rakgosi|2026-09-20T21:55:35+02:00|e80b70d2893ebf02531a12c7710abd1411309c6f|feat(infra): add DbContractRepository with transaction-scoped writes
+
+13	0	NewBusiness/database/delta/003_contract_sequence.df
+15	0	NewBusiness/database/migrations/003_contract_sequence.md
+33	13	NewBusiness/src/Bootstrap.cls
+7	2	NewBusiness/src/api/RestGateway.cls
+34	0	NewBusiness/src/domain/entities/Contract.cls
+19	0	NewBusiness/src/domain/entities/ContractBenefit.cls
+297	0	NewBusiness/src/infrastructure/repositories/DbContractRepository.cls
+@@e80b70d|e80b70d2893ebf02531a12c7710abd1411309c6f|Katleho Rakgosi|2026-09-20T21:53:14+02:00|25b040c7ed89dc975e4e6b8eb2d3854fa2bbd602 46b181086a2f4f810fd861ad705fd976c6e301a6|Merge branch 'feature/benefit-cover-amount' into 'develop'
+@@46b1810|46b181086a2f4f810fd861ad705fd976c6e301a6|Katleho Rakgosi|2026-09-20T21:53:14+02:00|25b040c7ed89dc975e4e6b8eb2d3854fa2bbd602|feat(schema): add CoverAmount to Benefit table, entity and seed data
+
+14	0	NewBusiness/database/delta/002_benefit_cover_amount.df
+14	0	NewBusiness/database/migrations/002_benefit_cover_amount.md
+8	1	NewBusiness/database/seed/SeedData.p
+24	0	NewBusiness/src/domain/entities/Benefit.cls
+@@25b040c|25b040c7ed89dc975e4e6b8eb2d3854fa2bbd602|Katleho Rakgosi|2026-09-20T21:52:10+02:00|922b84ff09bffa546f3e8e2ff74c710e4bf1d86a 4b4b37f0803890f11bc93d8070d489aa12567a68|Merge branch 'chore/gitlab-ci-bootstrap' into 'develop'
+@@4b4b37f|4b4b37f0803890f11bc93d8070d489aa12567a68|Katleho Rakgosi|2026-09-20T21:52:10+02:00|922b84ff09bffa546f3e8e2ff74c710e4bf1d86a|chore(repo): normalize doubled src/tests/database roots and add GitLab CI
+
+24	0	.gitignore
+113	0	.gitlab-ci.yml
+0	0	NewBusiness/database/{database => }/migrations/001_initial_schema.md
+0	0	NewBusiness/database/{database => }/schema/newbusiness.df
+0	0	NewBusiness/database/{database => }/seed/SeedData.p
+0	0	NewBusiness/src/{src => }/Bootstrap.cls
+0	0	NewBusiness/src/{src => }/api/RestGateway.cls
+0	0	NewBusiness/src/{src => }/api/controllers/BenefitController.cls
+0	0	NewBusiness/src/{src => }/api/controllers/CampaignController.cls
+0	0	NewBusiness/src/{src => }/api/controllers/ContractController.cls
+0	0	NewBusiness/src/{src => }/api/controllers/NewBusinessController.cls
+0	0	NewBusiness/src/{src => }/api/controllers/PersonController.cls
+0	0	NewBusiness/src/{src => }/api/dto/ActivationResponse.cls
+0	0	NewBusiness/src/{src => }/api/dto/AddBenefitRequest.cls
+0	0	NewBusiness/src/{src => }/api/dto/CapturePersonRequest.cls
+0	0	NewBusiness/src/{src => }/api/dto/CollectionInstructionRequest.cls
+0	0	NewBusiness/src/{src => }/api/dto/ContractResponse.cls
+0	0	NewBusiness/src/{src => }/api/dto/CreateContractRequest.cls
+0	0	NewBusiness/src/{src => }/api/dto/ValidationResponse.cls
+0	0	NewBusiness/src/{src => }/application/services/BenefitService.cls
+0	0	NewBusiness/src/{src => }/application/services/CampaignService.cls
+0	0	NewBusiness/src/{src => }/application/services/CollectionService.cls
+0	0	NewBusiness/src/{src => }/application/services/ContractService.cls
+0	0	NewBusiness/src/{src => }/application/services/NewBusinessService.cls
+0	0	NewBusiness/src/{src => }/application/services/PersonService.cls
+0	0	NewBusiness/src/{src => }/application/workflow/NewBusinessWorkflow.cls
+0	0	NewBusiness/src/{src => }/domain/entities/AbstractDomainEntity.cls
+0	0	NewBusiness/src/{src => }/domain/entities/Benefit.cls
+0	0	NewBusiness/src/{src => }/domain/entities/Campaign.cls
+0	0	NewBusiness/src/{src => }/domain/entities/CollectionInstruction.cls
+0	0	NewBusiness/src/{src => }/domain/entities/Contract.cls
+0	0	NewBusiness/src/{src => }/domain/entities/ContractBenefit.cls
+0	0	NewBusiness/src/{src => }/domain/entities/Person.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IBenefitRepository.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IBenefitService.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IBusinessRule.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/ICampaignRepository.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/ICampaignService.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/ICollectionRepository.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/ICollectionService.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IContractBenefitRepository.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IContractRepository.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IContractService.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IContractValidator.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IPersonRepository.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IPersonService.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IRepository.cls
+0	0	NewBusiness/src/{src => }/domain/interfaces/IWorkflow.cls
+0	0	NewBusiness/src/{src => }/domain/rules/AbstractBusinessRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/BenefitActiveRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/BenefitRequiredRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/BusinessRuleRegistry.cls
+0	0	NewBusiness/src/{src => }/domain/rules/CampaignRequiredRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/CollectionDateRequiredRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/CollectionMethodRequiredRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/ContractOwnerRequiredRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/ContractStatusRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/DuplicateContractRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/PersonMandatoryDetailsRule.cls
+0	0	NewBusiness/src/{src => }/domain/rules/PremiumPositiveRule.cls
+0	0	NewBusiness/src/{src => }/domain/validation/ContractValidator.cls
+0	0	NewBusiness/src/{src => }/domain/validation/ValidationResult.cls
+0	0	NewBusiness/src/{src => }/domain/validation/ValidationSummary.cls
+0	0	NewBusiness/src/{src => }/exceptions/ApplicationException.cls
+0	0	NewBusiness/src/{src => }/exceptions/BusinessRuleException.cls
+0	0	NewBusiness/src/{src => }/exceptions/ContractStateException.cls
+0	0	NewBusiness/src/{src => }/exceptions/RepositoryException.cls
+0	0	NewBusiness/src/{src => }/exceptions/ValidationException.cls
+0	0	NewBusiness/src/{src => }/infrastructure/audit/AuditService.cls
+0	0	NewBusiness/src/{src => }/infrastructure/audit/ContractAudit.cls
+0	0	NewBusiness/src/{src => }/infrastructure/audit/IAuditService.cls
+0	0	NewBusiness/src/{src => }/infrastructure/logging/ILogger.cls
+0	0	NewBusiness/src/{src => }/infrastructure/logging/Logger.cls
+0	0	NewBusiness/src/{src => }/infrastructure/repositories/AbstractRepository.cls
+0	0	NewBusiness/src/{src => }/infrastructure/repositories/BenefitRepository.cls
+0	0	NewBusiness/src/{src => }/infrastructure/repositories/CampaignRepository.cls
+0	0	NewBusiness/src/{src => }/infrastructure/repositories/CollectionRepository.cls
+0	0	NewBusiness/src/{src => }/infrastructure/repositories/ContractBenefitRepository.cls
+0	0	NewBusiness/src/{src => }/infrastructure/repositories/ContractRepository.cls
+0	0	NewBusiness/src/{src => }/infrastructure/repositories/PersonRepository.cls
+0	0	NewBusiness/src/{src => }/infrastructure/security/IUserContext.cls
+0	0	NewBusiness/src/{src => }/infrastructure/security/UserContext.cls
+0	0	NewBusiness/tests/{tests => }/domain/ContractActivationTest.cls
+0	0	NewBusiness/tests/{tests => }/domain/FakeContractValidator.cls
+0	0	NewBusiness/tests/{tests => }/edgecases/EdgeCaseTest.cls
+0	0	NewBusiness/tests/{tests => }/rules/BenefitRequiredRuleTest.cls
+0	0	NewBusiness/tests/{tests => }/rules/CampaignRequiredRuleTest.cls
+0	0	NewBusiness/tests/{tests => }/rules/CollectionMethodRequiredRuleTest.cls
+0	0	NewBusiness/tests/{tests => }/rules/ContractOwnerRequiredRuleTest.cls
+0	0	NewBusiness/tests/{tests => }/rules/PremiumPositiveRuleTest.cls
+0	0	NewBusiness/tests/{tests => }/services/NewBusinessServiceTest.cls
+0	0	NewBusiness/tests/{tests => }/workflow/NewBusinessWorkflowTest.cls
+60	0	NewBusiness/tooling/build.xml
+33	0	NewBusiness/tooling/deploy-pasoe.ps1
+@@922b84f|922b84ff09bffa546f3e8e2ff74c710e4bf1d86a|katleho Rakgosi|2026-09-20T19:17:13+00:00|eb6227bc14fa1e1b7b05e01b62260a08d02e70aa|Update 95 files
+
+150	0	NewBusiness/ARCHITECTURE.md
+1922	0	NewBusiness/NewBusinessProcess.md
+195	0	NewBusiness/README.md
+147	0	NewBusiness/TRACEABILITY.md
+18	0	NewBusiness/database/database/migrations/001_initial_schema.md
+465	0	NewBusiness/database/database/schema/newbusiness.df
+67	0	NewBusiness/database/database/seed/SeedData.p
+776	0	NewBusiness/new-business-console.html
+136	0	NewBusiness/src/src/Bootstrap.cls
+189	0	NewBusiness/src/src/api/RestGateway.cls
+35	0	NewBusiness/src/src/api/controllers/BenefitController.cls
+35	0	NewBusiness/src/src/api/controllers/CampaignController.cls
+28	0	NewBusiness/src/src/api/controllers/ContractController.cls
+128	0	NewBusiness/src/src/api/controllers/NewBusinessController.cls
+37	0	NewBusiness/src/src/api/controllers/PersonController.cls
+41	0	NewBusiness/src/src/api/dto/ActivationResponse.cls
+21	0	NewBusiness/src/src/api/dto/AddBenefitRequest.cls
+53	0	NewBusiness/src/src/api/dto/CapturePersonRequest.cls
+35	0	NewBusiness/src/src/api/dto/CollectionInstructionRequest.cls
+70	0	NewBusiness/src/src/api/dto/ContractResponse.cls
+22	0	NewBusiness/src/src/api/dto/CreateContractRequest.cls
+31	0	NewBusiness/src/src/api/dto/ValidationResponse.cls
+64	0	NewBusiness/src/src/application/services/BenefitService.cls
+30	0	NewBusiness/src/src/application/services/CampaignService.cls
+63	0	NewBusiness/src/src/application/services/CollectionService.cls
+86	0	NewBusiness/src/src/application/services/ContractService.cls
+242	0	NewBusiness/src/src/application/services/NewBusinessService.cls
+56	0	NewBusiness/src/src/application/services/PersonService.cls
+108	0	NewBusiness/src/src/application/workflow/NewBusinessWorkflow.cls
+45	0	NewBusiness/src/src/domain/entities/AbstractDomainEntity.cls
+80	0	NewBusiness/src/src/domain/entities/Benefit.cls
+83	0	NewBusiness/src/src/domain/entities/Campaign.cls
+89	0	NewBusiness/src/src/domain/entities/CollectionInstruction.cls
+257	0	NewBusiness/src/src/domain/entities/Contract.cls
+73	0	NewBusiness/src/src/domain/entities/ContractBenefit.cls
+96	0	NewBusiness/src/src/domain/entities/Person.cls
+14	0	NewBusiness/src/src/domain/interfaces/IBenefitRepository.cls
+10	0	NewBusiness/src/src/domain/interfaces/IBenefitService.cls
+26	0	NewBusiness/src/src/domain/interfaces/IBusinessRule.cls
+14	0	NewBusiness/src/src/domain/interfaces/ICampaignRepository.cls
+9	0	NewBusiness/src/src/domain/interfaces/ICampaignService.cls
+12	0	NewBusiness/src/src/domain/interfaces/ICollectionRepository.cls
+14	0	NewBusiness/src/src/domain/interfaces/ICollectionService.cls
+11	0	NewBusiness/src/src/domain/interfaces/IContractBenefitRepository.cls
+29	0	NewBusiness/src/src/domain/interfaces/IContractRepository.cls
+24	0	NewBusiness/src/src/domain/interfaces/IContractService.cls
+17	0	NewBusiness/src/src/domain/interfaces/IContractValidator.cls
+14	0	NewBusiness/src/src/domain/interfaces/IPersonRepository.cls
+17	0	NewBusiness/src/src/domain/interfaces/IPersonService.cls
+26	0	NewBusiness/src/src/domain/interfaces/IRepository.cls
+22	0	NewBusiness/src/src/domain/interfaces/IWorkflow.cls
+59	0	NewBusiness/src/src/domain/rules/AbstractBusinessRule.cls
+59	0	NewBusiness/src/src/domain/rules/BenefitActiveRule.cls
+30	0	NewBusiness/src/src/domain/rules/BenefitRequiredRule.cls
+34	0	NewBusiness/src/src/domain/rules/BusinessRuleRegistry.cls
+50	0	NewBusiness/src/src/domain/rules/CampaignRequiredRule.cls
+36	0	NewBusiness/src/src/domain/rules/CollectionDateRequiredRule.cls
+36	0	NewBusiness/src/src/domain/rules/CollectionMethodRequiredRule.cls
+30	0	NewBusiness/src/src/domain/rules/ContractOwnerRequiredRule.cls
+32	0	NewBusiness/src/src/domain/rules/ContractStatusRule.cls
+40	0	NewBusiness/src/src/domain/rules/DuplicateContractRule.cls
+55	0	NewBusiness/src/src/domain/rules/PersonMandatoryDetailsRule.cls
+31	0	NewBusiness/src/src/domain/rules/PremiumPositiveRule.cls
+56	0	NewBusiness/src/src/domain/validation/ContractValidator.cls
+56	0	NewBusiness/src/src/domain/validation/ValidationResult.cls
+100	0	NewBusiness/src/src/domain/validation/ValidationSummary.cls
+28	0	NewBusiness/src/src/exceptions/ApplicationException.cls
+19	0	NewBusiness/src/src/exceptions/BusinessRuleException.cls
+28	0	NewBusiness/src/src/exceptions/ContractStateException.cls
+20	0	NewBusiness/src/src/exceptions/RepositoryException.cls
+19	0	NewBusiness/src/src/exceptions/ValidationException.cls
+69	0	NewBusiness/src/src/infrastructure/audit/AuditService.cls
+53	0	NewBusiness/src/src/infrastructure/audit/ContractAudit.cls
+20	0	NewBusiness/src/src/infrastructure/audit/IAuditService.cls
+18	0	NewBusiness/src/src/infrastructure/logging/ILogger.cls
+47	0	NewBusiness/src/src/infrastructure/logging/Logger.cls
+83	0	NewBusiness/src/src/infrastructure/repositories/AbstractRepository.cls
+58	0	NewBusiness/src/src/infrastructure/repositories/BenefitRepository.cls
+58	0	NewBusiness/src/src/infrastructure/repositories/CampaignRepository.cls
+38	0	NewBusiness/src/src/infrastructure/repositories/CollectionRepository.cls
+45	0	NewBusiness/src/src/infrastructure/repositories/ContractBenefitRepository.cls
+68	0	NewBusiness/src/src/infrastructure/repositories/ContractRepository.cls
+47	0	NewBusiness/src/src/infrastructure/repositories/PersonRepository.cls
+21	0	NewBusiness/src/src/infrastructure/security/IUserContext.cls
+48	0	NewBusiness/src/src/infrastructure/security/UserContext.cls
+130	0	NewBusiness/tests/tests/domain/ContractActivationTest.cls
+30	0	NewBusiness/tests/tests/domain/FakeContractValidator.cls
+128	0	NewBusiness/tests/tests/edgecases/EdgeCaseTest.cls
+56	0	NewBusiness/tests/tests/rules/BenefitRequiredRuleTest.cls
+81	0	NewBusiness/tests/tests/rules/CampaignRequiredRuleTest.cls
+71	0	NewBusiness/tests/tests/rules/CollectionMethodRequiredRuleTest.cls
+46	0	NewBusiness/tests/tests/rules/ContractOwnerRequiredRuleTest.cls
+57	0	NewBusiness/tests/tests/rules/PremiumPositiveRuleTest.cls
+207	0	NewBusiness/tests/tests/services/NewBusinessServiceTest.cls
+81	0	NewBusiness/tests/tests/workflow/NewBusinessWorkflowTest.cls
+@@eb6227b|eb6227bc14fa1e1b7b05e01b62260a08d02e70aa|katleho Rakgosi|2026-09-20T19:12:12+00:00||Upload New File
+
+-	-	NewBusiness.zip
