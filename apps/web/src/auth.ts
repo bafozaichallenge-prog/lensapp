@@ -5,7 +5,8 @@ import { db, getCtx } from './lib/ctx';
 
 const baseUrl = (process.env.GITLAB_BASE_URL ?? 'https://gitlab.com').replace(/\/$/, '');
 // Production deployments set AUTH_URL to the https URL, which turns on the __Secure- cookie prefix and the Secure flag.
-const secure = (process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? '').startsWith('https://');
+// RENDER_EXTERNAL_URL is set by Render at runtime, so a Render deployment needs no AUTH_URL.
+const secure = (process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? process.env.RENDER_EXTERNAL_URL ?? '').startsWith('https://');
 export const SESSION_COOKIE = `${secure ? '__Secure-' : ''}authjs.session-token`;
 
 /**

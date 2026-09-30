@@ -1,0 +1,51 @@
+# Render Blueprint: New > Blueprint > connect this repo. Creates PostgreSQL, the web service and the worker.
+# Background workers and databases are paid Render plans; adjust `plan` to your budget.
+databases:
+  - name: lens-db
+    plan: basic-256mb
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: lens-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile.render
+    plan: starter
+    healthCheckPath: /api/health
+    preDeployCommand: npx prisma migrate deploy --schema packages/storage/prisma/schema.prisma
+    dockerCommand: node apps/web/.next/standalone/apps/web/server.js
+    envVars: &shared
+      - key: DATABASE_URL
+        fromDatabase: { name: lens-db, property: connectionString }
+      - key: LENS_ENCRYPTION_KEYS      # k1:<base64 of 32 random bytes>, e.g. echo "k1:$(openssl rand -base64 32)"
+        sync: false
+      - key: GITLAB_BASE_URL
+        sync: false
+      - key: ANTHROPIC_API_KEY         # optional; leave empty to run without AI
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: AUTH_TRUST_HOST
+        value: "true"
+      - key: GITLAB_CLIENT_ID
+        sync: false
+      - key: GITLAB_CLIENT_SECRET
+        sync: false
+      - key: LENS_BOOTSTRAP_ADMINS     # your e-mail: becomes Admin on first sign-in
+        sync: false
+
+  - type: worker
+    name: lens-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile.render
+    plan: starter
+    dockerCommand: node dist/worker.mjs
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: lens-db, property: connectionString }
+      - key: LENS_ENCRYPTION_KEYS
+        sync: false
+      - key: GITLAB_BASE_URL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

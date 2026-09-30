@@ -16,7 +16,7 @@ export function middleware(req: NextRequest) {
     // Next requires an absolute URL here. Build it from the request's own Host / X-Forwarded-* headers, not from the
     // server's configured hostname, so the redirect is right behind any reverse proxy.
     const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
-    const proto = req.headers.get('x-forwarded-proto') ?? (process.env.AUTH_URL?.startsWith('https://') ? 'https' : 'http');
+    const proto = req.headers.get('x-forwarded-proto') ?? ((process.env.AUTH_URL ?? process.env.RENDER_EXTERNAL_URL)?.startsWith('https://') ? 'https' : 'http');
     return NextResponse.redirect(new URL('/signin', host ? `${proto}://${host}` : req.url));
   }
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
