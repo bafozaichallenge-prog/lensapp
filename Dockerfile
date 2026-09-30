@@ -27,9 +27,8 @@ RUN npm ci
 FROM deps AS build
 COPY . .
 RUN npx prisma generate --schema packages/storage/prisma/schema.prisma
-# a build-time placeholder only: nothing connects to the database while building
-ENV DATABASE_URL=postgresql://build:build@localhost:5432/build AUTH_SECRET=build-time-placeholder
-RUN npm run build && node scripts/bundle-worker.mjs
+# build-time placeholders on this command only (not baked into the image); nothing connects to a database while building
+RUN DATABASE_URL=postgresql://build:build@localhost:5432/build AUTH_SECRET=build-time-placeholder npm run build && node scripts/bundle-worker.mjs
 
 FROM base AS web
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0

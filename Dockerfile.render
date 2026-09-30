@@ -11,9 +11,9 @@ COPY packages ./packages
 RUN npm ci
 COPY . .
 RUN npx prisma generate --schema packages/storage/prisma/schema.prisma
-# placeholders only: nothing connects to a database while building
-ENV DATABASE_URL=postgresql://build:build@localhost:5432/build AUTH_SECRET=build-time-placeholder
-RUN npm run build && node scripts/bundle-worker.mjs \
+# Build-time placeholders live on this one command only (nothing connects while building). They are NOT baked into the
+# image, so a service that is missing DATABASE_URL fails with "Environment variable not found" instead of trying localhost.
+RUN DATABASE_URL=postgresql://build:build@localhost:5432/build AUTH_SECRET=build-time-placeholder npm run build && node scripts/bundle-worker.mjs \
  && cp -r apps/web/.next/static apps/web/.next/standalone/apps/web/.next/static
 ENV NODE_ENV=production HOSTNAME=0.0.0.0
 CMD ["node", "apps/web/.next/standalone/apps/web/server.js"]

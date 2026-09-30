@@ -18,3 +18,6 @@ The web service runs the database migrations before each deploy (`preDeployComma
 
 ## Fly.io instead
 Not prepared. It needs `flyctl` on someone's machine, a `fly.toml` per process (web, worker), `fly postgres create`, and the same environment variables; the Dockerfile and `AUTH_URL` (https URL of the app) work the same way.
+
+## Troubleshooting
+**`P1001: Can't reach database server at localhost:5432`** during the deploy: the service has no `DATABASE_URL`, so it is not talking to your Render database. Use the Blueprint (it wires `DATABASE_URL` from `lens-db`), or if you created the service by hand: Render > `lens-db` > copy the **Internal Database URL**, add it as `DATABASE_URL` on both `lens-web` and `lens-worker`, and set the service's **Pre-Deploy Command** to `npx prisma migrate deploy --schema packages/storage/prisma/schema.prisma`. The database and the services must be in the same region for the internal URL to work.
