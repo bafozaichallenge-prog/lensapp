@@ -1,0 +1,35 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: lens, POSTGRES_PASSWORD: lens, POSTGRES_DB: lens }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lens" --health-interval 5s --health-timeout 5s --health-retries 20
+          -c max_connections=200
+    env:
+      DATABASE_URL: postgresql://lens:lens@localhost:5432/lens
+      AUTH_SECRET: ci-secret-not-for-use
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npx prisma generate --schema packages/storage/prisma/schema.prisma
+      - run: npx prisma migrate deploy --schema packages/storage/prisma/schema.prisma
+      - name: Schema and migrations agree
+        run: |
+          psql "postgresql://lens:lens@localhost:5432/postgres" -c 'create database shadow'
+          npx prisma migrate diff --from-migrations packages/storage/prisma/migrations --to-schema-datamodel packages/storage/prisma/schema.prisma --shadow-database-url postgresql://lens:lens@localhost:5432/shadow --exit-code
+      - run: npm run typecheck
+      - run: npm -w @lens/web run typecheck
+      - run: npm run build
+      - name: Playwright browser
+        run: npx playwright-core install chromium --with-deps
+      - name: Tests (unit, database, browser)
+        run: CHROMIUM_PATH="$(node -e "console.log(require('playwright-core').chromium.executablePath())")" npx vitest run

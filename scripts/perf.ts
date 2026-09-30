@@ -1,0 +1,87 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Performance harness (plan §24). Run: DATABASE_URL=... npm run perf
+// Measures full sync, 20-file incremental sync and Explore query latency on a deterministic synthetic 2,000-file repository.
+import os from 'node:os';
+import fs from 'node:fs';
+import { execSync } from 'node:child_process';
+import { makeEnv, db } from '../test/helpers/services';
+import { overview, processDetail, entity, search, loadModel, clearModelCache } from '@lens/services';
+
+const FILES = Number(process.env.PERF_FILES ?? 2000);
+const CHANGED = 20;
+const P = 'Perf/';
+
+/** Deterministic synthetic repository: classes with inheritance and usage, procedures, includes, tests, requirements, a process and a schema. */
+function synth(n: number): Map<string, string> {
+  const f = new Map<string, string>();
+  const mods = ['contract', 'person', 'benefit', 'campaign', 'collection', 'claim', 'policy', 'report', 'audit', 'billing'];
+  const classes = Math.floor(n * 0.7), procs = Math.floor(n * 0.15), tests = Math.floor(n * 0.12);
+  const name = (i: number) => `${mods[i % mods.length]![0]!.toUpperCase()}${mods[i % mods.length]!.slice(1)}Item${i}`;
+  for (let i = 0; i < classes; i++) {
+    const m = mods[i % mods.length]!, dep = i > 10 ? name(i - 7) : null, base = i > 20 && i % 5 === 0 ? name(i - 15) : null;
+    f.set(`${P}src/${m}/${name(i)}.cls`, `/*----\n  Purpose: Handles ${m} item ${i}. ${i % 50 === 0 ? `Implements BR-${String(1 + (i / 50) % 40).padStart(3, '0')}.` : ''}\n----*/\n${dep ? `USING ${m}.${dep}.\n` : ''}CLASS ${m}.${name(i)}${base ? ` INHERITS ${mods[(i - 15) % mods.length]}.${base}` : ''}:\n  ${dep ? `DEFINE PRIVATE VARIABLE o AS ${mods[(i - 7) % mods.length]}.${dep} NO-UNDO.\n  ` : ''}METHOD PUBLIC VOID Process${i} ():\n    FIND FIRST Contract NO-LOCK.\n    ${i % 9 === 0 ? 'CREATE Person.' : ''}\n  END METHOD.\n  METHOD PUBLIC LOGICAL Validate${i} ():\n    RETURN TRUE.\n  END METHOD.\nEND CLASS.`);
+  }
+  for (let i = 0; i < procs; i++) f.set(`${P}src/proc/Proc${i}.p`, `/* Purpose: procedure ${i} */\nRUN ${P.length ? '' : ''}proc/Proc${(i + 1) % procs}.p.\nFOR EACH Contract NO-LOCK: END.\n`);
+  for (let i = 0; i < tests; i++) f.set(`${P}tests/${mods[i % mods.length]}/${name(i)}Test.cls`, `USING ${mods[i % mods.length]}.${name(i)}.\nCLASS tests.${name(i)}Test:\n  @Test.\n  METHOD PUBLIC VOID Works ():\n    DEFINE VARIABLE x AS ${mods[i % mods.length]}.${name(i)} NO-UNDO.\n  END METHOD.\nEND CLASS.`);
+  f.set(`${P}database/schema/base.df`, ['Contract', 'Person', 'Benefit', 'Campaign'].map((t) => `ADD TABLE "${t}"\nADD FIELD "${t}Id" OF "${t}" AS character\nADD FIELD "Name" OF "${t}" AS character\n`).join(''));
+  const reqs = Array.from({ length: 40 }, (_, i) => `BR-${String(i + 1).padStart(3, '0')} — Requirement number ${i + 1} about ${mods[i % mods.length]}\nBody line for requirement ${i + 1}.\n`);
+  f.set(`${P}Process.md`, `Perf Process — synthetic\n\n${reqs.join('\n')}\n\n1. Open ${mods[0]}\n|\nv\n2. Capture ${mods[1]}\n|\nv\n3. Link ${mods[2]}\n|\nv\n4. Validate ${mods[3]}\n|\nv\n5. Activate ${mods[4]}\n`);
+  while (f.size < n) { const i = f.size; f.set(`${P}docs/note${i}.md`, `# Note ${i}\nText.\n`); }
+  return f;
+}
+
+const pct = (xs: number[], p: number) => { const s = [...xs].sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.ceil((p / 100) * s.length) - 1)]!; };
+const ms = (t0: number) => Math.round(performance.now() - t0);
+
+async function main() {
+  const env = await makeEnv();
+  try {
+    const repo = synth(FILES);
+    env.gl.repo = repo; env.gl.head = 'perf0001';
+    (env.gl as any).snapshots.set('perf0001', new Map(repo));
+    env.gl.commits = Array.from({ length: 300 }, (_, i) => ({ sha: (i + 1).toString(16).padStart(40, '0'), author: 'perf', date: new Date(2026, 0, 1 + (i % 28)).toISOString(), subject: `commit ${i}`, parents: [], files: [{ path: [...repo.keys()][i * 3 % repo.size]!, additions: 3, deletions: 1 }] }));
+    const src = await env.source({ name: `${env.tag}-perf` });
+
+    let t = performance.now();
+    await env.syncNow(src.id);
+    const full = ms(t);
+    const counts = await db!.file.count({ where: { snapshot: { sourceId: src.id, status: 'ACTIVE' } } });
+    const edges = await db!.edge.count({ where: { snapshot: { sourceId: src.id, status: 'ACTIVE' } } });
+
+    // incremental: change 20 files
+    const keys = [...repo.keys()].filter((k) => k.endsWith('.cls') && !k.includes('/tests/')).slice(100, 100 + CHANGED);
+    env.gl.advance('perf0002', (f) => { for (const k of keys) f.set(k, f.get(k)! + `\n/* changed ${Date.now()} */\n`); });
+    t = performance.now();
+    const runId = await env.syncNow(src.id);
+    const inc = ms(t);
+    const mode = (await db!.syncRun.findUnique({ where: { id: runId } }))!.mode;
+
+    // Explore latency: cold (model load) and warm
+    const admin = env.admin;
+    const proc = (await loadModel(env.ctx, src.id)).graph.processes[0]!.name;
+    const file = [...(await loadModel(env.ctx, src.id)).view.files.keys()].find((p) => p.includes('Contract') && p.endsWith('.cls'))!;
+    const timeIt = async (n: number, fn: () => Promise<unknown>, cold = false) => { const xs: number[] = []; for (let i = 0; i < n; i++) { if (cold) clearModelCache(); const s = performance.now(); await fn(); xs.push(performance.now() - s); } return xs; };
+    const cold = await timeIt(10, () => overview(env.ctx, admin), true);
+    const q = {
+      'overview (warm)': await timeIt(100, () => overview(env.ctx, admin)),
+      'process page (warm)': await timeIt(100, () => processDetail(env.ctx, admin, src.id, proc)),
+      'class page (warm)': await timeIt(100, () => entity(env.ctx, admin, src.id, 'file', file)),
+      'search (warm)': await timeIt(100, () => search(env.ctx, admin, 'contract')),
+    };
+    const pg = (await db!.$queryRaw<{ version: string }[]>`select version()`)[0]!.version.split(' ').slice(0, 2).join(' ');
+    const cpu = os.cpus();
+    const report = {
+      environment: { cpu: `${cpu[0]!.model.trim()} × ${cpu.length}`, ram: `${Math.round(os.totalmem() / 2 ** 30)} GiB`, node: process.version, postgres: pg, os: `${os.type()} ${os.release()}`, network: 'loopback only: GitLab is faked in-process, so no network latency is included', concurrency: '1 sync at a time; queries sequential; PostgreSQL local, pool of 3' },
+      fixture: { files: counts, edges, changedInIncremental: CHANGED, commits: 300 },
+      results: {
+        'full sync (2,000 files, end to end)': { ms: full, target: '< 300000 ms' },
+        'incremental sync (20 changed files)': { ms: inc, mode, target: '< 30000 ms' },
+        'explore cold (model load) p95': { ms: Math.round(pct(cold, 95)), target: '< 1000 ms' },
+        ...Object.fromEntries(Object.entries(q).map(([k, xs]) => [`${k} p95`, { ms: Math.round(pct(xs, 95) * 10) / 10, p50: Math.round(pct(xs, 50) * 10) / 10, target: '< 1000 ms' }])),
+      },
+    };
+    console.log(JSON.stringify(report, null, 2));
+    fs.writeFileSync('docs/perf-last-run.json', JSON.stringify(report, null, 2) + '\n');
+  } finally { await env.cleanup(); await db!.$disconnect(); void execSync; }
+}
+main().catch((e) => { console.error(e); process.exit(1); });

@@ -14,7 +14,10 @@
     "db:generate": "prisma generate --schema packages/storage/prisma/schema.prisma",
     "test:e2e": "npm -w @lens/web run build && vitest run test/e2e",
     "build": "npm -w @lens/web run build",
-    "break-glass:hash": "vite-node scripts/hash-password.ts"
+    "break-glass:hash": "vite-node scripts/hash-password.ts",
+    "perf": "vite-node scripts/perf.ts",
+    "seed": "vite-node scripts/seed.ts",
+    "backup": "scripts/backup.sh"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.8",

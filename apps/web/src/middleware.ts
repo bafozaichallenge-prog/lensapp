@@ -13,8 +13,8 @@ export function middleware(req: NextRequest) {
   const authed = SESSION_COOKIES.some((c) => req.cookies.has(c));
   if (!authed && !PUBLIC.some((re) => re.test(pathname))) {
     if (pathname.startsWith('/api/')) return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
-    const url = req.nextUrl.clone(); url.pathname = '/signin'; url.search = '';
-    return NextResponse.redirect(url);
+    // relative Location: correct behind any reverse proxy, whatever host the server believes it has
+    return new NextResponse(null, { status: 307, headers: { Location: '/signin' } });
   }
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const dev = process.env.NODE_ENV !== 'production';

@@ -1,0 +1,52 @@
+{
+  "environment": {
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz × 4",
+    "ram": "16 GiB",
+    "node": "v22.22.2",
+    "postgres": "PostgreSQL 16.13",
+    "os": "Linux 6.18.44-fc-v50",
+    "network": "loopback only: GitLab is faked in-process, so no network latency is included",
+    "concurrency": "1 sync at a time; queries sequential; PostgreSQL local, pool of 3"
+  },
+  "fixture": {
+    "files": 2000,
+    "edges": 4119,
+    "changedInIncremental": 20,
+    "commits": 300
+  },
+  "results": {
+    "full sync (2,000 files, end to end)": {
+      "ms": 5504,
+      "target": "< 300000 ms"
+    },
+    "incremental sync (20 changed files)": {
+      "ms": 6512,
+      "mode": "incremental",
+      "target": "< 30000 ms"
+    },
+    "explore cold (model load) p95": {
+      "ms": 324,
+      "target": "< 1000 ms"
+    },
+    "overview (warm) p95": {
+      "ms": 208.9,
+      "p50": 183.2,
+      "target": "< 1000 ms"
+    },
+    "process page (warm) p95": {
+      "ms": 201.4,
+      "p50": 185.6,
+      "target": "< 1000 ms"
+    },
+    "class page (warm) p95": {
+      "ms": 201.4,
+      "p50": 177.3,
+      "target": "< 1000 ms"
+    },
+    "search (warm) p95": {
+      "ms": 212.8,
+      "p50": 194.9,
+      "target": "< 1000 ms"
+    }
+  }
+}
