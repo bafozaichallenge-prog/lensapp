@@ -35,6 +35,8 @@ export interface AnalysisOutcome {
   turns: number;
   durationMs: number;
   redactions: { type: string; count: number }[];
+  /** Tool calls made (name and input only; results are not retained). */
+  transcript: { name: string; input: Record<string, unknown> }[];
   provider: string; model: string; promptVersion: string; schemaVersion: number;
 }
 
@@ -62,6 +64,7 @@ export async function runAnalysis(r: RunInput): Promise<AnalysisOutcome> {
   const system = systemPrompt(fence);
   const messages: Msg[] = [{ role: 'user', content: userPrompt(r.index, r.impact, r.request, fence) }];
   const usage = { inputTokens: 0, outputTokens: 0 };
+  const transcript: { name: string; input: Record<string, unknown> }[] = [];
   let turns = 0;
 
   const call = async (withTools: boolean): Promise<ModelResponse> => {
@@ -83,6 +86,7 @@ export async function runAnalysis(r: RunInput): Promise<AnalysisOutcome> {
     const uses = res.content.filter((b): b is Extract<Block, { type: 'tool_use' }> => b.type === 'tool_use');
     if (res.stopReason === 'tool_use' && uses.length && !last) {
       const results: Block[] = uses.map((u) => {
+        transcript.push({ name: u.name, input: u.input });
         const out = runTool(tools, u.name, u.input);
         // tool output is repository data: fence it like everything else
         return { type: 'tool_result', tool_use_id: u.id, content: fence.wrap(`tool ${u.name}`, out.text), is_error: out.isError };
@@ -122,6 +126,6 @@ export async function runAnalysis(r: RunInput): Promise<AnalysisOutcome> {
   const g = enforceGrounding(analysis, r.index);
   return {
     analysis: g.analysis, issues: g.issues.filter((x) => x.level === 'warn'), dropped: g.dropped, usage, turns, durationMs: Date.now() - t0,
-    redactions: fence.redactions, provider: r.model.provider, model: r.model.model, promptVersion: PROMPT_VERSION, schemaVersion: SCHEMA_VERSION,
+    redactions: fence.redactions, transcript, provider: r.model.provider, model: r.model.model, promptVersion: PROMPT_VERSION, schemaVersion: SCHEMA_VERSION,
   };
 }

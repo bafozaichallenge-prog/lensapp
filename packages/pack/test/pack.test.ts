@@ -110,7 +110,14 @@ describe('wording refinement cannot change facts', () => {
     const r = sanitizeRefinement(spec, bad);
     expect(r.steps.find((s) => s.n === 5)!.rules).toBeUndefined();
     expect(r.steps.find((s) => s.n === 6)!.rules).toBeUndefined();
+    expect(r.steps.find((s) => s.n === 5)!.title).toMatch(/^Nice /); // the rest of the step's wording is still accepted
     expect(r.rejected.length).toBe(2);
+  });
+  it('a refinement whose every field is rejected yields nothing to save', () => {
+    const bad: any = { steps: [{ n: 5, rules: spec.steps[4].rules.map(([t, x]: [string, string]) => [t, x.replace('NB-COLLECTION-002', 'NB-X-1')]) }] };
+    const r = sanitizeRefinement(spec, bad);
+    expect(r.steps).toEqual([]);
+    expect(r.rejected).toHaveLength(1);
   });
   it('rejects chips with changed keys and steps that do not exist', () => {
     const bad: any = good();

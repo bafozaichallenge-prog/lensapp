@@ -45,7 +45,8 @@ export function sanitizeRefinement(spec: any, raw: unknown): Refinement {
       const orig: [string, string][] = s.chips;
       if (o.chips.length === orig.length && JSON.stringify(o.chips.map((c) => c[0])) === JSON.stringify(orig.map((c) => c[0]))) keep.chips = o.chips; else rejected.push(`step ${o.n}: refined chips changed keys`);
     }
-    out.push(keep);
+    // a step whose every refined field was rejected contributes nothing
+    if (keep.title || keep.say || keep.rules || keep.chips) out.push(keep);
   }
   return { steps: out, rejected };
 }

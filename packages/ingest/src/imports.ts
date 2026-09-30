@@ -1,9 +1,11 @@
 /** CSV import helpers (plan §11): PII column detection and suffix-based path resolution. */
 
 const PII_HEADER = /(^|[^a-z])(id[\s_-]?(no|number|num)|national[\s_-]?id|passport|phone|mobile|cell|tel(ephone)?|e-?mail|email|address|dob|birth|surname|first[\s_-]?name|full[\s_-]?name|customer[\s_-]?name|member[\s_-]?name)([^a-z]|$)/i;
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE = /^\+?\d[\d\s().-]{8,14}\d$/;
-const SA_ID = /^\d{13}$/;
+// Values are free text ("call 082 123 4567, mail a@b.co"), so patterns are searched for inside them.
+const EMAIL = /[^\s@,;]+@[^\s@,;]+\.[A-Za-z]{2,}/;
+const PHONE = /(?<![\d.])(?:\+27|0)[\s-]?[1-9]\d[\s-]?\d{3}[\s-]?\d{4}(?![\d.])/;
+const SA_ID_CANDIDATE = /(?<!\d)(\d{2})(\d{2})(\d{2})\d{4}[01]\d{2}(?!\d)/;
+const validSaId = (v: string) => { const m = v.match(SA_ID_CANDIDATE); if (!m) return false; const mo = +m[2]!, d = +m[3]!; return mo >= 1 && mo <= 12 && d >= 1 && d <= 31; };
 
 export interface PiiFinding { column: string; reason: 'header' | 'email' | 'phone' | 'id-number' }
 
@@ -14,10 +16,10 @@ export function detectPersonalData(headers: string[], rows: Record<string, strin
     if (PII_HEADER.test(h)) { out.push({ column: h, reason: 'header' }); continue; }
     const vals = rows.map((r) => (r[h] ?? '').trim()).filter(Boolean).slice(0, 200);
     if (!vals.length) continue;
-    const frac = (re: RegExp) => vals.filter((v) => re.test(v)).length / vals.length;
-    if (frac(EMAIL) >= 0.3) out.push({ column: h, reason: 'email' });
-    else if (frac(SA_ID) >= 0.3) out.push({ column: h, reason: 'id-number' });
-    else if (frac(PHONE) >= 0.3) out.push({ column: h, reason: 'phone' });
+    const fracFn = (f: (v: string) => boolean) => vals.filter(f).length / vals.length;
+    if (fracFn((v) => EMAIL.test(v)) >= 0.3) out.push({ column: h, reason: 'email' });
+    else if (fracFn(validSaId) >= 0.3) out.push({ column: h, reason: 'id-number' });
+    else if (fracFn((v) => PHONE.test(v)) >= 0.3) out.push({ column: h, reason: 'phone' });
   }
   return out;
 }

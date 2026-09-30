@@ -101,3 +101,37 @@ export function mapProcessSteps(p: ProcessNode, ctx: StepMapContext): Edge[] {
   }
   return edges;
 }
+
+const STRUCT_TYPES = new Set(['uses', 'creates', 'inherits', 'implements', 'runs', 'includes']);
+
+/**
+ * Rebuild the step-mapping context from a stored graph, so a custom process added in the UI (or re-projected after a
+ * re-sync) is mapped with exactly the same heuristics as processes found during ingestion.
+ */
+export function stepContextFromGraph(g: import('@lens/core').GraphInput, maxStepFiles = 8): StepMapContext {
+  const symByFile = new Map(g.symbols.map((s) => [s.file, s]));
+  const reqRefs = new Map<string, string[]>();
+  const fanIn = new Map<string, number>();
+  const fileTables = new Map<string, string[]>();
+  for (const e of g.edges) {
+    if (e.type === 'implements-req') (reqRefs.get(e.from.slice(5)) ?? reqRefs.set(e.from.slice(5), []).get(e.from.slice(5))!).push(e.to.slice(4));
+    if (STRUCT_TYPES.has(e.type) && e.to.startsWith('file:')) fanIn.set(e.to.slice(5), (fanIn.get(e.to.slice(5)) ?? 0) + 1);
+    if (['db-read', 'db-write', 'mirrors'].includes(e.type)) {
+      const p = e.from.slice(5), t = e.to.slice(6);
+      fileTables.set(p, [...new Set([...(fileTables.get(p) ?? []), t])].sort());
+    }
+  }
+  const tableName = new Map(g.tables.map((t) => [t.name.toLowerCase(), t.name]));
+  void tableName;
+  const files: StepFile[] = g.files.filter((f) => ['class', 'procedure', 'include'].includes(f.kind)).map((f) => {
+    const sym = symByFile.get(f.path);
+    const kind: StepFile['kind'] = f.isTest ? 'test' : sym ? (sym.classKind === 'interface' ? 'interface' : sym.classKind === 'abstract' ? 'abstract class' : 'class') : f.kind === 'include' ? 'include' : 'procedure';
+    return { path: f.path, name: sym?.name ?? f.path.slice(f.path.lastIndexOf('/') + 1), kind, layer: f.layer ?? 'root', reqRefs: (reqRefs.get(f.path) ?? []).sort() };
+  });
+  return { files, requirements: g.requirements, ruleCodes: g.ruleCodes, fanIn, fileTables, maxStepFiles };
+}
+
+/** Map one process definition (custom or explicit) against a stored graph. */
+export function mapProcessAgainstGraph(g: import('@lens/core').GraphInput, p: ProcessNode): Edge[] {
+  return mapProcessSteps(p, stepContextFromGraph(g));
+}

@@ -8,7 +8,11 @@ import { sha256Hex } from './artifact';
 const chunks = <T>(a: T[], n: number) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
 const enc = new TextEncoder();
 
-export interface SaveInput { sourceId: string; sha: string; syncRunId?: string; graph: GraphInput; files: SourceFile[]; commits: CommitInput[] }
+export interface SaveInput {
+  sourceId: string; sha: string; syncRunId?: string; graph: GraphInput; files: SourceFile[]; commits: CommitInput[];
+  /** Runs after all snapshot rows are written and before the atomic activation; a throw marks the snapshot FAILED. */
+  beforeActivate?: (snapshotId: string) => Promise<void>;
+}
 
 /**
  * Persist a parsed graph as a BUILDING snapshot, then validate and activate it in one transaction.
@@ -42,6 +46,8 @@ export async function saveAndActivateSnapshot(db: PrismaClient, storage: Artifac
     for (const p of g.processes) await db.snapshotProcess.create({ data: { snapshotId: sid, name: p.name, origin: p.origin, description: p.description ?? null, docPath: p.docPath ?? null, steps: { create: p.steps.map((s) => ({ n: s.n, name: s.name, requirement: s.requirement ?? null })) } } });
     for (const c of i.commits) await db.commit.create({ data: { snapshotId: sid, sha: c.sha, short: c.sha.slice(0, 7), author: c.author, date: new Date(c.date), subject: c.subject, parents: c.parents, branch: c.branch ?? null, refs: commitRefs(c.subject), files: { create: c.files.map((f) => ({ path: f.path, additions: f.additions, deletions: f.deletions })) } } });
     await db.fileMetric.createMany({ data: g.metrics.map((m) => ({ snapshotId: sid, path: m.path, loc: m.loc, churn: m.churn, incidents: m.incidents, fanIn: m.fanIn, directTests: m.directTests })) });
+
+    await i.beforeActivate?.(sid);
 
     // atomic swap: previous ACTIVE -> SUPERSEDED, new -> ACTIVE (the partial unique index enforces "only one")
     await db.$transaction([

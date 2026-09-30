@@ -1,0 +1,1 @@
+{"name":"@lens/services","version":"0.1.0","private":true,"type":"module","main":"./src/index.ts","dependencies":{"adm-zip":"^0.6.1","mammoth":"^1.13.0"}}

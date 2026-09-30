@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   decodeSource, stripAbl, parseClass, parseProcedural, parseTableAccess, parseDf, mergeSchemas, parseRequirements, parseRuleCodes,
   detectProcesses, parseProcessJson, parseStepLines, parseSource, parseGitLog, parseCsv, parseIncidents, detectPersonalData, dropPersonalData,
-  resolvePaths, commitRefs, purposeOf, layerOf, commonPrefix,
+  resolvePaths, commitRefs, purposeOf, layerOf, commonPrefix, mapProcessAgainstGraph,
 } from '../src';
 
 describe('text handling', () => {
@@ -203,5 +203,26 @@ describe('history + imports', () => {
     expect(r[1]!.ambiguous).toEqual(['A/src/y/Bar.p', 'B/src/y/Bar.p']);
     expect(r[2]).toEqual({ input: 'Missing.p' });
     expect(r[3]!.resolved).toBe('A/src/x/Foo.cls');
+  });
+});
+
+describe('mapping a stored graph (custom processes / re-projection)', () => {
+  it('produces exactly the parse-time edges for a detected process', async () => {
+    const { loadFixture } = await import('../../../test/helpers/fixture');
+    const fx = await loadFixture();
+    const p = fx.graph.processes[0]!;
+    const remap = mapProcessAgainstGraph(fx.graph, { ...p, steps: p.steps.map((s) => ({ ...s })) });
+    const original = fx.graph.edges.filter((e) => e.from.startsWith(`step:${p.name}#`));
+    const key = (e: { type: string; from: string; to: string; confidence: number; origin: string }) => `${e.type}|${e.from}|${e.to}|${e.confidence}|${e.origin}`;
+    expect(remap.map(key).sort()).toEqual(original.map(key).sort());
+  });
+  it('maps a new custom process with the same heuristics, honouring an explicit requirement', async () => {
+    const { loadFixture } = await import('../../../test/helpers/fixture');
+    const fx = await loadFixture();
+    const edges = mapProcessAgainstGraph(fx.graph, { name: 'Collections review', origin: 'MANUAL', steps: [{ n: 1, name: 'Review collection instruction', requirement: 'BR-005' }, { n: 2, name: 'Check benefit selection' }] });
+    const s1 = edges.filter((e) => e.from === 'step:Collections review#1');
+    expect(s1.find((e) => e.type === 'maps-step-req')).toMatchObject({ to: 'req:BR-005', origin: 'EXPLICIT', confidence: 1 });
+    expect(s1.some((e) => e.type === 'maps-step-file' && e.to.endsWith('CollectionInstruction.cls'))).toBe(true);
+    expect(edges.filter((e) => e.from === 'step:Collections review#2' && e.type === 'maps-step-req')[0]?.origin ?? 'INFERRED').toBe('INFERRED');
   });
 });
