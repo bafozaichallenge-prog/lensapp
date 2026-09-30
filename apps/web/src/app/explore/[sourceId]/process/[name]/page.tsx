@@ -4,7 +4,7 @@ import { toYaml } from '@lens/pack';
 import { getPack, processDetail } from '@lens/services';
 import { getCtx, db } from '@/lib/ctx';
 import { guard, requireActor, themeFromCookie } from '@/lib/session';
-import { Chip, Freshness, Origin, ProcessRail, RefChip, entityHref, fmtDate, processHref } from '@/components/ui';
+import { Chip, Freshness, Origin, ProcessRail, entityHref, fmtDate } from '@/components/ui';
 import { PackViewer } from '@/components/PackViewer';
 import { RemoveProcessButton } from '@/components/Forms';
 
@@ -58,7 +58,6 @@ export default async function ProcessPage({ params }: { params: Promise<{ source
           ))}
         </ul>
       )}
-      <span hidden>{processHref(sourceId, name)}{d.steps.map((s) => s.files.length && <RefChip key={s.n} sourceId={sourceId} refStr={`file:${s.files[0]}`} />)}</span>
     </section>
   );
 }

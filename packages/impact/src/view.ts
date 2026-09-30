@@ -1,5 +1,4 @@
 import type { GraphInput, CommitInput } from '@lens/core';
-import { camelWords, purposeOf, stepWords } from '@lens/ingest';
 
 export interface ViewFile {
   path: string; name: string; kind: 'class' | 'abstract class' | 'interface' | 'procedure' | 'include' | 'test'; layer: string;
@@ -29,6 +28,9 @@ export function buildView(g: GraphInput, extra: { incidents?: ViewIncident[]; ti
     const k = e.to.slice(5);
     (incoming.get(k) ?? incoming.set(k, []).get(k)!).push({ from: e.from.slice(5), type: e.type });
   }
+  // index outgoing edges once: scanning the whole edge list per file/step is quadratic on large repositories
+  const outgoing = new Map<string, GraphInput['edges']>();
+  for (const e of g.edges) (outgoing.get(e.from) ?? outgoing.set(e.from, []).get(e.from)!).push(e);
   const files = new Map<string, ViewFile>();
   for (const f of g.files) {
     if (!['class', 'procedure', 'include'].includes(f.kind)) continue;
@@ -39,18 +41,17 @@ export function buildView(g: GraphInput, extra: { incidents?: ViewIncident[]; ti
       path: f.path, name: sym?.name ?? f.path.slice(f.path.lastIndexOf('/') + 1), kind, layer: f.layer ?? 'root', methods: sym?.methods ?? [], header: f.header,
       fanIn: inc.filter((x) => STRUCT.has(x.type)).length,
       testedBy: [...new Set(inc.filter((x) => x.type === 'tests').map((x) => x.from))].sort(),
-      codeRefs: g.edges.filter((e) => e.from === `file:${f.path}` && e.type === 'enforces').map((e) => e.to.slice(5)),
+      codeRefs: (outgoing.get(`file:${f.path}`) ?? []).filter((e) => e.type === 'enforces').map((e) => e.to.slice(5)),
     });
   }
   const processes: ViewProcess[] = g.processes.map((p) => ({
     name: p.name,
     steps: p.steps.map((s) => {
       const ref = `step:${p.name}#${s.n}`;
-      const es = g.edges.filter((e) => e.from === ref);
+      const es = outgoing.get(ref) ?? [];
       const of = (t: string) => es.filter((e) => e.type === t).sort((a, b) => (a.evidence?.rank ?? 0) - (b.evidence?.rank ?? 0)).map((e) => e.to.replace(/^[a-z]+:/, ''));
       return { n: s.n, name: s.name, req: of('maps-step-req')[0] ?? null, files: of('maps-step-file'), rules: of('maps-step-rule'), tables: of('maps-step-table') };
     }),
   }));
   return { files, incoming, processes, incidents: extra.incidents ?? [], tickets: extra.tickets ?? [], commits: extra.commits ?? [] };
 }
-void camelWords; void purposeOf; void stepWords;

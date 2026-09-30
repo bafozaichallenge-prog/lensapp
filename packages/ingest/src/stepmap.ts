@@ -121,8 +121,6 @@ export function stepContextFromGraph(g: import('@lens/core').GraphInput, maxStep
       fileTables.set(p, [...new Set([...(fileTables.get(p) ?? []), t])].sort());
     }
   }
-  const tableName = new Map(g.tables.map((t) => [t.name.toLowerCase(), t.name]));
-  void tableName;
   const files: StepFile[] = g.files.filter((f) => ['class', 'procedure', 'include'].includes(f.kind)).map((f) => {
     const sym = symByFile.get(f.path);
     const kind: StepFile['kind'] = f.isTest ? 'test' : sym ? (sym.classKind === 'interface' ? 'interface' : sym.classKind === 'abstract' ? 'abstract class' : 'class') : f.kind === 'include' ? 'include' : 'procedure';

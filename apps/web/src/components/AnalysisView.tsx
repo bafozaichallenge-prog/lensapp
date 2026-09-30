@@ -56,16 +56,11 @@ export function AnalysisView({ v, sourceId, audience, plan, projectId, canAnalys
 
           <Section id="r-processes" title="Affected processes — today vs after" intro={r.processes.length ? undefined : 'No existing process is affected by this change.'}>
             {r.processes.map((p) => {
-              const today = p.stages.map((st) => ({ n: st.n, name: `Step ${st.n}` }));
-              const model = v.crossCheck.processSteps.find((x) => x.name === p.process);
-              void model; void today;
               const stops: { n: number | string; name: string; cls?: 'mod' | 'new' }[] = [];
-              const names = p.stages.map((st) => st.n);
               for (const st of p.stages) {
                 stops.push({ n: st.n, name: st.note ? st.note.slice(0, 28) : `Step ${st.n}`, cls: st.change === 'modified' ? 'mod' : undefined });
                 for (const ns of p.new_stages.filter((x) => x.after === st.n)) stops.push({ n: '+', name: ns.name, cls: 'new' });
               }
-              void names;
               return (
                 <div className="detail-card" key={p.process}>
                   <h3>{p.process}</h3>

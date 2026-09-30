@@ -35,7 +35,27 @@ async function snapshotData(ctx: Ctx, snapshotId: string) {
   if (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value!);
   return v;
 }
-export const clearModelCache = () => cache.clear();
+// File contents of an immutable snapshot, kept for the few most recent snapshots (packs and code views read many files).
+const texts = new Map<string, Map<string, string>>();
+const TEXT_CACHE_MAX = 2;
+async function snapshotTexts(ctx: Ctx, snapshotId: string): Promise<Map<string, string>> {
+  const hit = texts.get(snapshotId);
+  if (hit) { texts.delete(snapshotId); texts.set(snapshotId, hit); return hit; }
+  const m = new Map((await loadFileTexts(ctx.db, ctx.storage, snapshotId)).map((f) => [f.path, f.text]));
+  texts.set(snapshotId, m);
+  if (texts.size > TEXT_CACHE_MAX) texts.delete(texts.keys().next().value!);
+  return m;
+}
+/** One file's text from a snapshot without loading the rest (class pages). */
+export async function loadFileText(ctx: Ctx, snapshotId: string, path: string): Promise<string | null> {
+  const cached = texts.get(snapshotId)?.get(path);
+  if (cached != null) return cached;
+  const f = await ctx.db.file.findUnique({ where: { snapshotId_path: { snapshotId, path } }, select: { blobSha: true } });
+  if (!f?.blobSha) return null;
+  const b = await ctx.storage.get(f.blobSha);
+  return b ? new TextDecoder().decode(b) : null;
+}
+export const clearModelCache = () => { cache.clear(); texts.clear(); };
 /** Drop a snapshot from the cache (used when overlay rows are projected into it). */
 export const forgetSnapshot = (id: string) => cache.delete(id);
 
@@ -67,6 +87,6 @@ export async function loadModel(ctx: Ctx, sourceId: string, snapshotId?: string)
 
 /** RepoIndex (with file contents) for the AI layer and process packs, bound to the model's snapshot. */
 export async function loadRepoIndex(ctx: Ctx, m: Model): Promise<RepoIndex> {
-  const files = await loadFileTexts(ctx.db, ctx.storage, m.snapshot.id);
+  const files = [...(await snapshotTexts(ctx, m.snapshot.id))].map(([path, text]) => ({ path, text }));
   return buildRepoIndex({ sourceName: m.source.name, vertical: m.source.vertical, graph: m.graph, view: m.view, commits: m.commits, tickets: m.tickets, incidents: m.incidents, files });
 }

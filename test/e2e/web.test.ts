@@ -28,6 +28,9 @@ describe.skipIf(!ready)('web app in a real browser (built Next.js server, real P
     it('every page needs a session; the health check is public and reveals nothing else', async () => {
       const r = await fetch(`${web.url}/projects`, { redirect: 'manual' });
       expect(r.status).toBe(307); expect(r.headers.get('location')).toContain('/signin');
+      // behind a reverse proxy the redirect uses the public host, not the server's own
+      const proxied = await fetch(`${web.url}/projects`, { redirect: 'manual', headers: { 'x-forwarded-host': 'lens.example.test', 'x-forwarded-proto': 'https' } });
+      expect(proxied.headers.get('location')).toBe('https://lens.example.test/signin');
       expect((await fetch(`${web.url}/api/analyses/x/export?kind=markdown`)).status).toBe(401);
       expect((await fetch(`${web.url}/api/pack?kind=doc`)).status).toBe(401);
       expect((await fetch(`${web.url}/api/events/sync/x`)).status).toBe(401);

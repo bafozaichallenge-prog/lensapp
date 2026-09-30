@@ -2,7 +2,7 @@ import type {
   Edge, FileNode, GraphInput, ParseOptions, ProcessNode, RequirementNode, RuleCodeNode, SourceFile, SymbolNode, CommitInput, TableNode, FileKind,
 } from '@lens/core';
 import { fileRef, symRef, reqRef, ruleRef, tableRef } from '@lens/core';
-import { baseName, camelWords, commonPrefix, countLoc, ext, layerOf } from './text';
+import { baseName, commonPrefix, countLoc, ext, layerOf } from './text';
 import { parseClass, extractHeader, extractTypeRefs, type ParsedClass } from './cls';
 import { parseProcedural, parseTableAccess } from './procedural';
 import { mergeSchemas } from './df';
@@ -199,7 +199,6 @@ export async function parseSource(files: SourceFile[], history: CommitInput[] = 
   }
 
   const ord = (a: Edge, b: Edge) => a.type.localeCompare(b.type) || a.from.localeCompare(b.from) || a.to.localeCompare(b.to);
-  void camelWords;
   return {
     files: fileNodes,
     symbols: symbols.sort((a, b) => a.fqn.localeCompare(b.fqn)),

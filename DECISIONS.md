@@ -81,7 +81,7 @@ Non-trivial choices, deviations from the plan or the prototype, and known gaps. 
 
 **D-30 Framework versions.** Next.js 15.5 and Auth.js **v5 beta** (`next-auth@5.0.0-beta`). The beta is a risk to watch; the surface used is small (database sessions, one OIDC provider, adapter) and isolated in `apps/web/src/auth.ts`.
 
-**D-31 Performance.** Measured on a synthetic 2,000-file repository with the GitLab client faked in-process (so no network latency): see `docs/PERFORMANCE.md`. The numbers are a floor for your environment, not a promise about it. Explore queries recompute the view per request (~200 ms p95 here); a shared cache is the obvious next step if real repositories need it.
+**D-31 Performance.** Measured on a synthetic 2,000-file repository with the GitLab client faked in-process (so no network latency): see `docs/PERFORMANCE.md` for the numbers and the recorded environment. They are a floor for your environment, not a promise about it. The immutable snapshot graph and file contents are cached in the server process (small LRU); the imported-history overlay (tickets, incidents) is re-read per request. Two performance bugs were found by the harness and fixed: a quadratic edge scan when building the impact view, and one database round-trip per file when loading contents (now batched through the optional `ArtifactStorage.getMany`).
 
 ## Known gaps
 

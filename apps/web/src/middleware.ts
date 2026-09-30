@@ -13,8 +13,11 @@ export function middleware(req: NextRequest) {
   const authed = SESSION_COOKIES.some((c) => req.cookies.has(c));
   if (!authed && !PUBLIC.some((re) => re.test(pathname))) {
     if (pathname.startsWith('/api/')) return NextResponse.json({ error: 'Sign in required' }, { status: 401 });
-    // relative Location: correct behind any reverse proxy, whatever host the server believes it has
-    return new NextResponse(null, { status: 307, headers: { Location: '/signin' } });
+    // Next requires an absolute URL here. Build it from the request's own Host / X-Forwarded-* headers, not from the
+    // server's configured hostname, so the redirect is right behind any reverse proxy.
+    const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host');
+    const proto = req.headers.get('x-forwarded-proto') ?? (process.env.AUTH_URL?.startsWith('https://') ? 'https' : 'http');
+    return NextResponse.redirect(new URL('/signin', host ? `${proto}://${host}` : req.url));
   }
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const dev = process.env.NODE_ENV !== 'production';

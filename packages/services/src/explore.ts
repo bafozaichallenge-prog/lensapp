@@ -1,11 +1,9 @@
-import { placeIncidents, impactIn } from '@lens/impact';
-import { filePurpose } from '@lens/ai';
+import { placeIncidents } from '@lens/impact';
 import { purposeOf, camelWords } from '@lens/ingest';
-import { parseRef } from '@lens/core';
 import type { Actor, Ctx } from './context';
 import { notFound } from './context';
 import { requireSource, visibleSources } from './access';
-import { loadModel, loadRepoIndex, type Model } from './model';
+import { loadFileText, loadModel, type Model } from './model';
 
 const isOpen = (status: string) => !/resolved|closed|done|fixed/i.test(status);
 
@@ -95,7 +93,7 @@ export async function entity(ctx: Ctx, actor: Actor, sourceId: string, kind: Ent
     const v = m.view.files.get(key);
     const sym = g.symbols.find((s) => s.file === key);
     const out = g.edges.filter((e) => e.from === `file:${key}`), inc = g.edges.filter((e) => e.to === `file:${key}`);
-    const code = opts.includeCode ? (await loadRepoIndex(ctx, m)).texts.get(key) ?? null : undefined;
+    const code = opts.includeCode ? await loadFileText(ctx, m.snapshot.id, key) : undefined;
     return {
       banner, kind, key, title: sym?.name ?? key.split('/').pop()!, path: key, fileKind: v?.kind ?? f.kind, layer: f.layer ?? null, loc: f.loc, purpose: purposeOf(f.header), header: f.header ?? null,
       symbol: sym ? { fqn: sym.fqn, inherits: sym.inherits ?? null, implements: sym.implements, methods: sym.methods, tests: sym.tests } : null,
@@ -167,4 +165,3 @@ export async function search(ctx: Ctx, actor: Actor, q: string, limit = 60, perK
   return ranked.filter((r) => { const n = (seen.get(r.kind) ?? 0) + 1; seen.set(r.kind, n); return n <= perKind; }).slice(0, limit);
 }
 
-export { impactIn, parseRef, filePurpose };

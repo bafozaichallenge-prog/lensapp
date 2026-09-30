@@ -96,8 +96,10 @@ export async function loadGraph(db: PrismaClient, snapshotId: string): Promise<G
 export async function loadFileTexts(db: PrismaClient, storage: ArtifactStorage, snapshotId: string): Promise<SourceFile[]> {
   const files = await db.file.findMany({ where: { snapshotId, blobSha: { not: null } }, orderBy: { path: 'asc' } });
   const dec = new TextDecoder();
+  const keys = [...new Set(files.map((f) => f.blobSha!))];
+  const blobs = storage.getMany ? await storage.getMany(keys) : new Map(await Promise.all(keys.map(async (k) => [k, await storage.get(k)] as const)).then((xs) => xs.filter((x): x is [string, Uint8Array] => x[1] != null)));
   const out: SourceFile[] = [];
-  for (const f of files) { const b = await storage.get(f.blobSha!); if (b) out.push({ path: f.path, text: dec.decode(b), blobSha: f.blobSha! }); }
+  for (const f of files) { const b = blobs.get(f.blobSha!); if (b) out.push({ path: f.path, text: dec.decode(b), blobSha: f.blobSha! }); }
   return out;
 }
 

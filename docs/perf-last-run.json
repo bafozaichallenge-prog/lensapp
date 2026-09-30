@@ -16,36 +16,55 @@
   },
   "results": {
     "full sync (2,000 files, end to end)": {
-      "ms": 5504,
+      "ms": 4191,
       "target": "< 300000 ms"
     },
     "incremental sync (20 changed files)": {
-      "ms": 6512,
+      "ms": 4241,
       "mode": "incremental",
       "target": "< 30000 ms"
     },
     "explore cold (model load) p95": {
-      "ms": 324,
+      "ms": 102,
+      "target": "< 1000 ms"
+    },
+    "process pack cold (graph + all file contents) max": {
+      "ms": 166,
       "target": "< 1000 ms"
     },
     "overview (warm) p95": {
-      "ms": 208.9,
-      "p50": 183.2,
+      "ms": 9.4,
+      "p50": 8,
       "target": "< 1000 ms"
     },
     "process page (warm) p95": {
-      "ms": 201.4,
-      "p50": 185.6,
+      "ms": 9.8,
+      "p50": 8.1,
       "target": "< 1000 ms"
     },
     "class page (warm) p95": {
-      "ms": 201.4,
-      "p50": 177.3,
+      "ms": 9.2,
+      "p50": 7.5,
+      "target": "< 1000 ms"
+    },
+    "class page with source code (warm) p95": {
+      "ms": 9.7,
+      "p50": 7.7,
+      "target": "< 1000 ms"
+    },
+    "process pack spec + config (warm) p95": {
+      "ms": 22.3,
+      "p50": 16.9,
+      "target": "< 1000 ms"
+    },
+    "process pack HTML artefact (warm) p95": {
+      "ms": 13.4,
+      "p50": 12,
       "target": "< 1000 ms"
     },
     "search (warm) p95": {
-      "ms": 212.8,
-      "p50": 194.9,
+      "ms": 10.2,
+      "p50": 8.9,
       "target": "< 1000 ms"
     }
   }
