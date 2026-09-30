@@ -1,0 +1,1 @@
+{"name":"@lens/queue","version":"0.1.0","private":true,"type":"module","main":"./src/index.ts","dependencies":{"pg-boss":"^12.35.0"}}

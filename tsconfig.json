@@ -14,5 +14,5 @@
       "@lens/*": ["./packages/*/src/index.ts"]
     }
   },
-  "include": ["packages/*/src/**/*.ts", "packages/*/test/**/*.ts", "test/**/*.ts"]
+  "include": ["packages/*/src/**/*.ts", "packages/*/test/**/*.ts", "apps/worker/src/**/*.ts", "apps/worker/test/**/*.ts", "test/**/*.ts"]
 }

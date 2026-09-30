@@ -1,0 +1,14 @@
+{
+  "name": "@lens/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "start": "vite-node src/main.ts"
+  },
+  "dependencies": {
+    "@lens/queue": "*",
+    "@lens/services": "*"
+  }
+}

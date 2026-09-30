@@ -12,3 +12,6 @@ export * from './explore';
 export * from './projects';
 export * from './processes';
 export * from './packs';
+export * from './log';
+export * from './gitlab-visibility';
+export * from './bootstrap';

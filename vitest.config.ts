@@ -8,5 +8,5 @@ for (const p of ['core', 'gitlab', 'ingest', 'graph', 'impact', 'pack', 'ai', 's
 
 export default defineConfig({
   resolve: { alias },
-  test: { include: ['packages/*/test/**/*.test.ts', 'test/**/*.test.ts'] },
+  test: { include: ['packages/*/test/**/*.test.ts', 'apps/*/test/**/*.test.ts', 'test/**/*.test.ts'] },
 });
