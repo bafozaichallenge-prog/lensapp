@@ -1,1 +1,1 @@
-{ "name": "@lens/storage", "version": "0.1.0", "private": true, "type": "module", "main": "./src/index.ts" }
+{"name":"@lens/storage","version":"0.1.0","private":true,"type":"module","main":"./src/index.ts","dependencies":{"@prisma/client":"^6.19.3"}}

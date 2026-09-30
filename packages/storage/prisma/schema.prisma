@@ -1,0 +1,699 @@
+// Lens data model (plan §13), with the structural decisions recorded in DECISIONS.md:
+//  * Snapshot layer: rows derived from a sync are immutable and scoped to a GraphSnapshot.
+//  * Overlay layer: things that must survive re-syncs (custom processes, manual edges, tickets, incidents,
+//    pack overrides) are scoped to the Source and keyed by stable entity refs ("file:<path>", "req:BR-001", …),
+//    and are re-projected onto each new snapshot.
+//  * File content is content-addressed (Blob) so unchanged files are stored once across snapshots.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Identity and access ─────────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  MAINTAINER
+  CONTRIBUTOR
+  VIEWER
+}
+
+enum Audience {
+  BUSINESS_ANALYST
+  DEVELOPER
+  QA
+  ARCHITECT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  emailVerified DateTime?
+  image         String?
+  gitlabUserId  String?   @unique
+  role          Role      @default(VIEWER)
+  audiencePref  Audience  @default(BUSINESS_ANALYST)
+  themePref     String    @default("light")
+  lastSeenAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts   Account[]
+  sessions   Session[]
+  visibility SourceVisibility[]
+  projects   ChangeProject[]
+  auditLogs  AuditLog[]
+
+  @@map("users")
+}
+
+// Auth.js (Prisma adapter) tables. Sessions live in the database and expire after 8h of inactivity.
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Only non-bootstrap settings live here. OIDC client id/secret come from the environment so an
+// administrator can always sign in to configure the app.
+model GitlabConnection {
+  id        String   @id @default(cuid())
+  baseUrl   String
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  @@map("gitlab_connections")
+}
+
+// ─── Sources, sync and snapshots ─────────────────────────────────────────────────────────────────
+
+enum SourceStatus {
+  IDLE
+  SYNCING
+  ERROR
+}
+
+model Source {
+  id                String       @id @default(cuid())
+  name              String
+  vertical          String
+  gitlabProjectId   Int
+  pathWithNamespace String
+  branch            String
+  pathFilters       String[]
+  commitRefPattern  String       @default("\\b(TSK\\d{5,}|[A-Z][A-Z0-9]+-\\d+)\\b")
+  tokenEnc          String? // AES-256-GCM, never returned to the browser
+  aiAllowed         Boolean      @default(false) // per-source opt-in before code is sent to an external model
+  lastSha           String?
+  lastCommitDate    DateTime?
+  status            SourceStatus @default(IDLE)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  syncRuns        SyncRun[]
+  snapshots       GraphSnapshot[]
+  customProcesses CustomProcess[]
+  manualEdges     ManualEdge[]
+  tickets         Ticket[]
+  incidents       Incident[]
+  importMappings  ImportMapping[]
+  packOverrides   PackOverride[]
+  visibility      SourceVisibility[]
+  projects        ChangeProject[]
+
+  @@unique([gitlabProjectId, branch])
+  @@map("sources")
+}
+
+// Cached result of "can this user read this project in GitLab?" (plan §7.4); refreshed after a short TTL.
+model SourceVisibility {
+  userId    String
+  sourceId  String
+  canRead   Boolean
+  checkedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source    Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@id([userId, sourceId])
+  @@map("source_visibility")
+}
+
+enum SyncStatus {
+  QUEUED
+  FETCHING_CODE
+  FETCHING_HISTORY
+  PARSING
+  LINKING
+  SNAPSHOTTING
+  DONE
+  FAILED
+  SKIPPED
+}
+
+// Partial unique index (migration SQL): one in-flight run per source.
+model SyncRun {
+  id          String     @id @default(cuid())
+  sourceId    String
+  triggeredBy String?
+  full        Boolean    @default(false)
+  mode        String? // full | incremental | skip
+  fromSha     String?
+  toSha       String?
+  status      SyncStatus @default(QUEUED)
+  stage       String?
+  countsJson  Json?
+  log         String?    @db.Text
+  startedAt   DateTime   @default(now())
+  finishedAt  DateTime?
+  source      Source     @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  snapshot    GraphSnapshot?
+
+  @@index([sourceId, startedAt])
+  @@map("sync_runs")
+}
+
+enum SnapshotStatus {
+  BUILDING
+  READY
+  ACTIVE
+  SUPERSEDED
+  FAILED
+}
+
+// Partial unique index (migration SQL): at most one ACTIVE snapshot per source.
+model GraphSnapshot {
+  id          String         @id @default(cuid())
+  sourceId    String
+  syncRunId   String?        @unique
+  sha         String
+  status      SnapshotStatus @default(BUILDING)
+  issuesJson  Json?
+  createdAt   DateTime       @default(now())
+  activatedAt DateTime?
+  source      Source         @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  syncRun     SyncRun?       @relation(fields: [syncRunId], references: [id])
+
+  files        File[]
+  symbols      Symbol[]
+  edges        Edge[]
+  tables       DbTable[]
+  requirements Requirement[]
+  ruleCodes    RuleCode[]
+  processes    SnapshotProcess[]
+  commits      Commit[]
+  metrics      FileMetric[]
+  analyses     Analysis[]
+
+  @@index([sourceId, status])
+  @@index([sourceId, sha])
+  @@map("graph_snapshots")
+}
+
+// Content-addressed file content: identical files across snapshots are stored once. `storage` names the
+// ArtifactStorage backend so blobs can move to object storage without a model change.
+model Blob {
+  sha256    String   @id
+  size      Int
+  storage   String   @default("database")
+  data      Bytes?
+  createdAt DateTime @default(now())
+  files     File[]
+
+  @@map("blobs")
+}
+
+// ─── Snapshot layer (immutable once ACTIVE) ──────────────────────────────────────────────────────
+
+model File {
+  id         String        @id @default(cuid())
+  snapshotId String
+  path       String
+  blobSha    String?
+  kind       String
+  layer      String?
+  loc        Int
+  header     String?       @db.Text
+  isTest     Boolean       @default(false)
+  snapshot   GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  blob       Blob?         @relation(fields: [blobSha], references: [sha256])
+
+  @@unique([snapshotId, path])
+  @@map("files")
+}
+
+model Symbol {
+  id          String        @id @default(cuid())
+  snapshotId  String
+  filePath    String
+  fqn         String
+  name        String
+  classKind   String
+  inherits    String?
+  implements  String[]
+  methods     String[]
+  tests       String[]
+  snapshot    GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@unique([snapshotId, fqn])
+  @@index([snapshotId, filePath])
+  @@map("symbols")
+}
+
+enum Origin {
+  EXPLICIT
+  INFERRED
+  MANUAL
+  AI_SUGGESTED
+}
+
+// from_ref / to_ref are stable entity refs ("file:<path>", "req:BR-001", "rule:NB-X-001", "table:name",
+// "step:<process>#<n>"), so they stay meaningful across snapshots. Validated on write by the graph package.
+model Edge {
+  id           String        @id @default(cuid())
+  snapshotId   String
+  fromRef      String
+  toRef        String
+  type         String
+  origin       Origin
+  confidence   Float
+  evidenceJson Json?
+  snapshot     GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@unique([snapshotId, type, fromRef, toRef])
+  @@index([snapshotId, fromRef])
+  @@index([snapshotId, toRef])
+  @@map("edges")
+}
+
+model DbTable {
+  id         String        @id @default(cuid())
+  snapshotId String
+  name       String
+  type       String // table | sequence
+  addedIn    String
+  snapshot   GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  fields     DbField[]
+
+  @@unique([snapshotId, type, name])
+  @@map("db_tables")
+}
+
+model DbField {
+  id      String  @id @default(cuid())
+  tableId String
+  name    String
+  type    String
+  addedIn String
+  table   DbTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  @@unique([tableId, name])
+  @@map("db_fields")
+}
+
+model Requirement {
+  id         String        @id @default(cuid())
+  snapshotId String
+  code       String
+  kind       String // requirement | rule
+  title      String
+  body       String        @db.Text
+  docPath    String
+  orderIdx   Int
+  snapshot   GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@unique([snapshotId, code])
+  @@map("requirements")
+}
+
+model RuleCode {
+  id         String        @id @default(cuid())
+  snapshotId String
+  code       String
+  impl       String
+  trace      String
+  snapshot   GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@unique([snapshotId, code])
+  @@map("rule_codes")
+}
+
+// Processes as they exist in one snapshot: detected/explicit ones from documents plus custom ones re-projected
+// from the durable CustomProcess overlay.
+model SnapshotProcess {
+  id          String            @id @default(cuid())
+  snapshotId  String
+  name        String
+  origin      String // DETECTED | EXPLICIT | MANUAL
+  description String?
+  docPath     String?
+  customId    String?
+  snapshot    GraphSnapshot     @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  steps       SnapshotProcessStep[]
+
+  @@unique([snapshotId, name])
+  @@map("snapshot_processes")
+}
+
+// Step -> requirement/file/rule/table relationships live in `edges` (type maps-step-*), each with origin + confidence.
+model SnapshotProcessStep {
+  id          String          @id @default(cuid())
+  processId   String
+  n           Int
+  name        String
+  requirement String?
+  process     SnapshotProcess @relation(fields: [processId], references: [id], onDelete: Cascade)
+
+  @@unique([processId, n])
+  @@map("snapshot_process_steps")
+}
+
+model Commit {
+  id         String        @id @default(cuid())
+  snapshotId String
+  sha        String
+  short      String
+  author     String
+  date       DateTime
+  subject    String        @db.Text
+  parents    String[]
+  branch     String?
+  refs       String[]
+  snapshot   GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  files      CommitFile[]
+
+  @@unique([snapshotId, sha])
+  @@map("commits")
+}
+
+model CommitFile {
+  id        String @id @default(cuid())
+  commitId  String
+  path      String
+  additions Int
+  deletions Int
+  commit    Commit @relation(fields: [commitId], references: [id], onDelete: Cascade)
+
+  @@index([commitId])
+  @@index([path])
+  @@map("commit_files")
+}
+
+model FileMetric {
+  id          String        @id @default(cuid())
+  snapshotId  String
+  path        String
+  loc         Int
+  churn       Int
+  incidents   Int
+  fanIn       Int
+  directTests Int
+  snapshot    GraphSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@unique([snapshotId, path])
+  @@map("file_metrics")
+}
+
+// ─── Overlay layer (survives re-syncs; keyed by stable refs) ─────────────────────────────────────
+
+model CustomProcess {
+  id          String              @id @default(cuid())
+  sourceId    String
+  name        String
+  description String?
+  createdBy   String?
+  createdAt   DateTime            @default(now())
+  source      Source              @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  steps       CustomProcessStep[]
+
+  @@unique([sourceId, name])
+  @@map("custom_processes")
+}
+
+model CustomProcessStep {
+  id          String        @id @default(cuid())
+  processId   String
+  n           Int
+  name        String
+  requirement String?
+  process     CustomProcess @relation(fields: [processId], references: [id], onDelete: Cascade)
+
+  @@unique([processId, n])
+  @@map("custom_process_steps")
+}
+
+// A user-created or user-refined relationship. Re-projected onto each snapshot; if either end no longer
+// resolves, `unresolvedSince` is set and the UI asks the user to review it (never silently dropped).
+model ManualEdge {
+  id              String    @id @default(cuid())
+  sourceId        String
+  fromRef         String
+  toRef           String
+  type            String
+  note            String?
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  unresolvedSince DateTime?
+  source          Source    @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, type, fromRef, toRef])
+  @@map("manual_edges")
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  sourceId    String
+  key         String
+  taskmanager String?
+  system      String   @default("Jira")
+  type        String?
+  title       String
+  status      String?
+  note        String?  @db.Text
+  reqs        String[]
+  commitRef   String?
+  commitSha   String?
+  source      Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, key])
+  @@map("tickets")
+}
+
+model Incident {
+  id         String         @id @default(cuid())
+  sourceId   String
+  key        String
+  severity   String?
+  date       String?
+  title      String
+  symptom    String?        @db.Text
+  rootCause  String?        @db.Text
+  status     String?
+  fixTicket  String?
+  residual   String?        @db.Text
+  reqs       String[]
+  source     Source         @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  files      IncidentFile[]
+
+  @@unique([sourceId, key])
+  @@map("incidents")
+}
+
+// `path` is what the import said; `resolvedPath` is recomputed against the active snapshot (suffix match).
+model IncidentFile {
+  id           String   @id @default(cuid())
+  incidentId   String
+  path         String
+  resolvedPath String?
+  ambiguous    String[]
+  incident     Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
+  @@map("incident_files")
+}
+
+model ImportMapping {
+  id           String   @id @default(cuid())
+  sourceId     String
+  kind         String // tickets | incidents
+  columnMapJson Json
+  createdBy    String?
+  createdAt    DateTime @default(now())
+  source       Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, kind])
+  @@map("import_mappings")
+}
+
+// Accepted wording refinement. Keyed by process + the hash of the deterministic spec it refined, so it carries
+// forward across snapshots while the underlying facts are unchanged and is flagged stale when they change.
+model PackOverride {
+  id          String   @id @default(cuid())
+  sourceId    String
+  processName String
+  specHash    String
+  snapshotId  String?
+  stepsJson   Json
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  source      Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId, processName])
+  @@map("pack_overrides")
+}
+
+// ─── Change projects ─────────────────────────────────────────────────────────────────────────────
+
+enum ProjectStatus {
+  DRAFT
+  ANALYSING
+  ANALYSED
+  FAILED
+}
+
+enum SourceSelection {
+  AUTO
+  MANUAL
+}
+
+model ChangeProject {
+  id              String          @id @default(cuid())
+  name            String
+  description     String          @db.Text
+  sourceId        String
+  sourceSelection SourceSelection @default(AUTO)
+  status          ProjectStatus   @default(DRAFT)
+  isExample       Boolean         @default(false)
+  createdBy       String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  source          Source          @relation(fields: [sourceId], references: [id])
+  creator         User            @relation(fields: [createdBy], references: [id])
+  documents       ChangeDocument[]
+  analyses        Analysis[]
+
+  @@index([status, createdAt])
+  @@map("change_projects")
+}
+
+model ChangeDocument {
+  id              String        @id @default(cuid())
+  changeProjectId String
+  filename        String
+  mime            String
+  text            String        @db.Text
+  chars           Int
+  contentRef      String? // ArtifactStorage key of the original upload
+  version         Int           @default(1)
+  createdAt       DateTime      @default(now())
+  project         ChangeProject @relation(fields: [changeProjectId], references: [id], onDelete: Cascade)
+
+  @@index([changeProjectId])
+  @@map("change_documents")
+}
+
+enum AnalysisStatus {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+  CANCELLED
+}
+
+// Every analysis is pinned to the exact graph snapshot it was produced from and is never mutated afterwards.
+// Deterministic impact is stored alongside the (optional) AI result so the no-AI path is a first-class outcome.
+model Analysis {
+  id                      String         @id @default(cuid())
+  changeProjectId         String
+  version                 Int
+  status                  AnalysisStatus @default(QUEUED)
+  sourceId                String
+  graphSnapshotId         String
+  sha                     String
+  inputDocumentVersionIds String[]
+  impactJson              Json // deterministic impactIn() result with evidence
+  provider                String?
+  model                   String?
+  promptVersion           String?
+  outputSchemaVersion     Int?
+  inputTokens             Int?
+  outputTokens            Int?
+  durationMs              Int?
+  resultJson              Json?
+  groundingJson           Json? // issues and dropped findings
+  transcriptJson          Json? // tool calls made (kept in the database only; never logged)
+  error                   String?
+  createdAt               DateTime       @default(now())
+  project                 ChangeProject  @relation(fields: [changeProjectId], references: [id], onDelete: Cascade)
+  snapshot                GraphSnapshot  @relation(fields: [graphSnapshotId], references: [id])
+  tasks                   Task[]
+
+  @@unique([changeProjectId, version])
+  @@map("analyses")
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  analysisId  String
+  key         String
+  system      String
+  type        String
+  title       String
+  description String   @db.Text
+  acceptance  String[]
+  files       String[]
+  step        String?
+  owner       String?
+  priority    String?
+  dependsOn   String[]
+  analysis    Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+// ─── Jobs and operations ─────────────────────────────────────────────────────────────────────────
+
+model JobProgress {
+  id        String   @id @default(cuid())
+  jobId     String
+  kind      String
+  message   String
+  pct       Int?
+  createdAt DateTime @default(now())
+
+  @@index([jobId, createdAt])
+  @@map("job_progress")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  targetType String?
+  targetId   String?
+  detailJson Json?
+  at         DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([action, at])
+  @@index([userId, at])
+  @@map("audit_log")
+}
