@@ -138,7 +138,7 @@ Every relationship carries an **origin** (`EXPLICIT`, `INFERRED`, `MANUAL`, `AI_
 ```bash
 npm test                 # everything: unit, real-PostgreSQL service tests, worker/queue tests, browser tests
 npm run typecheck        # + npm -w @lens/web run typecheck
-npm run test:e2e         # builds the web app, then runs the 40 browser tests
+npm run test:e2e         # builds the web app, then runs the 41 browser tests
 npm run perf             # 2,000-file performance harness (see docs/PERFORMANCE.md)
 ```
 

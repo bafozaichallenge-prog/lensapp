@@ -91,7 +91,7 @@ export async function startWeb(): Promise<Web> {
   return {
     url, env, source: src, actors, projectId: project.id, aiAnalysisId: a.analysisId,
     cookie: (r) => ({ name: 'authjs.session-token', value: sessions.get(r)!, url }),
-    async stop() { child.kill('SIGTERM'); await new Promise<void>((r) => { child.once('exit', () => r()); setTimeout(r, 5000); }); await new Promise<void>((r) => gl.close(() => r())); await db!.session.deleteMany({ where: { user: { email: { startsWith: env.tag } } } }); await db!.account.deleteMany({ where: { user: { email: { startsWith: env.tag } } } }); await env.cleanup(); },
+    async stop() { child.kill('SIGTERM'); await new Promise<void>((r) => { child.once('exit', () => r()); setTimeout(r, 5000); }); await new Promise<void>((r) => gl.close(() => r())); await db!.session.deleteMany({ where: { user: { email: { startsWith: env.tag } } } }); await db!.account.deleteMany({ where: { user: { email: { startsWith: env.tag } } } }); await db!.auditLog.deleteMany({ where: { targetType: 'break-glass' } }); await env.cleanup(); },
     log: () => out,
   };
 }

@@ -34,6 +34,7 @@ export default async function ProjectPage({ params, searchParams }: { params: Pr
           <nav aria-label="Analysis versions" className="row">
             <span className="muted">Versions:</span>
             {p.analyses.map((a) => <Link key={a.id} className={`chip${chosen?.id === a.id ? ' on' : ''}`} href={`/projects/${p.id}?v=${a.id}`}>v{a.version} · {fmtDateTime(a.createdAt)}{a.status !== 'DONE' ? ` · ${a.status.toLowerCase()}` : ''}</Link>)}
+            {chosen && (() => { const older = p.analyses.find((a) => a.version < chosen.version && a.status === 'DONE'); return older && chosen.status === 'DONE' ? <Link className="btn ghost small" href={`/projects/${p.id}/compare?from=${older.id}&to=${chosen.id}`}>Compare v{chosen.version} with v{older.version}</Link> : null; })()}
           </nav>
         )}
       </div>

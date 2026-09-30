@@ -200,8 +200,20 @@ describe.skipIf(!ready)('web app in a real browser (built Next.js server, real P
       expect(txt).toMatch(/Git SHA aaaaaaa/); expect(txt).toMatch(/9e2e000/);
       expect(await p.getByText('Risks').first().isVisible()).toBe(true); // the historical result is still shown
     });
+    it('re-running creates a new version; two versions can be compared, with a warning when the snapshot differs', async () => {
+      const p = await as('CONTRIBUTOR'); await goto(p, `/projects/${web.projectId}`);
+      await p.getByRole('button', { name: 'Re-run analysis' }).first().click();
+      await p.getByText('Version 2').waitFor();
+      await p.getByRole('link', { name: /Compare v2 with v1/ }).click();
+      await p.waitForURL(/compare/);
+      const txt = await p.locator('main').innerText();
+      expect(txt).toContain('Version 1 → version 2');
+      expect(txt).toMatch(/different snapshots/);
+      for (const h of ['Files affected', 'Risks', 'Tasks']) expect(txt).toContain(h);
+      expect(txt).toMatch(/Git SHA aaaaaaa/); expect(txt).toMatch(/9e2e000/);
+    });
     it('audience switch changes summaries, plan tab and code visibility but not permissions', async () => {
-      const p = await as('VIEWER'); await goto(p, `/projects/${web.projectId}`);
+      const p = await as('VIEWER'); await goto(p, `/projects/${web.projectId}?v=${web.aiAnalysisId}`);
       expect(await p.locator('pre.code').count()).toBe(0);
       expect(await p.locator('main').innerText()).not.toContain('Technical');
       await p.getByRole('button', { name: 'Developer' }).click(); await p.waitForTimeout(900); await p.reload();
