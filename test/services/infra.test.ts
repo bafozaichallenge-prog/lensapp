@@ -63,3 +63,54 @@ describe.skipIf(!dbReachable)('GitLab visibility checker (real accounts table)',
     await db!.account.delete({ where: { id: a.id } });
   });
 });
+
+import { hashPassword, verifyPassword, breakGlassLogin, rateLimited, resetRateLimit, BREAK_GLASS_EMAIL, breakGlassEnabled } from '@lens/services';
+
+describe('break-glass admin', () => {
+  it('hashes with scrypt and verifies in constant time; rejects malformed hashes', () => {
+    const h = hashPassword('correct horse');
+    expect(h).toMatch(/^scrypt\$[0-9a-f]{32}\$[0-9a-f]{64}$/);
+    expect(hashPassword('correct horse')).not.toBe(h); // salted
+    expect(verifyPassword('correct horse', h)).toBe(true);
+    expect(verifyPassword('wrong', h)).toBe(false);
+    expect(verifyPassword('x', 'plaintext')).toBe(false);
+  });
+  it('limits attempts per client', () => {
+    resetRateLimit();
+    const r = Array.from({ length: 7 }, () => rateLimited('1.2.3.4', 1000));
+    expect(r).toEqual([false, false, false, false, false, true, true]);
+    expect(rateLimited('5.6.7.8', 1000)).toBe(false);
+    expect(rateLimited('1.2.3.4', 1000 + 61_000)).toBe(false); // window passed
+    resetRateLimit();
+  });
+  it('is disabled by default', () => { expect(breakGlassEnabled({})).toBe(false); expect(breakGlassEnabled({ LENS_BREAK_GLASS_HASH: 'x' })).toBe(true); });
+  describe.skipIf(!dbReachable)('with a database', () => {
+    let env: Env;
+    beforeAll(async () => { env = await makeEnv(); });
+    afterAll(async () => { await db!.session.deleteMany({ where: { user: { email: BREAK_GLASS_EMAIL } } }); await db!.auditLog.deleteMany({ where: { targetType: 'break-glass' } }); await env.cleanup(); await db!.$disconnect(); });
+    it('returns null when not configured, even with the "right" password', async () => {
+      expect(await breakGlassLogin(env.ctx, 'pw', 'ip-a')).toBeNull();
+    });
+    it('creates an 8-hour admin session on the right password, and audits every attempt without the password', async () => {
+      resetRateLimit();
+      const ctx = { ...env.ctx, env: { ...env.ctx.env, LENS_BREAK_GLASS_HASH: hashPassword('s3cret-pass') } };
+      expect(await breakGlassLogin(ctx, 'nope', 'ip-b')).toBeNull();
+      const ok = await breakGlassLogin(ctx, 's3cret-pass', 'ip-b');
+      expect(ok!.token.length).toBeGreaterThan(30);
+      expect(ok!.expires.getTime() - Date.now()).toBeGreaterThan(7.9 * 3600_000);
+      const s = await db!.session.findUnique({ where: { sessionToken: ok!.token }, include: { user: true } });
+      expect(s!.user).toMatchObject({ email: BREAK_GLASS_EMAIL, role: 'ADMIN' });
+      const logs = await db!.auditLog.findMany({ where: { targetType: 'break-glass' } });
+      expect(logs.length).toBeGreaterThanOrEqual(2);
+      expect(JSON.stringify(logs)).not.toMatch(/s3cret|nope/);
+      resetRateLimit();
+    });
+    it('locks out after repeated failures, even for the right password', async () => {
+      resetRateLimit();
+      const ctx = { ...env.ctx, env: { ...env.ctx.env, LENS_BREAK_GLASS_HASH: hashPassword('pw-lock') } };
+      for (let i = 0; i < 5; i++) await breakGlassLogin(ctx, 'bad', 'ip-c');
+      expect(await breakGlassLogin(ctx, 'pw-lock', 'ip-c')).toBeNull();
+      resetRateLimit();
+    });
+  });
+});

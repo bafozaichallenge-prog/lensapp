@@ -5,7 +5,7 @@ import { audit } from './audit';
 import { badRequest, forbidden, notFound, type Actor, type Ctx } from './context';
 import { requireRole, requireSource, visibleSources } from './access';
 import { extractText } from './documents';
-import { loadModel, loadRepoIndex } from './model';
+import { loadModel, loadRepoIndex, type Model } from './model';
 
 export interface UploadedFile { name: string; bytes: Uint8Array }
 
@@ -184,8 +184,19 @@ export async function analysisView(ctx: Ctx, actor: Actor, analysisId: string) {
     project: { id: a.project.id, name: a.project.name, description: a.project.description, sourceSelection: a.project.sourceSelection, source: source.name, isExample: a.project.isExample, documents: a.project.documents.map((d) => ({ id: d.id, filename: d.filename, version: d.version, chars: d.chars })) },
     freshness: { stale, analysisSha: a.sha, currentSha: active?.sha ?? a.sha, snapshotSyncedAt: pinned?.activatedAt ?? null, currentSyncedAt: active?.activatedAt ?? null, analysisCreated: a.createdAt },
     impact: impact.impact, crossCheck: graphCrossCheck(impact.impact, m.view, result ?? undefined), result, grounding: a.groundingJson, tasks: a.tasks,
+    refs: Object.fromEntries(evidenceStrings(result, impact.impact).map((x) => [x, resolveEvidenceRef(m, x)])) as Record<string, EvidenceRef | null>,
     versions: (await ctx.db.analysis.findMany({ where: { changeProjectId: a.changeProjectId }, orderBy: { version: 'desc' }, select: { id: true, version: true, status: true, createdAt: true, sha: true } })),
   };
+}
+
+function evidenceStrings(r: Analysis | null, imp: ImpactResult): string[] {
+  const out = new Set<string>([...imp.seeds, ...imp.ripple, ...imp.tests]);
+  for (const x of r?.risks ?? []) x.evidence.forEach((e) => out.add(e));
+  for (const x of r?.impact ?? []) { out.add(x.path); x.evidence.forEach((e) => out.add(e)); }
+  for (const p of r?.processes ?? []) { p.stages.forEach((st) => st.evidence.forEach((e) => out.add(e))); p.new_stages.forEach((st) => st.evidence.forEach((e) => out.add(e))); }
+  for (const t of r?.tasks ?? []) t.files.forEach((f) => out.add(f));
+  for (const st of r?.plan.developer ?? []) (st.files ?? []).forEach((f) => out.add(f));
+  return [...out];
 }
 
 /** Compare two analysis versions of a project: what moved between them. */
@@ -199,6 +210,32 @@ export async function compareAnalyses(ctx: Ctx, actor: Actor, aId: string, bId: 
     impact: diff(files(a), files(b)), risks: diff(set(a.result?.risks ?? [], (r) => r.title), set(b.result?.risks ?? [], (r) => r.title)), tasks: diff(set(a.result?.tasks ?? [], (t) => t.title), set(b.result?.tasks ?? [], (t) => t.title)),
     snapshotChanged: a.analysis.snapshotId !== b.analysis.snapshotId,
   };
+}
+
+export interface EvidenceRef { kind: 'file' | 'requirement' | 'rule' | 'table' | 'ticket' | 'incident' | 'commit'; key: string }
+
+/** Turn an evidence string from an analysis (path, id, code, sha) into a link target in the pinned snapshot, if it exists. */
+export function resolveEvidenceRef(m: Model, raw: string): EvidenceRef | null {
+  const e = String(raw).trim().replace(/^(file|req|rule|table|ticket|incident|commit|sym):/i, '').replace(/[.,;]$/, '');
+  if (!e) return null;
+  const file = m.graph.files.find((f) => f.path === e) ?? m.graph.files.find((f) => f.path.endsWith('/' + e));
+  if (file) return { kind: 'file', key: file.path };
+  if (m.graph.ruleCodes.some((r) => r.code === e) || m.graph.requirements.some((r) => r.code === e && r.kind === 'rule')) return { kind: 'rule', key: e };
+  if (m.graph.requirements.some((r) => r.code === e)) return { kind: 'requirement', key: e };
+  const t = m.graph.tables.find((x) => x.type === 'table' && x.name.toLowerCase() === e.toLowerCase());
+  if (t) return { kind: 'table', key: t.name };
+  if (m.tickets.some((x) => x.key === e || x.taskmanager === e)) return { kind: 'ticket', key: m.tickets.find((x) => x.key === e || x.taskmanager === e)!.key };
+  if (m.incidents.some((x) => x.key === e)) return { kind: 'incident', key: e };
+  const c = /^[0-9a-f]{7,40}$/i.test(e) ? m.commits.find((x) => x.sha.startsWith(e.toLowerCase())) : undefined;
+  return c ? { kind: 'commit', key: c.sha } : null;
+}
+
+/** Project header data for the project page (works before any analysis exists). */
+export async function getProject(ctx: Ctx, actor: Actor, projectId: string) {
+  const p = await ctx.db.changeProject.findUnique({ where: { id: projectId }, include: { documents: { orderBy: [{ filename: 'asc' }, { version: 'desc' }] }, analyses: { orderBy: { version: 'desc' }, select: { id: true, version: true, status: true, createdAt: true, sha: true } }, source: { select: { name: true, vertical: true, aiAllowed: true } } } });
+  if (!p) throw notFound('Project not found.');
+  await requireSource(ctx, actor, 'source.view', p.sourceId);
+  return { id: p.id, name: p.name, description: p.description, status: p.status, sourceId: p.sourceId, source: p.source.name, aiAllowed: p.source.aiAllowed, sourceSelection: p.sourceSelection, isExample: p.isExample, createdBy: p.createdBy, createdAt: p.createdAt, documents: p.documents.map((d) => ({ id: d.id, filename: d.filename, version: d.version, chars: d.chars })), analyses: p.analyses };
 }
 
 export type ExportKind = 'markdown' | 'jira-csv' | 'tests';

@@ -15,3 +15,4 @@ export * from './packs';
 export * from './log';
 export * from './gitlab-visibility';
 export * from './bootstrap';
+export * from './breakglass';

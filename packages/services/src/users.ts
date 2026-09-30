@@ -52,3 +52,10 @@ export async function seedDevAdmin(ctx: Ctx, email = 'admin@lens.local') {
   if (ctx.env.NODE_ENV === 'production') throw forbidden('Development seed is disabled in production.');
   return ctx.db.user.upsert({ where: { email }, create: { email, name: 'Dev Admin', role: 'ADMIN' }, update: { role: 'ADMIN' } });
 }
+
+/** Recent audit events for the Admin page. Detail is shown as recorded (it never contains secrets or prompt text). */
+export async function recentAudit(ctx: Ctx, actor: Actor, take = 50) {
+  requireRole(actor, 'user.manage');
+  const rows = await ctx.db.auditLog.findMany({ orderBy: { at: 'desc' }, take, include: { user: { select: { email: true } } } });
+  return rows.map((r) => ({ id: r.id, at: r.at, user: r.user?.email ?? 'system', action: r.action, target: r.targetType ? `${r.targetType}:${r.targetId ?? ''}` : '', detail: r.detailJson }));
+}

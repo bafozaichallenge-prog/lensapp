@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import {
   createProject, addDocumentVersion, startAnalysis, runAnalysisJob, cancelAnalysis, analysisView, analysisProgress, listProjects, compareAnalyses, exportAnalysis, deleteProject,
-  runImport, extractText, PDF_NOTICE, MAX_UPLOAD_BYTES, type Actor,
+  runImport, extractText, PDF_NOTICE, MAX_UPLOAD_BYTES, getProject, resolveEvidenceRef, loadModel, type Actor,
 } from '@lens/services';
 import { db, dbReachable, makeEnv, makeDocx, scriptedModel, modelText, modelTool, exampleAnalysisJson, type Env } from '../helpers/services';
 import { exampleRequest } from '../helpers/example';
@@ -173,6 +173,22 @@ describe.skipIf(!dbReachable)('change projects and analysis (real database)', ()
       const prog = await analysisProgress(env.ctx, viewer, r.analysisId);
       expect(prog.finished).toBe(true);
       expect(prog.messages.map((m) => m.message)).toEqual(expect.arrayContaining(['Reading CollectionInstruction.cls']));
+    });
+
+    it('evidence strings resolve to links in the pinned snapshot; unknown ones do not', async () => {
+      const v = await analysisView(env.ctx, viewer, done);
+      const anyRisk = v.result!.risks.flatMap((r) => r.evidence);
+      const resolved = anyRisk.map((e) => v.refs[e]).filter(Boolean);
+      expect(resolved.length).toBeGreaterThan(0);
+      expect(v.refs['INC-2291']).toEqual({ kind: 'incident', key: 'INC-2291' });
+      const m = await loadModel(env.ctx, nb.id, v.analysis.snapshotId);
+      expect(resolveEvidenceRef(m, 'src/domain/entities/CollectionInstruction.cls')).toEqual({ kind: 'file', key: `${P}src/domain/entities/CollectionInstruction.cls` });
+      expect(resolveEvidenceRef(m, 'NB-COLLECTION-002')).toEqual({ kind: 'rule', key: 'NB-COLLECTION-002' });
+      expect(resolveEvidenceRef(m, 'BR-005')).toEqual({ kind: 'requirement', key: 'BR-005' });
+      expect(resolveEvidenceRef(m, 'src/Nope.cls')).toBeNull();
+      const pr = await getProject(env.ctx, viewer, projectId);
+      expect(pr.analyses.length).toBeGreaterThanOrEqual(1);
+      expect(pr.source).toContain('nb');
     });
 
     it('a finished analysis is immutable in the database', async () => {
