@@ -40,7 +40,7 @@ export async function startServer({ env = process.env, port = Number(env.EXPLAIN
       if (req.method === 'OPTIONS') return send(204, '');
       // static pages and the embed script are public; everything under /api is checked
       if (req.method === 'GET' && url.pathname === '/healthz') return send(200, { ok: true });
-      if (req.method === 'GET' && url.pathname === '/embed.js') return send(200, file('public/embed.js'), 'text/javascript; charset=utf-8', { 'cache-control': 'public, max-age=300' });
+      if (req.method === 'GET' && url.pathname === '/embed.js') return send(200, file('public/embed.js'), 'text/javascript; charset=utf-8', { 'cache-control': 'public, max-age=300', 'access-control-allow-origin': '*' });
       if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/demo')) return send(200, file('demo/host-app.html'), 'text/html; charset=utf-8');
       if (req.method === 'GET' && url.pathname === '/tool') return send(200, file('demo/tool.html'), 'text/html; charset=utf-8');
       if (req.method === 'GET' && url.pathname === '/demo/requirements.json') return send(200, file('demo/requirements.json'));
