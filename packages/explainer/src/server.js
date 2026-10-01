@@ -21,7 +21,7 @@ function readJson(req) {
 }
 const safeEq = (a, b) => { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); };
 
-export async function startServer({ env = process.env, port = Number(env.EXPLAINER_PORT) || 8787, host = env.EXPLAINER_HOST || '127.0.0.1', ...overrides } = {}) {
+export async function startServer({ env = process.env, port = Number(env.EXPLAINER_PORT || env.PORT) || 8787, host = env.EXPLAINER_HOST || (env.PORT ? '0.0.0.0' : '127.0.0.1'), ...overrides } = {}) {
   const app = await createExplainer({ env, ...overrides });
   const allowed = (env.EXPLAINER_ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
   const apiKey = env.EXPLAINER_API_KEY || '';
@@ -39,6 +39,7 @@ export async function startServer({ env = process.env, port = Number(env.EXPLAIN
     try {
       if (req.method === 'OPTIONS') return send(204, '');
       // static pages and the embed script are public; everything under /api is checked
+      if (req.method === 'GET' && url.pathname === '/healthz') return send(200, { ok: true });
       if (req.method === 'GET' && url.pathname === '/embed.js') return send(200, file('public/embed.js'), 'text/javascript; charset=utf-8', { 'cache-control': 'public, max-age=300' });
       if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/demo')) return send(200, file('demo/host-app.html'), 'text/html; charset=utf-8');
       if (req.method === 'GET' && url.pathname === '/tool') return send(200, file('demo/tool.html'), 'text/html; charset=utf-8');

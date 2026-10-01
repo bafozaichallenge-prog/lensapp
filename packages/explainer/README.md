@@ -80,3 +80,14 @@ Secrets, e-mail, SA ID numbers and phone numbers are redacted from everything se
 - Offline embeddings are lexical; expect weaker retrieval than a real embedding model.
 - Offline replay uses only `capture`, `rules`, `validation`, `result` from a process definition; screens are plainer than AI-designed ones.
 - The animation engine supports the 18 component types in `src/spec.js`; a new kind of screen means adding a component.
+
+## Deploy to Railway
+
+1. Put the package in its own GitHub repo (unzip `process-explainer-embed.zip`) or, in a monorepo, set the service **Root Directory** to `packages/explainer`. `railway.json` sets the start command and the `/healthz` health check; Railway supplies `PORT` and the server then binds `0.0.0.0`.
+2. Add a **Volume** mounted at `/data` (the vector index is a JSON file and the container disk is ephemeral).
+3. Variables: `ANTHROPIC_API_KEY`, `EXPLAINER_API_KEY` (long random), `EXPLAINER_ALLOWED_ORIGINS=https://your-host-app.example`, `EXPLAINER_INDEX_FILE=/data/index.json`, optionally `EXPLAINER_MODEL`, `EXPLAINER_EMBED_URL/KEY/MODEL`. Do not set `PORT`.
+4. Generate a public domain (Settings → Networking). Use it as `endpoint` and in `<script src=".../embed.js">`.
+5. Index your code once, from your machine or CI, against the same store: for the file store run in the Railway shell (`railway ssh`, or a one-off) `EXPLAINER_CODE_DIR=<path> node bin/explainer.js index <path> --clear`, or point `EXPLAINER_QDRANT_URL` at a Qdrant service (Railway has a Qdrant template) so any machine can index it. The bundled `sample-code` indexes itself on first start when the index is empty; set `EXPLAINER_CODE_DIR` to your own code if you ship it with the service.
+6. Check: `curl https://<domain>/healthz`, then `curl -H "authorization: Bearer $EXPLAINER_API_KEY" https://<domain>/api/health`.
+
+The browser should not hold `EXPLAINER_API_KEY`. Either call the service from your backend, or leave `EXPLAINER_API_KEY` unset and rely on `EXPLAINER_ALLOWED_ORIGINS` plus the rate limit (acceptable only for internal tools).
