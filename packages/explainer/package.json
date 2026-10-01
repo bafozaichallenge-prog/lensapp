@@ -11,7 +11,8 @@
     "index": "node bin/explainer.js index",
     "check": "node bin/explainer.js check",
     "test": "node --test test/*.test.js",
-    "pack": "bash scripts/pack.sh"
+    "pack": "bash scripts/pack.sh",
+    "demo:static": "node scripts/build-static-demo.mjs"
   },
   "engines": { "node": ">=20" },
   "optionalDependencies": { "@anthropic-ai/sdk": "^0.131.0" }
