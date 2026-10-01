@@ -1,0 +1,57 @@
+{
+  "title": "Every screen component",
+  "subtitle": "A reference spec that exercises each component type the renderer supports.",
+  "brand": { "base": { "name": "Acme", "color": "#868C94" }, "accent": { "name": "Acme Pro", "color": "#0A5BC4" } },
+  "phases": ["Entry", "Capture", "Conclusion"],
+  "steps": [
+    { "phase": 0, "tone": "base", "title": "Agent logs in", "say": "Typed fields, a locked field and a button tap.",
+      "rules": [{ "kind": "gate", "text": "Login works out the agent's rights." }],
+      "carries": [{ "key": "agent", "text": "Agent A-102, cross-sell on" }],
+      "screen": { "title": "Login", "chrome": "plain", "components": [
+        { "type": "card", "title": "Login", "children": [
+          { "type": "field", "label": "Username", "value": "A-102" },
+          { "type": "field", "label": "Region", "value": "Gauteng", "mode": "locked", "lockLabel": "from HR" },
+          { "type": "buttons", "items": [{ "label": "Login", "style": "grey" }], "tap": 0 } ] },
+        { "type": "toast", "text": "Rights loaded." } ] } },
+    { "phase": 0, "tone": "base", "title": "Choose where to start", "say": "Home tiles with a tap.",
+      "rules": [{ "kind": "question", "text": "Does the role hide any tile?" }],
+      "screen": { "title": "Home", "components": [{ "type": "tiles", "items": ["New business", "New lead", "Call back"], "tap": 0 }] } },
+    { "phase": 1, "tone": "accent", "title": "Quote", "say": "Rows re-rate a running total.",
+      "badge": { "kind": "New", "text": "The client sees a premium before personal details." },
+      "rules": [{ "kind": "gate", "text": "Quote must be accepted." }, { "kind": "data", "text": "Accepting fills the lives into the application." }],
+      "carries": [{ "key": "quote", "text": "Quote Q-1, R263.00" }],
+      "sources": [{ "kind": "code", "ref": "src/quote/Rates.cls" }],
+      "screen": { "title": "Quotation", "components": [
+        { "type": "rows", "items": [
+          { "title": "Sizwe", "sub": "Main member, 42", "amount": "R 148.00" },
+          { "title": "Thandi", "sub": "Spouse, 44", "amount": "R 103.00" },
+          { "title": "Sipho", "sub": "Child, 12", "amount": "R 12.00", "warn": true, "fixedSub": "Child, ID captured" } ],
+          "total": { "label": "Monthly premium", "value": "R 263.00" }, "action": "Accept" }] } },
+    { "phase": 1, "tone": "accent", "title": "Verify identity", "say": "Verify shield, filled and locked fields, notice.",
+      "rules": [{ "kind": "gate", "text": "No unverified identity." }],
+      "screen": { "title": "Identity", "lead": "Lead", "next": "Next", "components": [
+        { "type": "card", "title": "Identity", "children": [
+          { "type": "verify", "label": "ID number", "value": "8403125009082", "okText": "Verified" },
+          { "type": "field", "label": "Date of birth", "value": "1984/03/12", "mode": "fill", "lockLabel": "locked" },
+          { "type": "segment", "label": "Consent", "options": ["No", "Yes"], "selected": 1 },
+          { "type": "notice", "kind": "ok", "text": "Identity confirmed." } ] }] } },
+    { "phase": 2, "tone": "accent", "title": "Authorise and sign", "say": "Checklist gate, signature, document, OTP.",
+      "rules": [{ "kind": "gate", "text": "Both ticks are mandatory." }],
+      "screen": { "title": "Sign", "next": "Send OTP", "components": [
+        { "type": "checklist", "items": ["Client read the mandate", "Client accepts the terms"], "gate": true },
+        { "type": "signature", "caption": "Client signs here" },
+        { "type": "document", "title": "Mandate", "lines": ["Premium R 263.00 per month"], "signed": "S. Main" },
+        { "type": "otp", "message": "SMS: your OTP is 4821", "code": "4821" } ] } },
+    { "phase": 2, "tone": "accent", "title": "Start second policy", "say": "Decision, table and hand-off.",
+      "rules": [{ "kind": "rule", "text": "Cleared items are captured again." }],
+      "carries": [{ "key": "ids", "text": "ID for every life" }],
+      "handoff": { "note": "Ticks carry over.", "states": { "agent": "copied", "quote": "cleared", "ids": "copied" }, "labels": {} },
+      "screen": { "title": "Membership", "components": [
+        { "type": "table", "rows": [{ "k": "Membership", "v": "2111" }, { "k": "Status", "v": "In force", "tone": "ok" }] },
+        { "type": "decision", "text": "Does the client also want legal cover?", "options": ["No", "Yes"], "pick": 1, "then": "Start application" },
+        { "type": "carryover", "items": [{ "label": "Identity", "state": "copied" }, { "label": "Quote", "state": "cleared" }] },
+        { "type": "choice", "options": [{ "label": "Option A", "sub": "Selected" }, { "label": "Option B", "disabled": true }], "selected": 0 },
+        { "type": "text", "text": "Plain explanatory text." } ] } }
+  ],
+  "footnote": "Sample data only."
+}

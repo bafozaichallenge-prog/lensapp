@@ -1,0 +1,18 @@
+{
+  "name": "@lens/explainer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AI process-explainer generator: prompt + indexed code + checked-in processes in, one consistent interactive explainer out. Embeddable as <process-explainer>.",
+  "main": "src/index.js",
+  "bin": { "explainer": "bin/explainer.js" },
+  "scripts": {
+    "start": "node bin/explainer.js serve",
+    "index": "node bin/explainer.js index",
+    "check": "node bin/explainer.js check",
+    "test": "node --test test/*.test.js",
+    "pack": "bash scripts/pack.sh"
+  },
+  "engines": { "node": ">=20" },
+  "optionalDependencies": { "@anthropic-ai/sdk": "^0.131.0" }
+}

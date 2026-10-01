@@ -1,0 +1,26 @@
+[
+  { "id": "REQ-101", "title": "Let clients choose “last day of the month” as their collection day",
+    "text": "Brokers want debit-order and payroll clients to be able to choose the last day of the month as their collection day instead of days 1 to 28.",
+    "processId": "new-business", "score": 62,
+    "dimensions": { "Clarity": 78, "Testability": 54, "Completeness": 48, "Feasibility": 70 },
+    "findings": [
+      "Does last day mean the last calendar day or the last business day for collection?",
+      "Existing contracts with collection day 29, 30 or 31 are not mentioned: should they be converted?",
+      "The collection day validation rule limits recurring monthly methods to days 1 to 28 and must change.",
+      "No acceptance criteria for February in a leap year."
+    ] },
+  { "id": "REQ-102", "title": "Block activation when the premium is zero",
+    "text": "A contract must never be activated if the calculated premium is zero or negative. The user must see which benefit caused it.",
+    "processId": "new-business", "score": 84,
+    "dimensions": { "Clarity": 90, "Testability": 88, "Completeness": 74, "Feasibility": 85 },
+    "findings": ["The message shown to the agent is not specified.", "It is unclear whether a zero premium is allowed for promotional campaigns."] },
+  { "id": "REQ-103", "title": "Make onboarding faster",
+    "text": "Onboarding a new client takes too long. Make it quicker and easier for the sales team.",
+    "processId": "new-business", "score": 21,
+    "dimensions": { "Clarity": 15, "Testability": 10, "Completeness": 25, "Feasibility": 35 },
+    "findings": [
+      "No measurable target: how long is too long, and how fast is fast enough?",
+      "Which step of the process is slow is not stated: capturing the client, linking benefits or validation?",
+      "No definition of easier for the sales team."
+    ] }
+]

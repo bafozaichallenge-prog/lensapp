@@ -8,3 +8,6 @@ dist
 apps/web/.next
 apps/web/next-env.d.ts
 *.tsbuildinfo
+
+# explainer
+packages/explainer/.data
