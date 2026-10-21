@@ -1,0 +1,13 @@
+# Merge into <PAS instance>\conf\openedge.properties (Windows: e.g. C:\Progress\OpenEdge\...\pas\showcase\conf)
+# Verify property names against the PAS for OpenEdge docs for your version.
+
+[AppServer.Agent.showcase]
+    PROPATH=${CATALINA_BASE}/openedge,${CATALINA_BASE}/webapps/showcase/WEB-INF/openedge,${DLC}/tty,${DLC}/tty/netlib/OpenEdge.net.pl
+    agentStartupParam=-T "${catalina.base}/temp" -db sports2020 -H localhost -S 20000 -ld sports2020
+
+[AppServer.SessMgr.showcase]
+    agentLogEntryTypes=ASPlumbing,DB.Connects
+    agentLogFile=${catalina.base}/logs/showcase.agent.log
+
+# Security: REST must use an authenticated transport (see README section 5).
+# Use Spring Security "oerealm" / OAuth2 JWT - do NOT run the demo with anonymous access outside a sandbox.

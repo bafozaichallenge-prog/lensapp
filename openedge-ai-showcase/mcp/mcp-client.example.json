@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "openedge-business-logic": {
+      "url": "https://YOUR-OE-SERVER:8443/mcp",
+      "headers": { "Authorization": "Bearer ${OE_MCP_TOKEN}" }
+    },
+    "openedge-knowledge-rag": {
+      "url": "https://YOUR-AGENTIC-RAG-MCP-ENDPOINT",
+      "headers": { "Authorization": "Bearer ${RAG_MCP_TOKEN}" }
+    }
+  }
+}
