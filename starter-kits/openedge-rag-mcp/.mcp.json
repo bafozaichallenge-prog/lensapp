@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "openedge-rag": {
+      "command": "npx",
+      "args": ["tsx", "src/server.ts"],
+      "env": {
+        "RAG_INDEX_PATH": ".rag/index.json",
+        "ABL_SOURCE_ROOT": "sample-abl"
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "openedge-rag-mcp-starter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Starter kit: RAG index + MCP server for Progress OpenEdge (ABL) code",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "index": "tsx src/cli.ts index",
+    "search": "tsx src/cli.ts search",
+    "mcp": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0"
+  }
+}
